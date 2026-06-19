@@ -3,7 +3,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 from contextlib import asynccontextmanager
 from .database import engine, Base
-from .routers import auth, dashboard, takmicenja
+from .routers import auth, dashboard, takmicenja, igraci
 
 
 @asynccontextmanager
@@ -21,6 +21,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(auth.router)
 app.include_router(dashboard.router)
 app.include_router(takmicenja.router)
+app.include_router(igraci.router)
 
 
 @app.get("/")

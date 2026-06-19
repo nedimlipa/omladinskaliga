@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Igrači | ORL Sjever</title>
+  <script>(function(){const t=localStorage.getItem('theme')||'dark';document.documentElement.classList.toggle('dark',t==='dark');})();</script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{sans:['Plus Jakarta Sans','system-ui','sans-serif']}}}}</script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;}</style>
+</head>
+
+<body class="bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased">
+
+<!-- ════ NAVBAR ════ -->
+<nav class="fixed top-0 z-50 w-full bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm">
+  <div class="px-4 py-3 lg:px-6 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <button id="sidebarToggle" class="p-2 text-gray-500 dark:text-gray-400 rounded-lg md:hidden hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <a href="/admin/dashboard" class="flex items-center gap-2.5">
+        <div class="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center flex-shrink-0">&#127942;</div>
+        <span class="font-extrabold tracking-tight text-gray-900 dark:text-white hidden sm:block">ORL Sjever</span>
+      </a>
+    </div>
+    <div class="flex items-center gap-2">
+      <button id="themeToggle" class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+        <svg id="iconSun" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m8.66-9h-1M4.34 12h-1m15.07-6.07-.71.71M5.64 18.36l-.71.71M18.36 18.36l-.71-.71M5.64 5.64l-.71-.71M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
+        <svg id="iconMoon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      </button>
+      <span class="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-700/50">{{ user.tip }}</span>
+      <span class="hidden sm:block text-sm font-semibold text-gray-700 dark:text-gray-300">{{ user.ime }}</span>
+      <a href="/logout" class="text-sm font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-700 px-3 py-1.5 rounded-lg transition">Odjava</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ════ SIDEBAR ════ -->
+<aside id="sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen pt-16 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 -translate-x-full md:translate-x-0 transition-transform duration-200">
+  <div class="h-full px-3 py-5 overflow-y-auto">
+    <ul class="space-y-1">
+      <li><a href="/admin/dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition">
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        Dashboard
+      </a></li>
+      <li><a href="/admin/takmicenja" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition">
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+        Takmičenja
+      </a></li>
+      <li><a href="/admin/igraci" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400">
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        Igrači
+      </a></li>
+    </ul>
+    <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-800 space-y-1.5">
+      <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-2 mb-2">Pregled</p>
+      <div class="flex items-center justify-between px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-900/20">
+        <span class="text-xs text-amber-600 dark:text-amber-400">Na čekanju</span>
+        <span class="text-sm font-bold text-amber-600 dark:text-amber-400">{{ pending | length }}</span>
+      </div>
+      <div class="flex items-center justify-between px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-800/60">
+        <span class="text-xs text-gray-500 dark:text-gray-400">Igrači ukupno</span>
+        <span class="text-sm font-bold text-gray-900 dark:text-white">{{ igraci | length }}</span>
+      </div>
+      <div class="flex items-center justify-between px-3 py-2 rounded-lg bg-green-50 dark:bg-green-900/20">
+        <span class="text-xs text-green-600 dark:text-green-400">Aktivne reg.</span>
+        <span class="text-sm font-bold text-green-600 dark:text-green-400">{{ registracije | selectattr('status','equalto','aktivna') | list | length }}</span>
+      </div>
+    </div>
+  </div>
+</aside>
+<div id="sidebarOverlay" class="hidden fixed inset-0 z-30 bg-black/50 md:hidden"></div>
+
+<!-- ════ MAIN ════ -->
+<main class="md:ml-64 pt-16 min-h-screen">
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-5">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white">Igrači &amp; Registracije</h1>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Upravljanje igračima, zahtjevima i registracijama</p>
+    </div>
+    <button onclick="document.getElementById('modalDodaj').classList.remove('hidden')"
+      class="inline-flex items-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-xl shadow-sm transition flex-shrink-0">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+      Dodaj igrača
+    </button>
+  </div>
+
+  {% if ok %}
+  <div class="flex items-center gap-3 p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700/40 text-green-700 dark:text-green-400">
+    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+    <span class="text-sm font-semibold">Operacija uspješno izvršena.</span>
+  </div>
+  {% endif %}
+  {% if error == 'duplikat' %}
+  <div class="flex items-center gap-3 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700/40 text-red-700 dark:text-red-400 text-sm font-semibold">
+    &#9888; Igrac s istim imenom, prezimenom i datumom rođenja već ima aktivnu registraciju za ovaj klub i sezonu.
+  </div>
+  {% endif %}
+
+  <!-- ── Tabs ── -->
+  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+    <div class="flex border-b border-gray-200 dark:border-gray-800">
+      <button id="tab-btn-zahtjevi" onclick="showTab('zahtjevi')"
+        class="tab-btn px-6 py-3.5 text-sm font-semibold border-b-2 transition focus:outline-none">
+        Zahtjevi
+        {% if pending %}
+        <span class="ml-2 inline-flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold bg-amber-500 text-white">{{ pending | length }}</span>
+        {% endif %}
+      </button>
+      <button id="tab-btn-igraci" onclick="showTab('igraci')"
+        class="tab-btn px-6 py-3.5 text-sm font-semibold border-b-2 transition focus:outline-none">
+        Igrači ({{ igraci | length }})
+      </button>
+      <button id="tab-btn-registracije" onclick="showTab('registracije')"
+        class="tab-btn px-6 py-3.5 text-sm font-semibold border-b-2 transition focus:outline-none">
+        Registracije ({{ registracije | length }})
+      </button>
+    </div>
+
+    <!-- ─── Tab: Zahtjevi ─── -->
+    <div id="panel-zahtjevi" class="tab-panel">
+      {% if not pending %}
+      <div class="py-12 text-center">
+        <div class="text-4xl mb-3">&#10003;</div>
+        <p class="text-sm text-gray-400 dark:text-gray-500">Nema novih zahtjeva za registraciju.</p>
+      </div>
+      {% else %}
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead><tr class="bg-gray-50 dark:bg-gray-800/60">
+            <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-400">Igrac</th>
+            <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-400">Datum rodjenja</th>
+            <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-400">Drzavljanstvo</th>
+            <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-400">Klub</th>
+            <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-400">Sezona</th>
+            <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-400">Podneseno</th>
+            <th class="px-4 py-3"></th>
+          </tr></thead>
+          <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+            {% for p in pending %}
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition">
+              <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white whitespace-nowrap">{{ p.prezime }} {{ p.ime }}</td>
+              <td class="px-4 py-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">{{ p.datum }}</td>
+              <td class="px-4 py-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">{{ p.drzavljanstvo }}</td>
+              <td class="px-4 py-3 text-gray-700 dark:text-gray-300 whitespace-nowrap">{{ p.klub }}</td>
+              <td class="px-4 py-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">{{ p.sezona }}</td>
+              <td class="px-4 py-3 text-gray-400 dark:text-gray-500 whitespace-nowrap text-xs">{{ p.kreiran }}</td>
+              <td class="px-4 py-3 text-right whitespace-nowrap">
+                <form method="post" action="/admin/registracija/{{ p.id }}/odobri" class="inline">
+                  <button type="submit" class="px-3 py-1.5 text-xs font-bold bg-green-600 hover:bg-green-700 text-white rounded-lg transition mr-1">&#10003; Odobri</button>
+                </form>
+                <form method="post" action="/admin/registracija/{{ p.id }}/odbij" class="inline">
+                  <button type="submit" onclick="return confirm('Odbiti zahtjev za {{ p.prezime }} {{ p.ime }}?')"
+                    class="px-3 py-1.5 text-xs font-bold bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition">&#10007; Odbij</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- ─── Tab: Igrači ─── -->
+    <div id="panel-igraci" class="tab-panel hidden">
+      <div class="p-4 border-b border-gray-100 dark:border-gray-800">
+        <input id="filterIgraci" type="text" placeholder="Pretraži igrače..." oninput="filterTable('tblIgraci', this.value)"
+          class="w-full sm:w-72 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-sm rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 transition"/>
+      </div>
+      {% if not igraci %}
+      <div class="py-12 text-center text-sm text-gray-400 dark:text-gray-500">Nema unesenih igrača.</div>
+      {% else %}
+      <div class="overflow-x-auto">
+        <table id="tblIgraci" class="w-full text-sm">
+          <thead><tr class="bg-gray-50 dark:bg-gray-800/60">
+            <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-400">Igrac</th>
+            <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-400">Datum rodjenja</th>
+            <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-400">Drzavljanstvo</th>
+            <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-400">Trenutni klub</th>
+            <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-400">Status</th>
+            <th class="px-4 py-3"></th>
+          </tr></thead>
+          <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+            {% for i in igraci %}
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition">
+              <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white whitespace-nowrap">{{ i.prezime }} {{ i.ime }}</td>
+              <td class="px-4 py-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">{{ i.datum }}</td>
+              <td class="px-4 py-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">{{ i.drzavljanstvo }}</td>
+              <td class="px-4 py-3 text-gray-700 dark:text-gray-300 whitespace-nowrap">{{ i.klub }}</td>
+              <td class="px-4 py-3">
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold
+                  {% if i.status == 'aktivan' %}bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-700/40
+                  {% elif i.status == 'suspendovan' %}bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-700/40
+                  {% else %}bg-gray-100 dark:bg-gray-800 text-gray-500 border border-gray-200 dark:border-gray-700{% endif %}">
+                  <span class="w-1.5 h-1.5 rounded-full {% if i.status == 'aktivan' %}bg-green-500{% elif i.status == 'suspendovan' %}bg-red-500{% else %}bg-gray-400{% endif %}"></span>
+                  {{ i.status | capitalize }}
+                </span>
+              </td>
+              <td class="px-4 py-3 text-right">
+                <button onclick="openStatusModal({{ i.id }}, '{{ i.prezime }} {{ i.ime }}', '{{ i.status }}')"
+                  class="text-xs px-2.5 py-1 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                  Promijeni status
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- ─── Tab: Registracije ─── -->
+    <div id="panel-registracije" class="tab-panel hidden">
+      <div class="p-4 border-b border-gray-100 dark:border-gray-800 flex flex-wrap items-center gap-3">
+        <input id="filterReg" type="text" placeholder="Pretraži registracije..." oninput="filterTable('tblReg', this.value)"
+          class="w-full sm:w-72 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-sm rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 transition"/>
+        <button onclick="confirmBulk()"
+          class="ml-auto inline-flex items-center gap-2 px-3.5 py-2 text-sm font-bold text-white bg-red-700 hover:bg-red-800 rounded-xl transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+          Poništi označene
+        </button>
+      </div>
+      {% if not registracije %}
+      <div class="py-12 text-center text-sm text-gray-400 dark:text-gray-500">Nema registracija.</div>
+      {% else %}
+      <div class="overflow-x-auto">
+        <table id="tblReg" class="w-full text-sm">
+          <thead><tr class="bg-gray-50 dark:bg-gray-800/60">
+            <th class="w-10 px-4 py-3"><input type="checkbox" id="selectAll" class="rounded" onclick="toggleAll(this)"/></th>
+            <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-400">Br. reg.</th>
+            <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-400">Igrac</th>
+            <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-400">Klub</th>
+            <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-400">Sezona</th>
+            <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-400">Status</th>
+            <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-400">Datum</th>
+            <th class="px-4 py-3"></th>
+          </tr></thead>
+          <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+            {% for r in registracije %}
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition">
+              <td class="px-4 py-3">
+                {% if r.status == 'aktivna' %}
+                <input type="checkbox" class="reg-checkbox rounded" value="{{ r.id }}"/>
+                {% endif %}
+              </td>
+              <td class="px-4 py-3 font-mono text-xs font-bold text-gray-700 dark:text-gray-300 whitespace-nowrap">{{ r.br }}</td>
+              <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white whitespace-nowrap">{{ r.prezime }} {{ r.ime }}</td>
+              <td class="px-4 py-3 text-gray-600 dark:text-gray-400 whitespace-nowrap">{{ r.klub }}</td>
+              <td class="px-4 py-3 text-gray-500 dark:text-gray-500 whitespace-nowrap text-xs">{{ r.sezona }}</td>
+              <td class="px-4 py-3">
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold
+                  {% if r.status == 'aktivna' %}bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-700/40
+                  {% elif r.status == 'nevazeca' %}bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-700/40
+                  {% else %}bg-gray-100 dark:bg-gray-800 text-gray-500 border border-gray-200 dark:border-gray-700{% endif %}">
+                  {% if r.status == 'aktivna' %}Aktivna{% elif r.status == 'nevazeca' %}Nevažeća{% else %}Odbijena{% endif %}
+                </span>
+                {% if r.nevazeca %}<span class="block text-xs text-gray-400 mt-0.5">{{ r.nevazeca }}</span>{% endif %}
+              </td>
+              <td class="px-4 py-3 text-gray-400 dark:text-gray-500 text-xs whitespace-nowrap">{{ r.datum }}</td>
+              <td class="px-4 py-3 text-right">
+                {% if r.status == 'aktivna' %}
+                <button onclick="openNevazecaModal({{ r.id }}, '{{ r.br }}', '{{ r.prezime }} {{ r.ime }}')"
+                  class="text-xs px-2.5 py-1 rounded-lg border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition whitespace-nowrap">
+                  Poništi
+                </button>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+</main>
+
+<!-- ════ MODAL: Dodaj igrača (admin) ════ -->
+<div id="modalDodaj" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-2xl w-full max-w-lg max-h-[90dvh] overflow-y-auto">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+      <h3 class="font-extrabold text-gray-900 dark:text-white">Dodaj igrača i registraciju</h3>
+      <button onclick="document.getElementById('modalDodaj').classList.add('hidden')" class="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <form method="post" action="/admin/igrac/dodaj" class="p-6 space-y-4">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block mb-1.5 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ime *</label>
+          <input type="text" name="ime" required class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 transition"/>
+        </div>
+        <div>
+          <label class="block mb-1.5 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Prezime *</label>
+          <input type="text" name="prezime" required class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 transition"/>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block mb-1.5 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Datum rodjenja *</label>
+          <input type="date" name="datum_rodjenja" required class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 transition"/>
+        </div>
+        <div>
+          <label class="block mb-1.5 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Drzavljanstvo *</label>
+          <input type="text" name="drzavljanstvo" required value="Bosna i Hercegovina" class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 transition"/>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block mb-1.5 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Klub *</label>
+          <select name="klub_id" required class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 transition">
+            <option value="">— Odaberi —</option>
+            {% for k in klubovi %}<option value="{{ k.id }}">{{ k.naziv_kluba }}</option>{% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="block mb-1.5 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Sezona *</label>
+          <select name="sezona_id" required class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 transition">
+            <option value="">— Odaberi —</option>
+            {% for s in sezone %}<option value="{{ s.id }}">{{ s.naziv }}</option>{% endfor %}
+          </select>
+        </div>
+      </div>
+      <p class="text-xs text-gray-400 dark:text-gray-500">Registracija se kreira odmah kao <strong>aktivna</strong> i dobija broj registracije.</p>
+      <div class="flex gap-3 pt-1">
+        <button type="button" onclick="document.getElementById('modalDodaj').classList.add('hidden')"
+          class="px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition">Odustani</button>
+        <button type="submit" class="flex-1 py-2.5 text-sm font-bold text-white bg-red-600 rounded-xl hover:bg-red-700 transition">Sačuvaj i registruj</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ════ MODAL: Promijeni status igrača ════ -->
+<div id="modalStatus" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-2xl w-full max-w-sm">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+      <div>
+        <h3 class="font-extrabold text-gray-900 dark:text-white">Promijeni status</h3>
+        <p class="text-xs text-gray-400 mt-0.5" id="statusIgracNaziv"></p>
+      </div>
+      <button onclick="document.getElementById('modalStatus').classList.add('hidden')" class="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <form id="statusForm" method="post" class="p-6 space-y-4">
+      <div>
+        <label class="block mb-2 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Novi status</label>
+        <div class="space-y-2">
+          <label class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+            <input type="radio" name="status" value="aktivan" class="text-green-500"/>
+            <span class="text-sm font-semibold">&#128994; Aktivan</span>
+          </label>
+          <label class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+            <input type="radio" name="status" value="suspendovan" class="text-red-500"/>
+            <span class="text-sm font-semibold">&#128308; Suspendovan</span>
+          </label>
+          <label class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+            <input type="radio" name="status" value="neaktivan" class="text-gray-400"/>
+            <span class="text-sm font-semibold">&#9898; Neaktivan</span>
+          </label>
+        </div>
+      </div>
+      <div class="flex gap-3 pt-1">
+        <button type="button" onclick="document.getElementById('modalStatus').classList.add('hidden')"
+          class="px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition">Odustani</button>
+        <button type="submit" class="flex-1 py-2.5 text-sm font-bold text-white bg-red-600 rounded-xl hover:bg-red-700 transition">Sačuvaj</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ════ MODAL: Potvrda poništavanja (jedna registracija) ════ -->
+<div id="modalNevazeca" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-red-300 dark:border-red-700 shadow-2xl w-full max-w-md">
+    <div class="px-6 pt-6 pb-4">
+      <div class="flex items-start gap-4">
+        <div class="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+          <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        </div>
+        <div>
+          <h3 class="font-extrabold text-gray-900 dark:text-white text-lg">&#9888;&#65039; Nepovratna akcija!</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Proglašavate nevažećom registraciju:</p>
+          <p class="text-sm font-bold text-red-600 dark:text-red-400 mt-1" id="nevazecaInfo"></p>
+        </div>
+      </div>
+      <div class="mt-4 p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700/40">
+        <p class="text-xs text-red-700 dark:text-red-400 font-semibold">Jednom kada registraciju proglasите nevažećom, <strong>ne postoji mogućnost vraćanja</strong>. Registracija ostaje arhivirana ali trajno poništena.</p>
+      </div>
+    </div>
+    <div class="flex gap-3 px-6 pb-6">
+      <button onclick="document.getElementById('modalNevazeca').classList.add('hidden')"
+        class="flex-1 py-2.5 text-sm font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition">Odustani</button>
+      <form id="nevazecaForm" method="post" class="flex-1">
+        <button type="submit" class="w-full py-2.5 text-sm font-bold text-white bg-red-700 rounded-xl hover:bg-red-800 transition">&#9888; Potvrdi poništavanje</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ════ MODAL: Bulk potvrda ════ -->
+<div id="modalBulk" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-red-300 dark:border-red-700 shadow-2xl w-full max-w-md">
+    <div class="px-6 pt-6 pb-4">
+      <div class="flex items-start gap-4">
+        <div class="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+          <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        </div>
+        <div>
+          <h3 class="font-extrabold text-gray-900 dark:text-white text-lg">&#9888;&#65039; Bulk poništavanje!</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Poništavate <span id="bulkCount" class="font-bold text-red-600 dark:text-red-400"></span> registracija. <strong>Ova akcija je NEPOVRATNA!</strong></p>
+        </div>
+      </div>
+      <div class="mt-4 p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700/40">
+        <p class="text-xs text-red-700 dark:text-red-400 font-semibold">Ne postoji mogućnost vraćanja. Sve označene registracije bit će trajno nevažeće.</p>
+      </div>
+    </div>
+    <div class="flex gap-3 px-6 pb-6">
+      <button onclick="document.getElementById('modalBulk').classList.add('hidden')"
+        class="flex-1 py-2.5 text-sm font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition">Odustani</button>
+      <form id="bulkForm" method="post" action="/admin/registracije/nevazece-bulk" class="flex-1">
+        <input type="hidden" name="reg_ids" id="bulkIds"/>
+        <button type="submit" class="w-full py-2.5 text-sm font-bold text-white bg-red-700 rounded-xl hover:bg-red-800 transition">&#9888; Potvrdi poništavanje</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Theme ────────────────────────────────────────────────────
+  const html=document.documentElement;
+  const iconSun=document.getElementById('iconSun');
+  const iconMoon=document.getElementById('iconMoon');
+  function syncIcons(){const d=html.classList.contains('dark');iconSun.classList.toggle('hidden',!d);iconMoon.classList.toggle('hidden',d);}
+  syncIcons();
+  document.getElementById('themeToggle').addEventListener('click',()=>{const d=html.classList.toggle('dark');localStorage.setItem('theme',d?'dark':'light');syncIcons();});
+  const sidebar=document.getElementById('sidebar');
+  const overlay=document.getElementById('sidebarOverlay');
+  document.getElementById('sidebarToggle').addEventListener('click',()=>{sidebar.classList.remove('-translate-x-full');overlay.classList.remove('hidden');});
+  overlay.addEventListener('click',()=>{sidebar.classList.add('-translate-x-full');overlay.classList.add('hidden');});
+
+  // ── Tabs ─────────────────────────────────────────────────────
+  const TAB_ACTIVE   = 'border-red-600 dark:border-red-500 text-red-700 dark:text-red-400';
+  const TAB_INACTIVE = 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300';
+
+  function showTab(name) {
+    ['zahtjevi','igraci','registracije'].forEach(t => {
+      document.getElementById('panel-' + t).classList.toggle('hidden', t !== name);
+      const btn = document.getElementById('tab-btn-' + t);
+      btn.className = 'tab-btn px-6 py-3.5 text-sm font-semibold border-b-2 transition focus:outline-none ' +
+        (t === name ? TAB_ACTIVE : TAB_INACTIVE);
+    });
+  }
+  showTab('{{ tab }}');
+
+  // ── Status modal ─────────────────────────────────────────────
+  function openStatusModal(id, nome, current) {
+    document.getElementById('statusIgracNaziv').textContent = nome;
+    document.getElementById('statusForm').action = '/admin/igrac/' + id + '/status';
+    document.querySelectorAll('input[name="status"]').forEach(r => { r.checked = r.value === current; });
+    document.getElementById('modalStatus').classList.remove('hidden');
+  }
+
+  // ── Nevažeća modal ───────────────────────────────────────────
+  function openNevazecaModal(id, br, nome) {
+    document.getElementById('nevazecaInfo').textContent = br + ' — ' + nome;
+    document.getElementById('nevazecaForm').action = '/admin/registracija/' + id + '/nevazeca';
+    document.getElementById('modalNevazeca').classList.remove('hidden');
+  }
+
+  // ── Bulk select ──────────────────────────────────────────────
+  function toggleAll(cb) {
+    document.querySelectorAll('.reg-checkbox').forEach(c => c.checked = cb.checked);
+  }
+
+  function confirmBulk() {
+    const checked = document.querySelectorAll('.reg-checkbox:checked');
+    if (!checked.length) { alert('Nije označena ni jedna aktivna registracija.'); return; }
+    const ids = Array.from(checked).map(c => c.value).join(',');
+    document.getElementById('bulkIds').value = ids;
+    document.getElementById('bulkCount').textContent = checked.length;
+    document.getElementById('modalBulk').classList.remove('hidden');
+  }
+
+  // ── Table filter ─────────────────────────────────────────────
+  function filterTable(tableId, q) {
+    const rows = document.getElementById(tableId).querySelectorAll('tbody tr');
+    q = q.toLowerCase();
+    rows.forEach(r => r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none');
+  }
+
+  // ── Escape closes modals ─────────────────────────────────────
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      ['modalDodaj','modalStatus','modalNevazeca','modalBulk'].forEach(id =>
+        document.getElementById(id).classList.add('hidden')
+      );
+    }
+  });
+</script>
+</body>
+</html>
