@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Takmičenja | ORL Sjever</title>
+  <script>(function(){const t=localStorage.getItem('theme')||'dark';document.documentElement.classList.toggle('dark',t==='dark');})();</script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{sans:['Plus Jakarta Sans','system-ui','sans-serif']}}}}</script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;}.sidebar-transition{transition:transform .25s ease;}</style>
+</head>
+
+<body class="bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased">
+
+<!-- ════ NAVBAR ════ -->
+<nav class="fixed top-0 z-50 w-full bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm">
+  <div class="px-4 py-3 lg:px-6 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <button id="sidebarToggle" class="p-2 text-gray-500 dark:text-gray-400 rounded-lg md:hidden hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <a href="/admin/dashboard" class="flex items-center gap-2.5">
+        <div class="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center flex-shrink-0">&#127942;</div>
+        <span class="font-extrabold tracking-tight text-gray-900 dark:text-white hidden sm:block">ORL Sjever</span>
+      </a>
+    </div>
+    <div class="flex items-center gap-2">
+      <button id="themeToggle" class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+        <svg id="iconSun" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m8.66-9h-1M4.34 12h-1m15.07-6.07-.71.71M5.64 18.36l-.71.71M18.36 18.36l-.71-.71M5.64 5.64l-.71-.71M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
+        <svg id="iconMoon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      </button>
+      <span class="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-700/50">{{ user.tip }}</span>
+      <span class="hidden sm:block text-sm font-semibold text-gray-700 dark:text-gray-300">{{ user.ime }}</span>
+      <a href="/logout" class="text-sm font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-700 px-3 py-1.5 rounded-lg transition">Odjava</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ════ SIDEBAR ════ -->
+<aside id="sidebar" class="sidebar-transition fixed top-0 left-0 z-40 w-64 h-screen pt-16 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 -translate-x-full md:translate-x-0">
+  <div class="h-full px-3 py-5 overflow-y-auto">
+    <ul class="space-y-1">
+      <li>
+        <a href="/admin/dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          Dashboard
+        </a>
+      </li>
+      <li>
+        <a href="/admin/takmicenja" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+          Takmičenja
+        </a>
+      </li>
+    </ul>
+    <!-- Stats -->
+    <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-800 space-y-1.5">
+      <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-2 mb-2">Statistike</p>
+      <div class="flex items-center justify-between px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-800/60">
+        <span class="text-xs text-gray-500 dark:text-gray-400">Takmičenja</span>
+        <span class="text-sm font-bold text-gray-900 dark:text-white">{{ takmicenja | length }}</span>
+      </div>
+      <div class="flex items-center justify-between px-3 py-2 rounded-lg bg-blue-50 dark:bg-blue-900/20">
+        <span class="text-xs text-blue-600 dark:text-blue-400">Sezone</span>
+        <span class="text-sm font-bold text-blue-600 dark:text-blue-400">{{ sezone | length }}</span>
+      </div>
+      <div class="flex items-center justify-between px-3 py-2 rounded-lg bg-purple-50 dark:bg-purple-900/20">
+        <span class="text-xs text-purple-600 dark:text-purple-400">Uzrasti</span>
+        <span class="text-sm font-bold text-purple-600 dark:text-purple-400">{{ uzrasti | length }}</span>
+      </div>
+      <div class="flex items-center justify-between px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-900/20">
+        <span class="text-xs text-amber-600 dark:text-amber-400">Prijave</span>
+        <span class="text-sm font-bold text-amber-600 dark:text-amber-400">{{ prijave | length }}</span>
+      </div>
+    </div>
+  </div>
+</aside>
+<div id="sidebarOverlay" class="hidden fixed inset-0 z-30 bg-black/50 md:hidden"></div>
+
+<!-- ════ MAIN ════ -->
+<main class="md:ml-64 pt-16 min-h-screen">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white">Takmičenja</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Upravljanje takmičenjima, sezonama i uzrastima</p>
+      </div>
+      <button onclick="document.getElementById('modalTak').classList.remove('hidden')"
+        class="inline-flex items-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-xl shadow-sm transition flex-shrink-0">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+        Novo takmičenje
+      </button>
+    </div>
+
+    {% if ok %}
+    <div class="flex items-center gap-3 p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700/40 text-green-700 dark:text-green-400">
+      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+      <span class="text-sm font-semibold">Uspješno sačuvano.</span>
+    </div>
+    {% endif %}
+
+    {% if not takmicenja %}
+    <div class="bg-white dark:bg-gray-900 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800 p-12 text-center">
+      <div class="text-4xl mb-4">&#127942;</div>
+      <p class="text-gray-500 dark:text-gray-400 text-sm">Nema kreiranih takmičenja. Dodajte prvo takmičenje.</p>
+    </div>
+    {% endif %}
+
+    <!-- ── Loop: Takmičenja ── -->
+    {% for tak in takmicenja %}
+    {% set tak_sezone = sezone | selectattr('takmicenje_id', 'equalto', tak.id) | list %}
+    <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+
+      <!-- Takmičenje header -->
+      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-8 h-8 rounded-lg bg-red-600 flex items-center justify-center text-sm flex-shrink-0">&#127942;</div>
+          <div class="min-w-0">
+            <p class="font-extrabold text-gray-900 dark:text-white truncate">{{ tak.naziv }}</p>
+            {% if tak.opis %}<p class="text-xs text-gray-400 dark:text-gray-500 truncate">{{ tak.opis }}</p>{% endif %}
+          </div>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0 ml-3">
+          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold
+            {% if tak.aktivan %}bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-700/40
+            {% else %}bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700{% endif %}">
+            <span class="w-1.5 h-1.5 rounded-full {% if tak.aktivan %}bg-green-500{% else %}bg-gray-400{% endif %}"></span>
+            {{ 'Aktivno' if tak.aktivan else 'Neaktivno' }}
+          </span>
+          <button onclick="openSezonaModal({{ tak.id }}, '{{ tak.naziv | e }}')"
+            class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-lg border border-blue-300 dark:border-blue-700 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition">
+            + Sezona
+          </button>
+          <form method="post" action="/admin/takmicenje/{{ tak.id }}/toggle" class="inline">
+            <button type="submit" class="text-xs px-2.5 py-1 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+              {{ 'Deaktiviraj' if tak.aktivan else 'Aktiviraj' }}
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Sezone -->
+      {% if not tak_sezone %}
+      <div class="px-5 py-4 text-sm text-gray-400 dark:text-gray-600 italic">Nema dodanih sezona.</div>
+      {% endif %}
+
+      {% for sez in tak_sezone %}
+      {% set sez_uzrasti = uzrasti | selectattr('sezona_id', 'equalto', sez.id) | list %}
+      <div class="border-b border-gray-100 dark:border-gray-800/70 last:border-b-0">
+        <!-- Sezona row -->
+        <div class="flex items-center justify-between px-5 py-3 bg-white dark:bg-gray-900">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-6 h-6 rounded-md bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-xs flex-shrink-0">&#128197;</div>
+            <div>
+              <p class="font-bold text-sm text-gray-900 dark:text-white">{{ sez.naziv }}</p>
+              <p class="text-xs text-gray-400 dark:text-gray-500">
+                {% if sez.datum_od %}{{ sez.datum_od.strftime('%d.%m.%Y') }}{% endif %}
+                {% if sez.datum_od and sez.datum_do %} &ndash; {% endif %}
+                {% if sez.datum_do %}{{ sez.datum_do.strftime('%d.%m.%Y') }}{% endif %}
+                {% if not sez.datum_od and not sez.datum_do %}Bez datuma{% endif %}
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 flex-shrink-0 ml-2">
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold
+              {% if sez.aktivna %}bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-700/40
+              {% else %}bg-gray-100 dark:bg-gray-800 text-gray-500 border border-gray-200 dark:border-gray-700{% endif %}">
+              {{ 'Aktivna' if sez.aktivna else 'Zatvorena' }}
+            </span>
+            <button onclick="openUzrastModal({{ sez.id }}, {{ tak.id }}, '{{ sez.naziv | e }}', '{{ tak.naziv | e }}')"
+              class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-bold rounded-md border border-purple-300 dark:border-purple-700 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition">
+              + Uzrast
+            </button>
+            <form method="post" action="/admin/sezona/{{ sez.id }}/toggle" class="inline">
+              <button type="submit" class="text-xs px-2 py-0.5 rounded-md border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                {{ 'Zatvori' if sez.aktivna else 'Otvori' }}
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Uzrasti -->
+        {% if sez_uzrasti %}
+        <div class="ml-14 mr-4 mb-3 space-y-1.5">
+          {% for uz in sez_uzrasti %}
+          {% set uz_prijave = prijave | selectattr('uzrast_id', 'equalto', uz.id) | list %}
+          <div class="flex items-center justify-between px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
+            <div class="flex items-center gap-2.5">
+              <span class="w-2 h-2 rounded-full flex-shrink-0 {% if uz.aktivan %}bg-purple-500{% else %}bg-gray-400{% endif %}"></span>
+              <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ uz.naziv }}</p>
+              <span class="text-xs text-gray-400 dark:text-gray-500">&bull; {{ uz_prijave | length }} prijava</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold
+                {% if uz.aktivan %}bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-700/40
+                {% else %}bg-gray-100 dark:bg-gray-800 text-gray-500 border border-gray-200 dark:border-gray-700{% endif %}">
+                {{ 'Aktivan' if uz.aktivan else 'Neaktivan' }}
+              </span>
+              <form method="post" action="/admin/uzrast/{{ uz.id }}/toggle" class="inline">
+                <button type="submit" class="text-xs px-2 py-0.5 rounded-md border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                  {{ 'Deaktiviraj' if uz.aktivan else 'Aktiviraj' }}
+                </button>
+              </form>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="ml-14 mb-3 text-xs text-gray-400 dark:text-gray-600 italic">Nema uzrasta za ovu sezonu.</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+
+    </div>
+    {% endfor %}
+
+  </div>
+</main>
+
+<!-- ════ MODAL: Novo takmičenje ════ -->
+<div id="modalTak" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-2xl w-full max-w-md">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+      <h3 class="font-extrabold text-gray-900 dark:text-white">Novo takmičenje</h3>
+      <button onclick="document.getElementById('modalTak').classList.add('hidden')" class="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <form method="post" action="/admin/takmicenje/dodaj" class="p-6 space-y-4">
+      <div>
+        <label class="block mb-1.5 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Naziv *</label>
+        <input type="text" name="naziv" required placeholder="npr. Omladinska liga"
+          class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 transition"/>
+      </div>
+      <div>
+        <label class="block mb-1.5 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Opis</label>
+        <input type="text" name="opis" placeholder="Kratki opis takmičenja"
+          class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 transition"/>
+      </div>
+      <div class="flex gap-3 pt-1">
+        <button type="button" onclick="document.getElementById('modalTak').classList.add('hidden')"
+          class="px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition">Odustani</button>
+        <button type="submit" class="flex-1 py-2.5 text-sm font-bold text-white bg-red-600 rounded-xl hover:bg-red-700 transition">Sačuvaj</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ════ MODAL: Nova sezona ════ -->
+<div id="modalSez" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-2xl w-full max-w-md">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+      <div>
+        <h3 class="font-extrabold text-gray-900 dark:text-white">Nova sezona</h3>
+        <p class="text-xs text-gray-400 mt-0.5">Takmičenje: <span id="sez-tak-naziv" class="font-semibold text-gray-600 dark:text-gray-300"></span></p>
+      </div>
+      <button onclick="document.getElementById('modalSez').classList.add('hidden')" class="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <form method="post" action="/admin/sezona/dodaj" class="p-6 space-y-4">
+      <input type="hidden" name="takmicenje_id" id="sez-tak-id"/>
+      <div>
+        <label class="block mb-1.5 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Naziv sezone *</label>
+        <input type="text" name="naziv" required placeholder="npr. 2025/2026"
+          class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 transition"/>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block mb-1.5 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Datum početka</label>
+          <input type="date" name="datum_od"
+            class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 transition"/>
+        </div>
+        <div>
+          <label class="block mb-1.5 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Datum kraja</label>
+          <input type="date" name="datum_do"
+            class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 transition"/>
+        </div>
+      </div>
+      <div class="flex gap-3 pt-1">
+        <button type="button" onclick="document.getElementById('modalSez').classList.add('hidden')"
+          class="px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition">Odustani</button>
+        <button type="submit" class="flex-1 py-2.5 text-sm font-bold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition">Sačuvaj</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ════ MODAL: Novi uzrast ════ -->
+<div id="modalUz" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-2xl w-full max-w-md">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+      <div>
+        <h3 class="font-extrabold text-gray-900 dark:text-white">Novi uzrast</h3>
+        <p class="text-xs text-gray-400 mt-0.5"><span id="uz-tak-naziv" class="font-semibold text-gray-600 dark:text-gray-300"></span> / <span id="uz-sez-naziv" class="font-semibold text-gray-600 dark:text-gray-300"></span></p>
+      </div>
+      <button onclick="document.getElementById('modalUz').classList.add('hidden')" class="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <form method="post" action="/admin/uzrast/dodaj" class="p-6 space-y-4">
+      <input type="hidden" name="sezona_id"     id="uz-sez-id"/>
+      <input type="hidden" name="takmicenje_id" id="uz-tak-id"/>
+      <div>
+        <label class="block mb-1.5 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Naziv uzrasta *</label>
+        <input type="text" name="naziv" required placeholder="npr. Pioniri U12"
+          class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 transition"/>
+      </div>
+      <div class="flex gap-3 pt-1">
+        <button type="button" onclick="document.getElementById('modalUz').classList.add('hidden')"
+          class="px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition">Odustani</button>
+        <button type="submit" class="flex-1 py-2.5 text-sm font-bold text-white bg-purple-600 rounded-xl hover:bg-purple-700 transition">Sačuvaj</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const html=document.documentElement;
+  const iconSun=document.getElementById('iconSun');
+  const iconMoon=document.getElementById('iconMoon');
+  function syncIcons(){const d=html.classList.contains('dark');iconSun.classList.toggle('hidden',!d);iconMoon.classList.toggle('hidden',d);}
+  syncIcons();
+  document.getElementById('themeToggle').addEventListener('click',()=>{const d=html.classList.toggle('dark');localStorage.setItem('theme',d?'dark':'light');syncIcons();});
+
+  const sidebar=document.getElementById('sidebar');
+  const overlay=document.getElementById('sidebarOverlay');
+  document.getElementById('sidebarToggle').addEventListener('click',()=>{sidebar.classList.remove('-translate-x-full');overlay.classList.remove('hidden');});
+  overlay.addEventListener('click',()=>{sidebar.classList.add('-translate-x-full');overlay.classList.add('hidden');});
+
+  function openSezonaModal(takId, takNaziv) {
+    document.getElementById('sez-tak-id').value    = takId;
+    document.getElementById('sez-tak-naziv').textContent = takNaziv;
+    document.getElementById('modalSez').classList.remove('hidden');
+  }
+
+  function openUzrastModal(sezId, takId, sezNaziv, takNaziv) {
+    document.getElementById('uz-sez-id').value     = sezId;
+    document.getElementById('uz-tak-id').value     = takId;
+    document.getElementById('uz-sez-naziv').textContent = sezNaziv;
+    document.getElementById('uz-tak-naziv').textContent = takNaziv;
+    document.getElementById('modalUz').classList.remove('hidden');
+  }
+
+  document.addEventListener('keydown',(e)=>{
+    if(e.key==='Escape'){
+      ['modalTak','modalSez','modalUz'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+    }
+  });
+</script>
+</body>
+</html>

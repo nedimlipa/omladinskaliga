@@ -4,7 +4,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from ..database import get_db
-from ..models import Klub, Admin
+from ..models import Klub, Admin, Uzrast, Sezona, Takmicenje, PrijavaKluba
 from ..security import hash_password
 from .auth import get_current_user
 import os, io
@@ -100,13 +100,58 @@ async def klub_dashboard(request: Request, db: AsyncSession = Depends(get_db)):
     if not user or user.get("tip") != "klub":
         return RedirectResponse("/login", status_code=302)
 
-    klub = await db.get(Klub, int(user["sub"]))
-    ok = request.query_params.get("ok")
+    klub_id = int(user["sub"])
+    klub    = await db.get(Klub, klub_id)
+    ok      = request.query_params.get("ok")
+    error   = request.query_params.get("error")
+
+    # Dostupni uzrasti za prijavu (aktivni)
+    uzrasti_rows = (await db.execute(
+        select(Uzrast, Sezona, Takmicenje)
+        .join(Sezona, Uzrast.sezona_id == Sezona.id)
+        .join(Takmicenje, Sezona.takmicenje_id == Takmicenje.id)
+        .where(Uzrast.aktivan == True, Sezona.aktivna == True, Takmicenje.aktivan == True)
+        .order_by(Takmicenje.naziv, Sezona.naziv, Uzrast.naziv)
+    )).all()
+
+    # Postojeće prijave kluba
+    prijave_rows = (await db.execute(
+        select(PrijavaKluba, Uzrast, Sezona, Takmicenje)
+        .join(Uzrast,      PrijavaKluba.uzrast_id    == Uzrast.id)
+        .join(Sezona,      Uzrast.sezona_id           == Sezona.id)
+        .join(Takmicenje,  Uzrast.takmicenje_id       == Takmicenje.id)
+        .where(PrijavaKluba.klub_id == klub_id)
+        .order_by(PrijavaKluba.prijavljen_datum.desc())
+    )).all()
+
+    registered_ids = {row[0].uzrast_id for row in prijave_rows}
+
+    available = [
+        {"id": uzrast.id, "label": f"{tak.naziv}  ·  {sez.naziv}  ·  {uzrast.naziv}"}
+        for uzrast, sez, tak in uzrasti_rows
+        if uzrast.id not in registered_ids
+    ]
+
+    moje_prijave = [
+        {
+            "id":          prijava.id,
+            "takmicenje":  tak.naziv,
+            "sezona":      sez.naziv,
+            "uzrast":      uzrast.naziv,
+            "status":      prijava.status,
+            "datum":       prijava.prijavljen_datum.strftime("%d.%m.%Y") if prijava.prijavljen_datum else "—",
+        }
+        for prijava, uzrast, sez, tak in prijave_rows
+    ]
+
     return templates.TemplateResponse("dashboard_klub.html", {
-        "request": request,
-        "user": user,
-        "klub": klub,
-        "ok": ok,
+        "request":       request,
+        "user":          user,
+        "klub":          klub,
+        "ok":            ok,
+        "error":         error,
+        "available":     available,
+        "moje_prijave":  moje_prijave,
     })
 
 
