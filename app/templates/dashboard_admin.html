@@ -242,8 +242,7 @@
               data-mobitel="{{ k.mobitel or '—' }}"
               data-grad="{{ k.grad or '—' }}"
               data-aktivan="{{ 'Aktivan' if k.aktivan else 'Neaktivan' }}"
-              data-aktivan-bool="{{ k.aktivan | lower }}"
-              data-kreiran="{{ k.kreiran_datum.strftime('%d.%m.%Y u %H:%M') if k.kreiran_datum else '—' }}"
+              data-aktivan-bool="{{ k.aktivan | lower }}"              data-logo="{{ k.logo or '' }}"              data-kreiran="{{ k.kreiran_datum.strftime('%d.%m.%Y u %H:%M') if k.kreiran_datum else '—' }}"
               data-azuriran="{{ k.azuriran_datum.strftime('%d.%m.%Y u %H:%M') if k.azuriran_datum else '—' }}"
               class="text-xs px-3 py-1.5 rounded-lg border border-blue-300 dark:border-blue-700
                 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition">
@@ -308,6 +307,7 @@
                     data-grad="{{ k.grad or '—' }}"
                     data-aktivan="{{ 'Aktivan' if k.aktivan else 'Neaktivan' }}"
                     data-aktivan-bool="{{ k.aktivan | lower }}"
+                    data-logo="{{ k.logo or '' }}"
                     data-kreiran="{{ k.kreiran_datum.strftime('%d.%m.%Y u %H:%M') if k.kreiran_datum else '—' }}"
                     data-azuriran="{{ k.azuriran_datum.strftime('%d.%m.%Y u %H:%M') if k.azuriran_datum else '—' }}"
                     class="text-xs px-3 py-1.5 rounded-lg border border-blue-300 dark:border-blue-700
@@ -455,8 +455,11 @@
 <div id="modalDetalji" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
   <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-2xl w-full max-w-lg max-h-[90dvh] overflow-y-auto">
     <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl bg-red-600 flex items-center justify-center text-sm flex-shrink-0">&#127942;</div>
+        <div class="flex items-center gap-3">
+        <div id="d-logo-wrap" class="w-9 h-9 rounded-xl overflow-hidden flex-shrink-0">
+          <img id="d-logo-img" src="" alt="" class="w-full h-full object-cover hidden"/>
+          <div id="d-logo-fallback" class="w-full h-full bg-red-600 flex items-center justify-center text-sm">&#127942;</div>
+        </div>
         <div>
           <h3 id="d-naziv" class="text-base font-extrabold text-gray-900 dark:text-white"></h3>
           <p id="d-username" class="text-xs text-gray-400 dark:text-gray-500"></p>
@@ -574,6 +577,18 @@
     document.getElementById('d-grad').textContent     = d.grad;
     document.getElementById('d-kreiran').textContent  = d.kreiran;
     document.getElementById('d-azuriran').textContent = d.azuriran;
+
+    // Logo
+    const img      = document.getElementById('d-logo-img');
+    const fallback = document.getElementById('d-logo-fallback');
+    if (d.logo) {
+      img.src = '/static/logos/' + d.logo;
+      img.classList.remove('hidden');
+      fallback.classList.add('hidden');
+    } else {
+      img.classList.add('hidden');
+      fallback.classList.remove('hidden');
+    }
 
     const badge = document.getElementById('d-status-badge');
     const isAktivan = d.aktivanBool === 'true';

@@ -117,12 +117,46 @@
     </div>
     {% endif %}
 
+    {% if error == 'format' %}
+    <div class="flex items-center gap-3 p-4 rounded-xl border bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700/40 text-red-600 dark:text-red-400">
+      <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+      </svg>
+      <span class="text-sm font-semibold">Dozvoljeni su samo JPG i PNG formati.</span>
+    </div>
+    {% elif error == 'empty' %}
+    <div class="flex items-center gap-3 p-4 rounded-xl border bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700/40 text-red-600 dark:text-red-400">
+      <span class="text-sm font-semibold">Fajl je prazan, pokušajte ponovo.</span>
+    </div>
+    {% endif %}
+
     <!-- Welcome banner -->
     <div class="rounded-2xl border p-6 flex items-center gap-4
       bg-gradient-to-r from-red-50 to-white dark:from-red-900/20 dark:to-gray-900
       border-red-200 dark:border-red-700/30">
-      <div class="w-14 h-14 bg-red-600 rounded-2xl flex items-center justify-center text-2xl shadow-lg shadow-red-600/30 flex-shrink-0">
-        &#127885;
+
+      <!-- Logo / upload -->  
+      <div class="relative flex-shrink-0 group">
+        {% if klub.logo %}
+        <img src="/static/logos/{{ klub.logo }}" alt="Logo"
+          class="w-16 h-16 rounded-2xl object-cover shadow-lg shadow-red-600/20 ring-2 ring-red-200 dark:ring-red-700/40"/>
+        {% else %}
+        <div class="w-16 h-16 bg-red-600 rounded-2xl flex items-center justify-center text-2xl shadow-lg shadow-red-600/30">&#127885;</div>
+        {% endif %}
+        <!-- Upload overlay on hover -->
+        <label for="logoInput"
+          class="absolute inset-0 rounded-2xl flex items-center justify-center
+            bg-black/50 opacity-0 group-hover:opacity-100 cursor-pointer transition
+            text-white text-xs font-bold">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+          </svg>
+        </label>
+        <form id="logoForm" method="post" action="/klub/logo/upload" enctype="multipart/form-data" class="hidden">
+          <input id="logoInput" type="file" name="logo" accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+            onchange="document.getElementById('logoForm').submit()" class="hidden"/>
+        </form>
       </div>
       <div class="flex-1 min-w-0">
         <h1 class="text-xl font-extrabold text-gray-900 dark:text-white">Dobrodošli, {{ klub.naziv_kluba }}!</h1>

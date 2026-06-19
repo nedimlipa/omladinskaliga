@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Depends, Form, HTTPException
+from fastapi import APIRouter, Request, Depends, Form, HTTPException, UploadFile, File
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,6 +7,8 @@ from ..database import get_db
 from ..models import Klub, Admin
 from ..security import hash_password
 from .auth import get_current_user
+import os, io
+from PIL import Image
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -138,4 +140,59 @@ async def uredi_profil_kluba(
         klub.password_hash = hash_password(nova_lozinka.strip())
 
     await db.commit()
+    return RedirectResponse("/klub/dashboard?ok=1", status_code=302)
+
+
+# ── UPLOAD LOGO KLUBA ─────────────────────────────────────────
+LOGO_DIR = "static/logos"
+ALLOWED  = {"image/jpeg", "image/jpg", "image/png"}
+MAX_KB   = 100
+
+
+def _process_logo(data: bytes, content_type: str) -> bytes:
+    """Resize to max 512x512, convert to JPEG, compress to ≤100 KB."""
+    img = Image.open(io.BytesIO(data)).convert("RGB")
+    img.thumbnail((512, 512), Image.LANCZOS)
+    for quality in range(85, 20, -5):
+        buf = io.BytesIO()
+        img.save(buf, format="JPEG", quality=quality, optimize=True)
+        if buf.tell() <= MAX_KB * 1024:
+            return buf.getvalue()
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG", quality=20, optimize=True)
+    return buf.getvalue()
+
+
+@router.post("/klub/logo/upload")
+async def upload_logo(
+    request: Request,
+    logo: UploadFile = File(...),
+    db: AsyncSession = Depends(get_db),
+):
+    user = get_current_user(request)
+    if not user or user.get("tip") != "klub":
+        return RedirectResponse("/login", status_code=302)
+
+    if logo.content_type not in ALLOWED:
+        return RedirectResponse("/klub/dashboard?error=format", status_code=302)
+
+    raw = await logo.read()
+    if not raw:
+        return RedirectResponse("/klub/dashboard?error=empty", status_code=302)
+
+    processed = _process_logo(raw, logo.content_type)
+
+    os.makedirs(LOGO_DIR, exist_ok=True)
+    klub_id  = int(user["sub"])
+    filename = f"klub_{klub_id}.jpg"
+    filepath = os.path.join(LOGO_DIR, filename)
+
+    with open(filepath, "wb") as f:
+        f.write(processed)
+
+    klub = await db.get(Klub, klub_id)
+    if klub:
+        klub.logo = filename
+        await db.commit()
+
     return RedirectResponse("/klub/dashboard?ok=1", status_code=302)

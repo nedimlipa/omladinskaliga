@@ -15,6 +15,7 @@ class Klub(Base):
     mobitel        = Column(String(20))
     grad           = Column(String(100))
     aktivan        = Column(Boolean, nullable=False, default=True)
+    logo           = Column(String(100), nullable=True)
     kreiran_datum  = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     azuriran_datum = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 

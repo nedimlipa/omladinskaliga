@@ -16,6 +16,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="ORL Sjever", lifespan=lifespan)
 
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 app.include_router(auth.router)
 app.include_router(dashboard.router)
 
