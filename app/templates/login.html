@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="bs" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prijava | ORL Sjever</title>
+  <link href="https://cdn.jsdelivr.net/npm/flowbite@2.3.0/dist/flowbite.min.css" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class' }</script>
+  <style>body { display:block !important; }</style>
+</head>
+<body class="bg-gray-900 antialiased">
+
+  <section class="min-h-screen flex items-center justify-center px-4 py-8 bg-gray-900">
+    <div class="w-full max-w-md">
+
+      <!-- Brand -->
+      <a href="/" class="flex items-center justify-center mb-8 gap-3">
+        <div class="w-11 h-11 bg-red-600 rounded-xl flex items-center justify-center text-xl shadow-lg shadow-red-900/40">🏆</div>
+        <span class="text-2xl font-bold text-white tracking-tight">ORL Sjever</span>
+      </a>
+
+      <!-- Card -->
+      <div class="bg-gray-800 rounded-2xl shadow-2xl border border-gray-700 p-8 space-y-6">
+
+        <div>
+          <h1 class="text-xl font-bold text-white mb-1">Prijavite se</h1>
+          <p class="text-sm text-gray-400">Unesite kredencijale za pristup platformi</p>
+        </div>
+
+        {% if error %}
+        <div class="flex items-center gap-2 p-3.5 text-sm text-red-400 bg-red-900/20 border border-red-700/50 rounded-xl">
+          <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+          {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="post" action="/login" class="space-y-5">
+          <div>
+            <label for="username" class="block mb-2 text-sm font-medium text-gray-300">Korisničko ime</label>
+            <input id="username" type="text" name="username" required autocomplete="username"
+              placeholder="Unesite username"
+              class="w-full bg-gray-700 border border-gray-600 text-white text-sm rounded-xl px-4 py-3 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition" />
+          </div>
+
+          <div>
+            <label for="password" class="block mb-2 text-sm font-medium text-gray-300">Lozinka</label>
+            <input id="password" type="password" name="password" required autocomplete="current-password"
+              placeholder="••••••••"
+              class="w-full bg-gray-700 border border-gray-600 text-white text-sm rounded-xl px-4 py-3 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition" />
+          </div>
+
+          <button type="submit"
+            class="w-full bg-red-600 hover:bg-red-700 active:scale-95 text-white font-semibold rounded-xl px-5 py-3 text-sm transition-all focus:outline-none focus:ring-4 focus:ring-red-800">
+            Prijavite se &rarr;
+          </button>
+        </form>
+
+      </div>
+
+      <p class="text-center text-xs text-gray-600 mt-6">Omladinska Rukometna Liga Sjever &copy; 2026</p>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/flowbite@2.3.0/dist/flowbite.min.js"></script>
+</body>
+</html>
+
+    :root {
+      --bg:       #060c16;
+      --surface:  rgba(255,255,255,0.04);
+      --border:   rgba(255,255,255,0.09);
+      --accent:   #e63946;
+      --blue:     #38bdf8;
+      --text:     #f0f6ff;
+      --muted:    rgba(240,246,255,0.5);
+      --dim:      rgba(240,246,255,0.22);
+      --error-bg: rgba(230,57,70,0.12);
+      --error-br: rgba(230,57,70,0.35);
+    }
+
+    html { -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem 1.25rem;
+      overflow-x: hidden;
+    }
+
+    /* Background orbs */
+    .bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+    }
+    .orb-1 {
+      width: min(70vw,480px); height: min(70vw,480px);
+      background: radial-gradient(circle, rgba(230,57,70,0.2) 0%, transparent 70%);
+      top: -15%; left: -15%;
+      animation: drift1 22s ease-in-out infinite;
+    }
+    .orb-2 {
+      width: min(60vw,400px); height: min(60vw,400px);
+      background: radial-gradient(circle, rgba(56,189,248,0.14) 0%, transparent 70%);
+      bottom: -10%; right: -10%;
+      animation: drift2 28s ease-in-out infinite;
+    }
+    @keyframes drift1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(4vw,4vw)} }
+    @keyframes drift2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-4vw,-3vw)} }
+
+    /* Card */
+    .card {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 400px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 2.25rem 1.75rem;
+      animation: rise .6s cubic-bezier(.22,1,.36,1) both;
+    }
+
+    @keyframes rise {
+      from { opacity:0; transform:translateY(24px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    /* Logo */
+    .logo {
+      width: 56px; height: 56px;
+      background: linear-gradient(145deg, #e63946, #b5101c);
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.7rem;
+      box-shadow: 0 8px 28px rgba(230,57,70,0.35);
+      margin: 0 auto 1.25rem;
+    }
+
+    .card h1 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      text-align: center;
+      letter-spacing: -.025em;
+      margin-bottom: .35rem;
+    }
+
+    .card .sub {
+      font-size: .82rem;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 1.75rem;
+    }
+
+    /* Error */
+    .error {
+      background: var(--error-bg);
+      border: 1px solid var(--error-br);
+      border-radius: 10px;
+      padding: .65rem .9rem;
+      font-size: .82rem;
+      color: #ff8b8b;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    /* Fields */
+    .field { margin-bottom: 1rem; }
+
+    .field label {
+      display: block;
+      font-size: .76rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: .4rem;
+      letter-spacing: .04em;
+    }
+
+    .field input {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: .7rem .9rem;
+      font-family: inherit;
+      font-size: .92rem;
+      color: var(--text);
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    .field input::placeholder { color: var(--dim); }
+
+    .field input:focus {
+      border-color: rgba(230,57,70,0.5);
+      box-shadow: 0 0 0 3px rgba(230,57,70,0.12);
+    }
+
+    /* Button */
+    .btn {
+      width: 100%;
+      margin-top: 1.5rem;
+      padding: .78rem;
+      background: linear-gradient(135deg, #e63946, #c1121f);
+      border: none;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: .95rem;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      transition: opacity .18s, transform .18s;
+    }
+    .btn:hover  { opacity: .9; }
+    .btn:active { transform: scale(.98); }
+
+    /* Footer */
+    .card-footer {
+      margin-top: 1.5rem;
+      text-align: center;
+      font-size: .72rem;
+      color: var(--dim);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+  </div>
+
+  <div class="card">
+    <div class="logo">🏆</div>
+    <h1>ORL Sjever</h1>
+    <p class="sub">Prijavite se u vaš nalog</p>
+
+    {% if error %}
+    <div class="error">⚠ {{ error }}</div>
+    {% endif %}
+
+    <form method="post" action="/login">
+      <div class="field">
+        <label for="username">Korisničko ime</label>
+        <input id="username" type="text" name="username" placeholder="Unesite username"
+               autocomplete="username" required />
+      </div>
+      <div class="field">
+        <label for="password">Lozinka</label>
+        <input id="password" type="password" name="password" placeholder="••••••••"
+               autocomplete="current-password" required />
+      </div>
+      <button type="submit" class="btn">Prijavite se</button>
+    </form>
+
+    <p class="card-footer">Omladinska Rukometna Liga Sjever &copy; 2026</p>
+  </div>
+
+</body>
+</html>
