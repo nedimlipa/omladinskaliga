@@ -340,6 +340,57 @@
       {% endif %}
     </div>
 
+    <!-- ── Igrači kluba ── -->
+    <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-800">
+        <div class="flex items-center gap-3">
+          <h2 class="font-extrabold text-gray-900 dark:text-white text-base">Igrači kluba</h2>
+          {% if igraci_kluba %}
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-700/40">
+            {{ igraci_kluba | length }} aktivnih
+          </span>
+          {% endif %}
+        </div>
+        <a href="/klub/igraci" class="text-xs font-bold text-red-600 dark:text-red-400 hover:underline">Upravljaj igračima →</a>
+      </div>
+      {% if not igraci_kluba %}
+      <div class="px-5 py-8 text-center">
+        <div class="text-3xl mb-2">&#128100;</div>
+        <p class="text-sm text-gray-400 dark:text-gray-500">Nemate registrovanih igrača.</p>
+        <a href="/klub/igraci" class="inline-block mt-3 text-xs font-bold text-red-600 dark:text-red-400 hover:underline">Pošalji zahtjev →</a>
+      </div>
+      {% else %}
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead><tr class="bg-gray-50 dark:bg-gray-800/60">
+            <th class="text-left px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-gray-400">Igrac</th>
+            <th class="text-left px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-gray-400">Datum roj.</th>
+            <th class="text-left px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-gray-400">Br. reg.</th>
+            <th class="text-left px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-gray-400">Status</th>
+          </tr></thead>
+          <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+            {% for i in igraci_kluba %}
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition">
+              <td class="px-5 py-2.5 font-semibold text-gray-900 dark:text-white whitespace-nowrap">{{ i.prezime }} {{ i.ime }}</td>
+              <td class="px-4 py-2.5 text-gray-500 dark:text-gray-400 text-xs whitespace-nowrap">{{ i.datum }}</td>
+              <td class="px-4 py-2.5 font-mono text-xs font-bold text-gray-700 dark:text-gray-300 whitespace-nowrap">{{ i.br }}</td>
+              <td class="px-4 py-2.5">
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold
+                  {% if i.status == 'aktivan' %}bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-700/40
+                  {% elif i.status == 'suspendovan' %}bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-700/40
+                  {% else %}bg-gray-100 dark:bg-gray-800 text-gray-500 border border-gray-200 dark:border-gray-700{% endif %}">
+                  <span class="w-1.5 h-1.5 rounded-full {% if i.status == 'aktivan' %}bg-green-500{% elif i.status == 'suspendovan' %}bg-red-500{% else %}bg-gray-400{% endif %}"></span>
+                  {{ i.status | capitalize }}
+                </span>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+    </div>
+
     <!-- Coming soon -->
     <div class="bg-white dark:bg-gray-900 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800 p-10 text-center">
       <div class="text-4xl mb-4">&#128679;</div>

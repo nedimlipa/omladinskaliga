@@ -120,6 +120,10 @@
         class="tab-btn px-6 py-3.5 text-sm font-semibold border-b-2 transition focus:outline-none">
         Registracije ({{ registracije | length }})
       </button>
+      <button id="tab-btn-poklubovima" onclick="showTab('poklubovima')"
+        class="tab-btn px-6 py-3.5 text-sm font-semibold border-b-2 transition focus:outline-none">
+        Po klubovima
+      </button>
     </div>
 
     <!-- ─── Tab: Zahtjevi ─── -->
@@ -276,6 +280,75 @@
             {% endfor %}
           </tbody>
         </table>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- ─── Tab: Po klubovima ─── -->
+    <div id="panel-poklubovima" class="tab-panel hidden">
+      {% set aktivne = registracije | selectattr('status', 'equalto', 'aktivna') | list %}
+      {% if not aktivne %}
+      <div class="py-12 text-center text-sm text-gray-400 dark:text-gray-500">Nema aktivnih registracija.</div>
+      {% else %}
+      {% set uniq_klubovi = aktivne | map(attribute='klub') | list %}
+      {% set seen = [] %}
+      <div class="divide-y divide-gray-100 dark:divide-gray-800">
+        {% for r in aktivne | sort(attribute='klub') %}
+        {% if r.klub not in seen %}
+        {% set _ = seen.append(r.klub) %}
+        {% set klub_reg = aktivne | selectattr('klub', 'equalto', r.klub) | list %}
+        <div class="px-5 py-4">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-3">
+              <span class="text-sm font-extrabold text-gray-900 dark:text-white">{{ r.klub }}</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-700/40">{{ klub_reg | length }} igrača</span>
+            </div>
+          </div>
+          <div class="overflow-x-auto rounded-xl border border-gray-100 dark:border-gray-800">
+            <table class="w-full text-sm">
+              <thead><tr class="bg-gray-50 dark:bg-gray-800/60">
+                <th class="text-left px-4 py-2 text-xs font-bold uppercase tracking-wider text-gray-400">Igrač</th>
+                <th class="text-left px-4 py-2 text-xs font-bold uppercase tracking-wider text-gray-400">Datum roj.</th>
+                <th class="text-left px-4 py-2 text-xs font-bold uppercase tracking-wider text-gray-400">Br. reg.</th>
+                <th class="text-left px-4 py-2 text-xs font-bold uppercase tracking-wider text-gray-400">Sezona</th>
+                <th class="text-left px-4 py-2 text-xs font-bold uppercase tracking-wider text-gray-400">Status igr.</th>
+                <th class="px-4 py-2"></th>
+              </tr></thead>
+              <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                {% for kg in klub_reg | sort(attribute='prezime') %}
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition">
+                  <td class="px-4 py-2.5 font-semibold text-gray-900 dark:text-white whitespace-nowrap">{{ kg.prezime }} {{ kg.ime }}</td>
+                  <td class="px-4 py-2.5 text-gray-500 dark:text-gray-400 text-xs whitespace-nowrap">
+                    {% for i in igraci %}{% if i.ime == kg.ime and i.prezime == kg.prezime %}{{ i.datum }}{% endif %}{% endfor %}
+                  </td>
+                  <td class="px-4 py-2.5 font-mono text-xs font-bold text-gray-700 dark:text-gray-300 whitespace-nowrap">{{ kg.br }}</td>
+                  <td class="px-4 py-2.5 text-gray-500 dark:text-gray-500 text-xs whitespace-nowrap">{{ kg.sezona }}</td>
+                  <td class="px-4 py-2.5">
+                    {% for i in igraci %}{% if i.ime == kg.ime and i.prezime == kg.prezime %}
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold
+                      {% if i.status == 'aktivan' %}bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-700/40
+                      {% elif i.status == 'suspendovan' %}bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-700/40
+                      {% else %}bg-gray-100 dark:bg-gray-800 text-gray-500 border border-gray-200 dark:border-gray-700{% endif %}">
+                      {{ i.status | capitalize }}
+                    </span>
+                    {% endif %}{% endfor %}
+                  </td>
+                  <td class="px-4 py-2.5 text-right">
+                    {% for i in igraci %}{% if i.ime == kg.ime and i.prezime == kg.prezime %}
+                    <button onclick="openStatusModal({{ i.id }}, '{{ kg.prezime }} {{ kg.ime }}', '{{ i.status }}')"
+                      class="text-xs px-2 py-1 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                      Status
+                    </button>
+                    {% endif %}{% endfor %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        {% endif %}
+        {% endfor %}
       </div>
       {% endif %}
     </div>
@@ -452,7 +525,7 @@
   const TAB_INACTIVE = 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300';
 
   function showTab(name) {
-    ['zahtjevi','igraci','registracije'].forEach(t => {
+    ['zahtjevi','igraci','registracije','poklubovima'].forEach(t => {
       document.getElementById('panel-' + t).classList.toggle('hidden', t !== name);
       const btn = document.getElementById('tab-btn-' + t);
       btn.className = 'tab-btn px-6 py-3.5 text-sm font-semibold border-b-2 transition focus:outline-none ' +

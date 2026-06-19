@@ -4,7 +4,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from ..database import get_db
-from ..models import Klub, Admin, Uzrast, Sezona, Takmicenje, PrijavaKluba
+from ..models import Klub, Admin, Uzrast, Sezona, Takmicenje, PrijavaKluba, Igrac, Registracija
 from ..security import hash_password
 from .auth import get_current_user
 import os, io
@@ -144,6 +144,25 @@ async def klub_dashboard(request: Request, db: AsyncSession = Depends(get_db)):
         for prijava, uzrast, sez, tak in prijave_rows
     ]
 
+    # Aktivni igrači kluba (potvrđene registracije)
+    igrac_rows = (await db.execute(
+        select(Registracija, Igrac)
+        .join(Igrac, Registracija.igrac_id == Igrac.id)
+        .where(Registracija.klub_id == klub_id, Registracija.status == "aktivna")
+        .order_by(Igrac.prezime, Igrac.ime)
+    )).all()
+
+    igraci_kluba = [
+        {
+            "br":      reg.br_registracije or "—",
+            "ime":     igr.ime,
+            "prezime": igr.prezime,
+            "datum":   igr.datum_rodjenja.strftime("%d.%m.%Y") if igr.datum_rodjenja else "—",
+            "status":  igr.status,
+        }
+        for reg, igr in igrac_rows
+    ]
+
     return templates.TemplateResponse("dashboard_klub.html", {
         "request":       request,
         "user":          user,
@@ -152,6 +171,7 @@ async def klub_dashboard(request: Request, db: AsyncSession = Depends(get_db)):
         "error":         error,
         "available":     available,
         "moje_prijave":  moje_prijave,
+        "igraci_kluba":  igraci_kluba,
     })
 
 
