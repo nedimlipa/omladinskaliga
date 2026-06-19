@@ -102,6 +102,35 @@
 <main class="md:ml-64 pt-16 min-h-screen">
   <div class="max-w-4xl mx-auto px-4 sm:px-6 py-6 space-y-6">
 
+  {% if not klub.aktivan %}
+  <!-- ── NEAKTIVAN NALOG ── -->
+  <div class="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+    <div class="w-20 h-20 rounded-2xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-4xl mb-6 shadow-sm">
+      &#128274;
+    </div>
+    <h2 class="text-2xl font-extrabold text-gray-900 dark:text-white mb-3">Nalog je neaktivan</h2>
+    <p class="text-gray-500 dark:text-gray-400 max-w-sm mb-6 leading-relaxed">
+      Vaš nalog trenutno nema aktiviran pristup platformi ORL Sjever.
+      Molimo kontaktirajte ovlaštenu osobu &mdash; administratora &mdash; radi aktivacije naloga.
+    </p>
+    <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700/40 rounded-2xl px-6 py-4 max-w-sm w-full">
+      <p class="text-xs font-bold text-yellow-700 dark:text-yellow-400 uppercase tracking-wider mb-1">Kontakt administrator</p>
+      <p class="text-sm text-yellow-800 dark:text-yellow-300 font-semibold">liga.sjever@email.com</p>
+    </div>
+    <a href="/logout"
+      class="mt-8 inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-gray-600 dark:text-gray-400
+        bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition shadow-sm">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+      </svg>
+      Odjava
+    </a>
+  </div>
+
+  {% else %}
+  <!-- ── AKTIVAN NALOG ── -->
+
     {% if ok %}
     <div id="toastOk" class="flex items-center gap-3 p-4 rounded-xl border
       bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700/40 text-green-700 dark:text-green-400">
@@ -236,6 +265,7 @@
       </p>
     </div>
 
+  {% endif %}
   </div>
 </main>
 

@@ -46,10 +46,10 @@ async def login_post(
         resp.set_cookie("access_token", token, httponly=True, samesite="lax")
         return resp
 
-    # Provjeri klubove
+    # Provjeri klubove — neaktivni se mogu logovati, ali vide locked dashboard
     result = await db.execute(select(Klub).where(Klub.username == username))
     klub = result.scalar_one_or_none()
-    if klub and klub.aktivan and verify_password(password, klub.password_hash):
+    if klub and verify_password(password, klub.password_hash):
         token = create_token({"sub": str(klub.id), "tip": "klub", "ime": klub.naziv_kluba})
         resp = RedirectResponse("/klub/dashboard", status_code=302)
         resp.set_cookie("access_token", token, httponly=True, samesite="lax")
