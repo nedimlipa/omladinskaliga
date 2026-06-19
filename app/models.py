@@ -1,5 +1,5 @@
-from sqlalchemy import Column, Integer, String, Boolean, func
-from sqlalchemy.dialects.postgresql import TIMESTAMPTZ
+from sqlalchemy import Column, Integer, String, Boolean, func, DateTime
+from sqlalchemy.orm import DeclarativeBase
 from .database import Base
 
 
@@ -15,8 +15,8 @@ class Klub(Base):
     mobitel        = Column(String(20))
     grad           = Column(String(100))
     aktivan        = Column(Boolean, nullable=False, default=True)
-    kreiran_datum  = Column(TIMESTAMPTZ, nullable=False, server_default=func.now())
-    azuriran_datum = Column(TIMESTAMPTZ, nullable=False, server_default=func.now())
+    kreiran_datum  = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    azuriran_datum = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
 
 class Admin(Base):
@@ -30,5 +30,5 @@ class Admin(Base):
     prezime        = Column(String(100), nullable=False)
     uloga          = Column(String(20),  nullable=False, default="moderator")
     aktivan        = Column(Boolean, nullable=False, default=True)
-    kreiran_datum  = Column(TIMESTAMPTZ, nullable=False, server_default=func.now())
-    azuriran_datum = Column(TIMESTAMPTZ, nullable=False, server_default=func.now())
+    kreiran_datum  = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    azuriran_datum = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
