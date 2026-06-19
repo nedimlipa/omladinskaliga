@@ -1,6 +1,6 @@
 import datetime
 from fastapi import APIRouter, Request, Depends, Form
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
@@ -472,3 +472,208 @@ async def print_igraci_kluba(klub_id: int, request: Request, db: AsyncSession = 
         "igraci":       igraci,
         "sezona_naziv": None,
     })
+
+
+# ═══════════════════════════════════════════════════════════════
+#  PDF HELPER
+# ═══════════════════════════════════════════════════════════════
+
+def _generate_pdf(naziv: str, grad: str | None, igraci_list: list, now: datetime.datetime) -> bytes:
+    """Generiraj A4 PDF sa spiskom igrača kluba (fpdf2)."""
+    try:
+        from fpdf import FPDF
+    except ImportError:
+        raise RuntimeError("fpdf2 nije instaliran. Pokrenite: pip install fpdf2")
+
+    pdf = FPDF('P', 'mm', 'A4')
+    pdf.set_margins(15, 15, 15)
+    pdf.set_auto_page_break(True, 20)
+
+    F = 'Helvetica'
+    try:
+        pdf.add_font('DV', '',  '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf')
+        pdf.add_font('DV', 'B', '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf')
+        F = 'DV'
+    except Exception:
+        pass
+
+    pdf.add_page()
+
+    # ── Crvena traka gore ──────────────────────────────────────
+    pdf.set_fill_color(220, 38, 38)
+    pdf.rect(0, 0, 210, 2.5, 'F')
+
+    # ── Header ───────────────────────────────────────────
+    pdf.set_xy(15, 8)
+    pdf.set_font(F, '', 7)
+    pdf.set_text_color(150, 150, 150)
+    pdf.cell(120, 4, 'OMLADINSKA RUKOMETNA LIGA SJEVER', ln=0)
+
+    pdf.set_xy(135, 8)
+    pdf.set_font(F, 'B', 11)
+    pdf.set_text_color(220, 38, 38)
+    pdf.cell(60, 4.5, 'SPISAK IGRACA', align='R', ln=0)
+
+    pdf.set_xy(15, 13)
+    pdf.set_font(F, 'B', 18)
+    pdf.set_text_color(17, 17, 17)
+    pdf.cell(120, 9, naziv[:28] if len(naziv) > 28 else naziv, ln=0)
+
+    pdf.set_xy(135, 13)
+    pdf.set_font(F, '', 8.5)
+    pdf.set_text_color(100, 100, 100)
+    pdf.cell(60, 4.5, 'Datum: ' + now.strftime('%d.%m.%Y'), align='R', ln=0)
+    pdf.set_xy(135, 18)
+    pdf.cell(60, 4.5, 'Vrijeme: ' + now.strftime('%H:%M:%S'), align='R', ln=0)
+
+    y_sep = 24
+    if grad:
+        pdf.set_xy(15, 23)
+        pdf.set_font(F, '', 9)
+        pdf.set_text_color(107, 114, 128)
+        pdf.cell(120, 4, grad, ln=0)
+        y_sep = 28
+
+    # ── Separator ───────────────────────────────────────
+    pdf.set_draw_color(220, 38, 38)
+    pdf.set_line_width(0.5)
+    pdf.line(15, y_sep, 195, y_sep)
+
+    # ── Statistike ─────────────────────────────────────
+    y_s   = y_sep + 3
+    n_a   = sum(1 for i in igraci_list if i['status'] == 'aktivan')
+    n_s   = sum(1 for i in igraci_list if i['status'] == 'suspendovan')
+
+    pdf.set_fill_color(249, 250, 251)
+    pdf.set_draw_color(229, 231, 235)
+    pdf.set_line_width(0.3)
+    pdf.rect(15, y_s, 180, 13, 'FD')
+
+    for x, lbl, val, col in [
+        (20,  'UKUPNO IGRACA', str(len(igraci_list)), (17,  17,  17)),
+        (65,  'AKTIVNIH',      str(n_a),              (21, 128,  61)),
+        (110, 'SUSPENDOVANIH', str(n_s),              (220, 38,  38)),
+    ]:
+        pdf.set_xy(x, y_s + 1.5)
+        pdf.set_font(F, '', 6.5)
+        pdf.set_text_color(130, 130, 130)
+        pdf.cell(40, 3.5, lbl, ln=0)
+        pdf.set_xy(x, y_s + 6)
+        pdf.set_font(F, 'B', 12)
+        pdf.set_text_color(*col)
+        pdf.cell(40, 5, val, ln=0)
+
+    pdf.set_xy(145, y_s + 5.5)
+    pdf.set_font(F, '', 6.5)
+    pdf.set_text_color(160, 160, 160)
+    pdf.cell(45, 4, 'Samo aktivne registracije', align='R', ln=0)
+
+    # ── Tabela ─────────────────────────────────────────
+    CW  = [7, 52, 26, 24, 31, 22, 18]   # suma = 180
+    HDR = ['#', 'Prezime i ime', 'Datum rodjenja', 'Drzavljanstvo',
+           'Br. registracije', 'Sezona', 'Status']
+
+    pdf.set_y(y_s + 17)
+    pdf.set_x(15)
+    pdf.set_fill_color(220, 38, 38)
+    pdf.set_text_color(255, 255, 255)
+    pdf.set_font(F, 'B', 7.5)
+    for i, (h, w) in enumerate(zip(HDR, CW)):
+        pdf.cell(w, 7, h, fill=True, ln=1 if i == len(HDR) - 1 else 0)
+
+    for idx, igr in enumerate(igraci_list):
+        if idx % 2 == 1:
+            pdf.set_fill_color(249, 250, 251)
+        else:
+            pdf.set_fill_color(255, 255, 255)
+
+        st     = igr['status']
+        st_col = (21,128,61) if st == 'aktivan' else (220,38,38) if st == 'suspendovan' else (107,114,128)
+
+        cells = [
+            (str(idx + 1),                        F, '',  7.5, (150,150,150)),
+            (igr['prezime'] + ' ' + igr['ime'],   F, 'B', 8.0, (17, 17, 17)),
+            (igr['datum'],                         F, '',  7.5, (100,100,100)),
+            (igr['drzavljanstvo'],                 F, '',  7.5, (100,100,100)),
+            (igr['br'],                            F, 'B', 7.5, (55, 65, 81)),
+            (igr['sezona'],                        F, '',  7.5, (100,100,100)),
+            (st.capitalize(),                      F, 'B', 7.5, st_col),
+        ]
+
+        pdf.set_x(15)
+        for i, (txt, fam, sty, sz, col) in enumerate(cells):
+            pdf.set_font(fam, sty, sz)
+            pdf.set_text_color(*col)
+            pdf.cell(CW[i], 6.5, txt, fill=True, ln=1 if i == len(cells) - 1 else 0)
+
+    # ── Footer ──────────────────────────────────────────
+    pdf.set_y(-14)
+    pdf.set_draw_color(229, 231, 235)
+    pdf.set_line_width(0.3)
+    pdf.line(15, pdf.get_y(), 195, pdf.get_y())
+    pdf.set_y(pdf.get_y() + 1.5)
+    pdf.set_font(F, '', 7.5)
+    pdf.set_text_color(156, 163, 175)
+    pdf.cell(90, 4, 'ORL Sjever - Automatski generisan dokument', ln=0)
+    pdf.set_text_color(107, 114, 128)
+    pdf.cell(90, 4, 'Odstampano: ' + now.strftime('%d.%m.%Y') + ' u ' + now.strftime('%H:%M:%S'), align='R', ln=0)
+
+    return bytes(pdf.output())
+
+
+# ═══════════════════════════════════════════════════════════════
+#  DOWNLOAD — Direktno preuzimanje PDF-a igrača kluba
+# ═══════════════════════════════════════════════════════════════
+
+@router.get("/download/klub/{klub_id}/igraci.pdf")
+async def download_igraci_pdf(klub_id: int, request: Request, db: AsyncSession = Depends(get_db)):
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+
+    tip = user.get("tip")
+    if tip == "klub" and int(user["sub"]) != klub_id:
+        return RedirectResponse("/klub/igraci", status_code=302)
+    if tip not in ("admin", "moderator", "klub"):
+        return RedirectResponse("/login", status_code=302)
+
+    klub = await db.get(Klub, klub_id)
+    if not klub:
+        back = "/admin/igraci" if tip in ("admin", "moderator") else "/klub/igraci"
+        return RedirectResponse(back, status_code=302)
+
+    rows = (await db.execute(
+        select(Registracija, Igrac, Sezona)
+        .join(Igrac,  Registracija.igrac_id  == Igrac.id)
+        .join(Sezona, Registracija.sezona_id == Sezona.id)
+        .where(Registracija.klub_id == klub_id, Registracija.status == "aktivna")
+        .order_by(Igrac.prezime, Igrac.ime)
+    )).all()
+
+    igraci = [
+        {
+            "ime":           igr.ime,
+            "prezime":       igr.prezime,
+            "datum":         igr.datum_rodjenja.strftime("%d.%m.%Y") if igr.datum_rodjenja else "—",
+            "drzavljanstvo": igr.drzavljanstvo or "—",
+            "br":            reg.br_registracije or "—",
+            "sezona":        sez.naziv,
+            "status":        igr.status,
+        }
+        for reg, igr, sez in rows
+    ]
+
+    now = datetime.datetime.now()
+    try:
+        pdf_bytes = _generate_pdf(klub.naziv_kluba, klub.grad, igraci, now)
+    except RuntimeError:
+        return RedirectResponse(f"/print/klub/{klub_id}/igraci", status_code=302)
+
+    safe     = "".join(c if c.isalnum() or c in "-_" else "_" for c in klub.naziv_kluba).strip("_")
+    filename = f"igraci_{safe}_{now.strftime('%Y%m%d')}.pdf"
+
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )

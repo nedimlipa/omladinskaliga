@@ -15,6 +15,8 @@
     .btn-print:hover{background:#b91c1c;}
     .btn-close{background:#e5e7eb;color:#374151;border:none;border-radius:10px;padding:10px 16px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;}
     .btn-close:hover{background:#d1d5db;}
+    .btn-download{background:#059669;color:#fff;border:none;border-radius:10px;padding:10px 22px;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(5,150,105,.30);text-decoration:none;}
+    .btn-download:hover{background:#047857;}
 
     /* ── A4 page ── */
     .page{width:210mm;min-height:297mm;margin:24px auto;background:#fff;padding:14mm 15mm 12mm;box-shadow:0 4px 32px rgba(0,0,0,.13);}
@@ -83,6 +85,9 @@
     <button class="btn-print" onclick="window.print()">
       &#128438;&nbsp;&nbsp;Štampaj / Spremi kao PDF
     </button>
+    <a class="btn-download" href="/download/klub/{{ klub.id }}/igraci.pdf">
+      &#128229;&nbsp;&nbsp;Preuzmi PDF
+    </a>
     <button class="btn-close" onclick="window.close()">&#x2715; Zatvori</button>
   </div>
 
