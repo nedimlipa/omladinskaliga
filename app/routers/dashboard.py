@@ -99,8 +99,43 @@ async def klub_dashboard(request: Request, db: AsyncSession = Depends(get_db)):
         return RedirectResponse("/login", status_code=302)
 
     klub = await db.get(Klub, int(user["sub"]))
+    ok = request.query_params.get("ok")
     return templates.TemplateResponse("dashboard_klub.html", {
         "request": request,
         "user": user,
         "klub": klub,
+        "ok": ok,
     })
+
+
+# ── UREDI PROFIL KLUBA ────────────────────────────────────────
+@router.post("/klub/profil/uredi")
+async def uredi_profil_kluba(
+    request: Request,
+    naziv_kluba:   str = Form(...),
+    email:         str = Form(...),
+    kontakt_osoba: str = Form(""),
+    mobitel:       str = Form(""),
+    grad:          str = Form(""),
+    nova_lozinka:  str = Form(""),
+    db: AsyncSession   = Depends(get_db),
+):
+    user = get_current_user(request)
+    if not user or user.get("tip") != "klub":
+        return RedirectResponse("/login", status_code=302)
+
+    klub = await db.get(Klub, int(user["sub"]))
+    if not klub:
+        return RedirectResponse("/login", status_code=302)
+
+    klub.naziv_kluba   = naziv_kluba.strip()
+    klub.email         = email.strip()
+    klub.kontakt_osoba = kontakt_osoba.strip() or None
+    klub.mobitel       = mobitel.strip() or None
+    klub.grad          = grad.strip() or None
+
+    if nova_lozinka.strip():
+        klub.password_hash = hash_password(nova_lozinka.strip())
+
+    await db.commit()
+    return RedirectResponse("/klub/dashboard?ok=1", status_code=302)

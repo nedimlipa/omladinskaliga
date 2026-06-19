@@ -102,6 +102,21 @@
 <main class="md:ml-64 pt-16 min-h-screen">
   <div class="max-w-4xl mx-auto px-4 sm:px-6 py-6 space-y-6">
 
+    {% if ok %}
+    <div id="toastOk" class="flex items-center gap-3 p-4 rounded-xl border
+      bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700/40 text-green-700 dark:text-green-400">
+      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+      </svg>
+      <span class="text-sm font-semibold">Podaci su uspješno sačuvani.</span>
+      <button onclick="document.getElementById('toastOk').remove()" class="ml-auto p-0.5 hover:opacity-70 transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    {% endif %}
+
     <!-- Welcome banner -->
     <div class="rounded-2xl border p-6 flex items-center gap-4
       bg-gradient-to-r from-red-50 to-white dark:from-red-900/20 dark:to-gray-900
@@ -109,7 +124,7 @@
       <div class="w-14 h-14 bg-red-600 rounded-2xl flex items-center justify-center text-2xl shadow-lg shadow-red-600/30 flex-shrink-0">
         &#127885;
       </div>
-      <div>
+      <div class="flex-1 min-w-0">
         <h1 class="text-xl font-extrabold text-gray-900 dark:text-white">Dobrodošli, {{ klub.naziv_kluba }}!</h1>
         <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
           Vaš nalog je
@@ -119,6 +134,15 @@
           i imate pristup platformi ORL Sjever.
         </p>
       </div>
+      <button onclick="openEdit()"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700
+          border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 text-sm font-bold rounded-xl shadow-sm transition flex-shrink-0">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+        </svg>
+        Uredi profil
+      </button>
     </div>
 
     <!-- Info grid -->
@@ -181,6 +205,79 @@
   </div>
 </main>
 
+<!-- ════════════════════════ MODAL: Uredi profil ════════════════════════ -->
+<div id="modalEdit" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-2xl w-full max-w-lg max-h-[90dvh] overflow-y-auto">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+      <h3 class="text-base font-extrabold text-gray-900 dark:text-white">Uredi profil kluba</h3>
+      <button onclick="closeEdit()"
+        class="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <form method="post" action="/klub/profil/uredi" class="p-6 space-y-4">
+
+      <!-- Username - readonly -->
+      <div>
+        <label class="block mb-1.5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+          Username <span class="normal-case font-normal text-gray-400">(nije moguće promijeniti)</span>
+        </label>
+        <input type="text" value="{{ klub.username }}" disabled
+          class="w-full bg-gray-100 dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500 text-sm rounded-xl px-4 py-2.5 cursor-not-allowed"/>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="sm:col-span-2">
+          <label class="block mb-1.5 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Naziv kluba *</label>
+          <input type="text" name="naziv_kluba" required value="{{ klub.naziv_kluba }}"
+            class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"/>
+        </div>
+        <div class="sm:col-span-2">
+          <label class="block mb-1.5 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email *</label>
+          <input type="email" name="email" required value="{{ klub.email }}"
+            class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"/>
+        </div>
+        <div>
+          <label class="block mb-1.5 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Kontakt osoba</label>
+          <input type="text" name="kontakt_osoba" value="{{ klub.kontakt_osoba or '' }}"
+            class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"/>
+        </div>
+        <div>
+          <label class="block mb-1.5 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Mobitel</label>
+          <input type="text" name="mobitel" value="{{ klub.mobitel or '' }}"
+            class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"/>
+        </div>
+        <div class="sm:col-span-2">
+          <label class="block mb-1.5 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Grad</label>
+          <input type="text" name="grad" value="{{ klub.grad or '' }}"
+            class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"/>
+        </div>
+        <div class="sm:col-span-2">
+          <label class="block mb-1.5 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+            Nova lozinka <span class="normal-case font-normal text-gray-400">(ostavite prazno ako ne mijenjate)</span>
+          </label>
+          <input type="password" name="nova_lozinka" placeholder="••••••••"
+            class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white text-sm rounded-xl px-4 py-2.5 placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"/>
+        </div>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button type="button" onclick="closeEdit()"
+          class="px-5 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+          Odustani
+        </button>
+        <button type="submit"
+          class="flex-1 px-5 py-2.5 text-sm font-bold text-white bg-red-600 rounded-xl hover:bg-red-700 shadow-sm transition">
+          Sačuvaj izmjene
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
   const html=document.documentElement;
   const iconSun=document.getElementById('iconSun');
@@ -210,6 +307,12 @@
     sidebar.classList.add('-translate-x-full');
     overlay.classList.add('hidden');
   });
+
+  const modalEdit=document.getElementById('modalEdit');
+  function openEdit(){modalEdit.classList.remove('hidden');}
+  function closeEdit(){modalEdit.classList.add('hidden');}
+  modalEdit.addEventListener('click',(e)=>{if(e.target===modalEdit)closeEdit();});
+  document.addEventListener('keydown',(e)=>{if(e.key==='Escape')closeEdit();});
 </script>
 </body>
 </html>
