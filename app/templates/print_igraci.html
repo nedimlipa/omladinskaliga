@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Spisak igrača – {{ klub.naziv_kluba }}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Plus Jakarta Sans',Arial,sans-serif;background:#f0f0f0;color:#111;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+
+    /* ── Screen controls ── */
+    .print-controls{position:fixed;top:16px;right:16px;z-index:100;display:flex;gap:8px;}
+    .btn-print{background:#dc2626;color:#fff;border:none;border-radius:10px;padding:10px 22px;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(220,38,38,.35);}
+    .btn-print:hover{background:#b91c1c;}
+    .btn-close{background:#e5e7eb;color:#374151;border:none;border-radius:10px;padding:10px 16px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;}
+    .btn-close:hover{background:#d1d5db;}
+
+    /* ── A4 page ── */
+    .page{width:210mm;min-height:297mm;margin:24px auto;background:#fff;padding:14mm 15mm 12mm;box-shadow:0 4px 32px rgba(0,0,0,.13);}
+
+    /* ── Header ── */
+    .header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:7mm;padding-bottom:5mm;border-bottom:2.5px solid #dc2626;}
+    .header-left{display:flex;align-items:center;gap:12px;}
+    .club-logo{width:56px;height:56px;border-radius:9px;object-fit:cover;}
+    .logo-placeholder{width:56px;height:56px;border-radius:9px;background:#dc2626;color:#fff;font-weight:800;font-size:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .league-name{font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px;}
+    .club-name{font-size:22px;font-weight:800;color:#111;line-height:1.15;}
+    .club-grad{font-size:11px;color:#6b7280;margin-top:3px;}
+    .header-right{text-align:right;min-width:140px;}
+    .doc-title{font-size:13px;font-weight:800;color:#dc2626;text-transform:uppercase;letter-spacing:.06em;}
+    .print-time{font-size:10.5px;color:#6b7280;margin-top:5px;line-height:1.5;}
+
+    /* ── Stats bar ── */
+    .stats-bar{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:8px 14px;margin-bottom:6mm;display:flex;gap:28px;align-items:center;}
+    .stat-item{display:flex;flex-direction:column;}
+    .stat-label{font-size:8.5px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;}
+    .stat-value{font-size:16px;font-weight:800;color:#111;margin-top:1px;}
+    .stats-note{margin-left:auto;font-size:9px;color:#9ca3af;font-style:italic;}
+
+    /* ── Table ── */
+    table{width:100%;border-collapse:collapse;font-size:11px;}
+    thead tr{background:#dc2626;color:#fff;}
+    thead th{padding:7px 8px;text-align:left;font-weight:700;font-size:8.5px;text-transform:uppercase;letter-spacing:.07em;white-space:nowrap;}
+    tbody tr:nth-child(even){background:#f9fafb;}
+    tbody tr{border-bottom:1px solid #f3f4f6;}
+    tbody td{padding:6.5px 8px;vertical-align:middle;}
+    .td-num{font-weight:700;color:#9ca3af;text-align:center;width:24px;}
+    .td-name{font-weight:700;color:#111;white-space:nowrap;}
+    .td-dob{color:#6b7280;white-space:nowrap;font-size:10.5px;}
+    .td-nat{color:#6b7280;}
+    .td-br{font-family:'Courier New',monospace;font-weight:700;font-size:10px;color:#374151;white-space:nowrap;}
+    .td-season{color:#6b7280;font-size:10px;white-space:nowrap;}
+    .badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:8.5px;font-weight:700;white-space:nowrap;}
+    .badge-aktivan{background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;}
+    .badge-suspendovan{background:#fee2e2;color:#dc2626;border:1px solid #fecaca;}
+    .badge-neaktivan{background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb;}
+
+    /* ── Footer ── */
+    .footer{margin-top:8mm;padding-top:4mm;border-top:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;}
+    .footer-text{font-size:9px;color:#9ca3af;}
+    .footer-stamp{font-size:9px;font-weight:700;color:#6b7280;}
+
+    /* ── Empty state ── */
+    .empty{text-align:center;padding:18mm 0;color:#9ca3af;font-size:13px;}
+
+    /* ── Print media ── */
+    @media print{
+      body{background:#fff;}
+      .print-controls{display:none!important;}
+      .page{margin:0;box-shadow:none;padding:12mm 14mm 10mm;}
+      @page{size:A4 portrait;margin:0;}
+      thead tr{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+      tbody tr:nth-child(even){-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+      .badge{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Screen: print/close buttons -->
+  <div class="print-controls">
+    <button class="btn-print" onclick="window.print()">
+      &#128438;&nbsp;&nbsp;Štampaj / Spremi kao PDF
+    </button>
+    <button class="btn-close" onclick="window.close()">&#x2715; Zatvori</button>
+  </div>
+
+  <div class="page">
+
+    <!-- ── Header ── -->
+    <div class="header">
+      <div class="header-left">
+        {% if klub.logo %}
+        <img src="/static/logos/{{ klub.logo }}" class="club-logo" alt="Logo"/>
+        {% else %}
+        <div class="logo-placeholder">{{ klub.naziv_kluba[0] | upper }}</div>
+        {% endif %}
+        <div>
+          <div class="league-name">Omladinska Rukometna Liga Sjever</div>
+          <div class="club-name">{{ klub.naziv_kluba }}</div>
+          {% if klub.grad %}
+          <div class="club-grad">{{ klub.grad }}</div>
+          {% endif %}
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="doc-title">Spisak igrača</div>
+        <div class="print-time">
+          Datum štampanja:<br/>
+          <strong id="printDate">—</strong><br/>
+          Vrijeme štampanja:<strong> <span id="printTime">—</span></strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Stats bar ── -->
+    <div class="stats-bar">
+      <div class="stat-item">
+        <span class="stat-label">Ukupno igrača</span>
+        <span class="stat-value">{{ igraci | length }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Aktivnih</span>
+        <span class="stat-value">{{ igraci | selectattr('status', 'equalto', 'aktivan') | list | length }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Suspendovanih</span>
+        <span class="stat-value">{{ igraci | selectattr('status', 'equalto', 'suspendovan') | list | length }}</span>
+      </div>
+      {% if sezona_naziv %}
+      <div class="stat-item">
+        <span class="stat-label">Sezona</span>
+        <span class="stat-value" style="font-size:13px;">{{ sezona_naziv }}</span>
+      </div>
+      {% endif %}
+      <span class="stats-note">Prikazuju se samo aktivne registracije</span>
+    </div>
+
+    <!-- ── Table ── -->
+    {% if not igraci %}
+    <div class="empty">&#128100; Nema aktivnih registrovanih igrača za ovaj klub.</div>
+    {% else %}
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Prezime i ime</th>
+          <th>Datum rodjenja</th>
+          <th>Drzavljanstvo</th>
+          <th>Br. registracije</th>
+          <th>Sezona</th>
+          <th>Status igrača</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for i in igraci %}
+        <tr>
+          <td class="td-num">{{ loop.index }}</td>
+          <td class="td-name">{{ i.prezime }} {{ i.ime }}</td>
+          <td class="td-dob">{{ i.datum }}</td>
+          <td class="td-nat">{{ i.drzavljanstvo }}</td>
+          <td class="td-br">{{ i.br }}</td>
+          <td class="td-season">{{ i.sezona }}</td>
+          <td>
+            <span class="badge badge-{{ i.status }}">{{ i.status | capitalize }}</span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+
+    <!-- ── Footer ── -->
+    <div class="footer">
+      <div class="footer-text">ORL Sjever &mdash; Automatski generisan dokument &bull; Samo aktivne registracije</div>
+      <div class="footer-stamp" id="footerStamp">Odštampano: —</div>
+    </div>
+
+  </div>
+
+  <script>
+    const now = new Date();
+    const pad = n => String(n).padStart(2,'0');
+    const date = pad(now.getDate()) + '.' + pad(now.getMonth()+1) + '.' + now.getFullYear();
+    const time = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+    document.getElementById('printDate').textContent = date;
+    document.getElementById('printTime').textContent = time;
+    document.getElementById('footerStamp').textContent = 'Odštampano: ' + date + ' u ' + time;
+  </script>
+
+</body>
+</html>

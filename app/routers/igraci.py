@@ -418,3 +418,57 @@ async def admin_nevazece_bulk(
             reg.nevazeca_datum = now
         await db.commit()
     return RedirectResponse("/admin/igraci?tab=registracije&ok=1", status_code=302)
+
+
+# ═══════════════════════════════════════════════════════════════
+#  PRINT — A4 spisak igrača kluba (admin ili vlastiti klub)
+# ═══════════════════════════════════════════════════════════════
+
+@router.get("/print/klub/{klub_id}/igraci", response_class=HTMLResponse)
+async def print_igraci_kluba(klub_id: int, request: Request, db: AsyncSession = Depends(get_db)):
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+
+    tip = user.get("tip")
+    # Klub može štampati samo vlastite igrače; admin može bilo koji klub
+    if tip == "klub" and int(user["sub"]) != klub_id:
+        return RedirectResponse("/klub/igraci", status_code=302)
+    if tip not in ("admin", "moderator", "klub"):
+        return RedirectResponse("/login", status_code=302)
+
+    klub = await db.get(Klub, klub_id)
+    if not klub:
+        back = "/admin/igraci" if tip in ("admin", "moderator") else "/klub/igraci"
+        return RedirectResponse(back, status_code=302)
+
+    rows = (await db.execute(
+        select(Registracija, Igrac, Sezona)
+        .join(Igrac,  Registracija.igrac_id  == Igrac.id)
+        .join(Sezona, Registracija.sezona_id == Sezona.id)
+        .where(
+            Registracija.klub_id == klub_id,
+            Registracija.status  == "aktivna",
+        )
+        .order_by(Igrac.prezime, Igrac.ime)
+    )).all()
+
+    igraci = [
+        {
+            "ime":           igr.ime,
+            "prezime":       igr.prezime,
+            "datum":         igr.datum_rodjenja.strftime("%d.%m.%Y") if igr.datum_rodjenja else "—",
+            "drzavljanstvo": igr.drzavljanstvo or "—",
+            "br":            reg.br_registracije or "—",
+            "sezona":        sez.naziv,
+            "status":        igr.status,
+        }
+        for reg, igr, sez in rows
+    ]
+
+    return templates.TemplateResponse("print_igraci.html", {
+        "request":      request,
+        "klub":         klub,
+        "igraci":       igraci,
+        "sezona_naziv": None,
+    })
