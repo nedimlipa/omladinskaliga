@@ -251,7 +251,8 @@ async def admin_tabela_detalji(tabela_id: int, request: Request, db: AsyncSessio
     )).scalars().all()
 
     # Mapa prijava_id → Klub za prikaz u utakmicama
-    prijava_klub: dict[int, str] = {r[0].id: r[1].naziv_kluba for r in ekipe_rows}
+    # ekipe_rows tuple: (TabelaEkipa[0], PrijavaKluba[1], Klub[2])
+    prijava_klub: dict[int, str] = {r[0].prijava_id: r[2].naziv_kluba for r in ekipe_rows}
 
     # Sort pravila
     sort_pravila = (await db.execute(
