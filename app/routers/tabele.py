@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request, Depends, Form, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, or_
 from ..database import get_db
 from ..models import (
     Tabela, TabelaEkipa, Utakmica, TabelaSortPravilo,
@@ -164,6 +164,89 @@ async def _enrich_tabela(tabela: Tabela, db: AsyncSession):
     sezona = (await db.execute(select(Sezona).where(Sezona.id == uzrast.sezona_id))).scalar_one_or_none() if uzrast else None
     takm   = (await db.execute(select(Takmicenje).where(Takmicenje.id == uzrast.takmicenje_id))).scalar_one_or_none() if uzrast else None
     return uzrast, sezona, takm
+
+
+# ═══════════════════════════════════════════════════════════════
+#  ADMIN — Pregled svih utakmica
+# ═══════════════════════════════════════════════════════════════
+
+@router.get("/admin/utakmice", response_class=HTMLResponse)
+async def admin_utakmice_pregled(
+    request:    Request,
+    db:         AsyncSession = Depends(get_db),
+    uzrast_id:  Optional[int] = None,
+    klub_id:    Optional[int] = None,
+    odigrana:   Optional[str] = None,   # "da" | "ne" | None (sve)
+):
+    user = get_current_user(request)
+    if not user or user.get("tip") not in ("admin", "moderator"):
+        return RedirectResponse("/login", status_code=302)
+
+    # ── Filter dropdowns ─────────────────────────────────────
+    uzrasti_rows = (await db.execute(
+        select(Uzrast, Takmicenje)
+        .join(Takmicenje, Uzrast.takmicenje_id == Takmicenje.id)
+        .order_by(Takmicenje.naziv, Uzrast.naziv)
+    )).all()
+
+    klubovi = (await db.execute(
+        select(Klub).where(Klub.aktivan == True).order_by(Klub.naziv_kluba)
+    )).scalars().all()
+
+    # ── Pre-fetch prijava → klub map ──────────────────────────
+    pk_rows = (await db.execute(
+        select(PrijavaKluba, Klub).join(Klub, PrijavaKluba.klub_id == Klub.id)
+    )).all()
+    prijava_map = {pk.id: {"naziv": k.naziv_kluba, "logo": k.logo, "id": k.id} for pk, k in pk_rows}
+
+    # ── Utakmice query ────────────────────────────────────────
+    q = (
+        select(Utakmica, Tabela, Uzrast, Takmicenje)
+        .join(Tabela,     Utakmica.tabela_id  == Tabela.id)
+        .join(Uzrast,     Tabela.uzrast_id    == Uzrast.id)
+        .join(Takmicenje, Uzrast.takmicenje_id == Takmicenje.id)
+    )
+    if uzrast_id:
+        q = q.where(Uzrast.id == uzrast_id)
+    if odigrana == "da":
+        q = q.where(Utakmica.odigrana == True)
+    elif odigrana == "ne":
+        q = q.where(Utakmica.odigrana == False)
+    q = q.order_by(Takmicenje.naziv, Uzrast.naziv, Utakmica.kolo.nullslast(), Utakmica.datum_utakmice.nullslast())
+
+    rows = (await db.execute(q)).all()
+
+    utakmice_data = []
+    for u, tabela, uzrast, takm in rows:
+        dom  = prijava_map.get(u.domacin_id)
+        gost = prijava_map.get(u.gost_id) if u.gost_id else None
+        # Apply club filter (post-query — keeps index use on other filters)
+        if klub_id and not (
+            (dom  and dom["id"]  == klub_id) or
+            (gost and gost["id"] == klub_id)
+        ):
+            continue
+        utakmice_data.append({
+            "u":      u,
+            "tabela": tabela,
+            "uzrast": uzrast,
+            "takm":   takm,
+            "dom":    dom,
+            "gost":   gost,
+        })
+
+    filter_uzrasti = [{"id": u.id, "naziv": u.naziv, "takm": t.naziv} for u, t in uzrasti_rows]
+
+    return templates.TemplateResponse("admin_utakmice.html", {
+        "request":         request,
+        "user":            user,
+        "utakmice_data":   utakmice_data,
+        "filter_uzrasti":  filter_uzrasti,
+        "klubovi":         klubovi,
+        "sel_uzrast_id":   uzrast_id,
+        "sel_klub_id":     klub_id,
+        "sel_odigrana":    odigrana,
+    })
 
 
 # ═══════════════════════════════════════════════════════════════

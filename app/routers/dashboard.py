@@ -2,7 +2,8 @@ from fastapi import APIRouter, Request, Depends, Form, HTTPException, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, or_
+from typing import Optional
 from ..database import get_db
 from ..models import Klub, Admin, Uzrast, Sezona, Takmicenje, PrijavaKluba, Igrac, Registracija, SluzbenoLice, RegistracijaSL, PozicijaSL, Tabela, TabelaEkipa, Utakmica, TabelaSortPravilo
 from .tabele import _izracunaj
@@ -243,17 +244,174 @@ async def klub_dashboard(request: Request, db: AsyncSession = Depends(get_db)):
             "odigrane":  odigrane,
         })
 
+    # ── Nadolazeće utakmice (sljedećih 10 dana) ──────────────
+    import datetime as _dt
+    today    = _dt.date.today()
+    until    = today + _dt.timedelta(days=10)
+
+    # Sve prijave ovog kluba
+    moje_pk_ids = set((await db.execute(
+        select(PrijavaKluba.id).where(PrijavaKluba.klub_id == klub_id)
+    )).scalars().all())
+
+    upcoming_matches = []
+    kalendar_dani = []
+
+    if moje_pk_ids:
+        # Pre-fetch prijava → klub map (reuse for upcoming + calendar)
+        pk_all = (await db.execute(
+            select(PrijavaKluba, Klub).join(Klub, PrijavaKluba.klub_id == Klub.id)
+        )).all()
+        prijava_map = {pk.id: {"naziv": k.naziv_kluba, "logo": k.logo, "id": k.id} for pk, k in pk_all}
+
+        upcoming_rows = (await db.execute(
+            select(Utakmica, Tabela, Uzrast, Takmicenje)
+            .join(Tabela,     Utakmica.tabela_id    == Tabela.id)
+            .join(Uzrast,     Tabela.uzrast_id      == Uzrast.id)
+            .join(Takmicenje, Uzrast.takmicenje_id  == Takmicenje.id)
+            .where(
+                or_(
+                    Utakmica.domacin_id.in_(moje_pk_ids),
+                    Utakmica.gost_id.in_(moje_pk_ids),
+                ),
+                Utakmica.datum_utakmice >= _dt.datetime.combine(today, _dt.time.min),
+                Utakmica.datum_utakmice <= _dt.datetime.combine(until, _dt.time.max),
+                Utakmica.je_bye         == False,
+            )
+            .order_by(Utakmica.datum_utakmice)
+        )).all()
+
+        for u, tabela, uzrast, takm in upcoming_rows:
+            dom  = prijava_map.get(u.domacin_id)
+            gost = prijava_map.get(u.gost_id) if u.gost_id else None
+            upcoming_matches.append({
+                "datum":       u.datum_utakmice.strftime("%d.%m.%Y") if u.datum_utakmice else "—",
+                "vrijeme":     u.datum_utakmice.strftime("%H:%M")    if u.datum_utakmice else "",
+                "dan":         u.datum_utakmice.strftime("%A")        if u.datum_utakmice else "",
+                "domacin":     dom["naziv"]  if dom  else "—",
+                "gost":        gost["naziv"] if gost else "—",
+                "uzrast":      uzrast.naziv,
+                "takm":        takm.naziv,
+                "tabela_id":   tabela.id,
+                "je_domacin":  u.domacin_id in moje_pk_ids,
+                "kolo":        u.kolo,
+            })
+
+        # Kalendar — dani u tekućem mjesecu koji imaju utakmica
+        cal_start = _dt.datetime(today.year, today.month, 1)
+        import calendar as _cal
+        _, last_day = _cal.monthrange(today.year, today.month)
+        cal_end = _dt.datetime(today.year, today.month, last_day, 23, 59, 59)
+        cal_rows = (await db.execute(
+            select(Utakmica.datum_utakmice)
+            .where(
+                or_(
+                    Utakmica.domacin_id.in_(moje_pk_ids),
+                    Utakmica.gost_id.in_(moje_pk_ids),
+                ),
+                Utakmica.datum_utakmice >= cal_start,
+                Utakmica.datum_utakmice <= cal_end,
+                Utakmica.je_bye         == False,
+                Utakmica.datum_utakmice.isnot(None),
+            )
+        )).scalars().all()
+        kalendar_dani = list({d.day for d in cal_rows if d})
+
     return templates.TemplateResponse("dashboard_klub.html", {
+        "request":          request,
+        "user":             user,
+        "klub":             klub,
+        "ok":               ok,
+        "error":            error,
+        "available":        available,
+        "moje_prijave":     moje_prijave,
+        "igraci_kluba":     igraci_kluba,
+        "sluzbena_kluba":   sluzbena_kluba,
+        "moje_tabele":      moje_tabele,
+        "upcoming_matches": upcoming_matches,
+        "kalendar_dani":    kalendar_dani,
+        "today_month":      __import__('datetime').date.today().month,
+        "today_year":       __import__('datetime').date.today().year,
+        "today_day":        __import__('datetime').date.today().day,
+    })
+
+
+# ── KLUB UTAKMICE ──────────────────────────────────────────────
+@router.get("/klub/utakmice", response_class=HTMLResponse)
+async def klub_utakmice(
+    request:   Request,
+    db:        AsyncSession = Depends(get_db),
+    uzrast_id: Optional[int] = None,
+    odigrana:  Optional[str] = None,
+):
+    user = get_current_user(request)
+    if not user or user.get("tip") != "klub":
+        return RedirectResponse("/login", status_code=302)
+
+    klub_id = int(user["sub"])
+    klub    = await db.get(Klub, klub_id)
+
+    # Sve prijave ovog kluba
+    moje_pk_ids = set((await db.execute(
+        select(PrijavaKluba.id).where(PrijavaKluba.klub_id == klub_id)
+    )).scalars().all())
+
+    # Pre-fetch prijava → klub map
+    pk_all = (await db.execute(
+        select(PrijavaKluba, Klub).join(Klub, PrijavaKluba.klub_id == Klub.id)
+    )).all()
+    prijava_map = {pk.id: {"naziv": k.naziv_kluba, "logo": k.logo, "id": k.id} for pk, k in pk_all}
+
+    utakmice_data = []
+    filter_uzrasti = []
+
+    if moje_pk_ids:
+        q = (
+            select(Utakmica, Tabela, Uzrast, Takmicenje)
+            .join(Tabela,     Utakmica.tabela_id    == Tabela.id)
+            .join(Uzrast,     Tabela.uzrast_id      == Uzrast.id)
+            .join(Takmicenje, Uzrast.takmicenje_id  == Takmicenje.id)
+            .where(or_(
+                Utakmica.domacin_id.in_(moje_pk_ids),
+                Utakmica.gost_id.in_(moje_pk_ids),
+            ))
+        )
+        if uzrast_id:
+            q = q.where(Uzrast.id == uzrast_id)
+        if odigrana == "da":
+            q = q.where(Utakmica.odigrana == True)
+        elif odigrana == "ne":
+            q = q.where(Utakmica.odigrana == False)
+        q = q.order_by(Utakmica.datum_utakmice.asc().nullslast(), Utakmica.kolo.nullslast())
+
+        rows = (await db.execute(q)).all()
+
+        seen_uzrasti = {}
+        for u, tabela, uzrast, takm in rows:
+            dom  = prijava_map.get(u.domacin_id)
+            gost = prijava_map.get(u.gost_id) if u.gost_id else None
+            utakmice_data.append({
+                "u":          u,
+                "tabela":     tabela,
+                "uzrast":     uzrast,
+                "takm":       takm,
+                "dom":        dom,
+                "gost":       gost,
+                "je_domacin": u.domacin_id in moje_pk_ids,
+            })
+            if uzrast.id not in seen_uzrasti:
+                seen_uzrasti[uzrast.id] = {"id": uzrast.id, "naziv": uzrast.naziv, "takm": takm.naziv}
+
+        filter_uzrasti = sorted(seen_uzrasti.values(), key=lambda x: (x["takm"], x["naziv"]))
+
+    return templates.TemplateResponse("klub_utakmice.html", {
         "request":        request,
         "user":           user,
         "klub":           klub,
-        "ok":             ok,
-        "error":          error,
-        "available":      available,
-        "moje_prijave":   moje_prijave,
-        "igraci_kluba":   igraci_kluba,
-        "sluzbena_kluba": sluzbena_kluba,
-        "moje_tabele":    moje_tabele,
+        "utakmice_data":  utakmice_data,
+        "filter_uzrasti": filter_uzrasti,
+        "sel_uzrast_id":  uzrast_id,
+        "sel_odigrana":   odigrana,
     })
 
 

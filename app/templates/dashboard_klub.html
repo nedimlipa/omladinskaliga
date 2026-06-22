@@ -89,6 +89,17 @@
         </a>
       </li>
       <li>
+        <a href="/klub/utakmice"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm
+            text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800
+            hover:text-gray-900 dark:hover:text-white transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+          Utakmice
+        </a>
+      </li>
+      <li>
         <a href="/klub/igraci"
           class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm
             text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800
@@ -450,6 +461,75 @@
     </div>
     {% endif %}
 
+    <!-- ── Sljedeće utakmice + Kalendar ── -->
+    {% if upcoming_matches or kalendar_dani %}
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4">
+
+      <!-- Sljedeće utakmice -->
+      <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-800">
+          <div class="flex items-center gap-3">
+            <h2 class="font-extrabold text-gray-900 dark:text-white text-base">Sljedeće utakmice</h2>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-700/40">
+              narednih 10 dana
+            </span>
+          </div>
+          <a href="/klub/utakmice?odigrana=ne" class="text-xs font-bold text-red-600 dark:text-red-400 hover:underline flex items-center gap-1">
+            Sve utakmice
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+        {% if not upcoming_matches %}
+        <div class="px-5 py-8 text-center">
+          <div class="text-3xl mb-2">📅</div>
+          <p class="text-sm text-gray-400 dark:text-gray-500">Nema zakazanih utakmica u narednih 10 dana.</p>
+        </div>
+        {% else %}
+        <div class="divide-y divide-gray-100 dark:divide-gray-800">
+          {% for m in upcoming_matches %}
+          <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 py-3.5">
+            <div class="text-right">
+              <p class="text-sm font-bold {% if m.je_domacin %}text-red-600 dark:text-red-400{% else %}text-gray-900 dark:text-white{% endif %}">{{ m.domacin }}</p>
+              {% if m.je_domacin %}<span class="text-[10px] font-bold text-red-400 uppercase tracking-wider">Domaćin</span>{% endif %}
+            </div>
+            <div class="flex flex-col items-center gap-0.5 min-w-[90px]">
+              <span class="text-sm font-extrabold text-blue-600 dark:text-blue-400">{{ m.datum }}</span>
+              <span class="text-xs text-gray-500 dark:text-gray-400 font-semibold">{{ m.vrijeme }}</span>
+              {% if m.kolo %}<span class="text-[10px] text-gray-400 dark:text-gray-600">Kolo {{ m.kolo }}</span>{% endif %}
+              <span class="text-[10px] text-gray-400 dark:text-gray-600">{{ m.uzrast }}</span>
+            </div>
+            <div class="text-left">
+              <p class="text-sm font-bold {% if not m.je_domacin %}text-red-600 dark:text-red-400{% else %}text-gray-900 dark:text-white{% endif %}">{{ m.gost }}</p>
+              {% if not m.je_domacin %}<span class="text-[10px] font-bold text-red-400 uppercase tracking-wider">Gost</span>{% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Mini kalendar -->
+      <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden w-full lg:w-72 flex-shrink-0">
+        <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-800">
+          <h2 class="font-extrabold text-gray-900 dark:text-white text-base" id="calTitle"></h2>
+        </div>
+        <div class="p-4">
+          <div class="grid grid-cols-7 gap-0.5 mb-2">
+            {% for d in ['Po','Ut','Sr','Če','Pe','Su','Ne'] %}
+            <div class="text-center text-[10px] font-extrabold text-gray-400 dark:text-gray-600 uppercase py-1">{{ d }}</div>
+            {% endfor %}
+          </div>
+          <div id="calGrid" class="grid grid-cols-7 gap-0.5"></div>
+          <div class="mt-3 flex items-center gap-2 text-xs text-gray-400 dark:text-gray-600">
+            <span class="w-2.5 h-2.5 rounded-full bg-red-500 inline-block flex-shrink-0"></span>
+            Utakmica zakazana
+          </div>
+        </div>
+      </div>
+
+    </div>
+    {% endif %}
+
     <!-- ── Igrači kluba ── -->
     <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
       <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-800">
@@ -749,6 +829,57 @@
   });
 
   // Tabele tab switcher — premješteno na /klub/tabele
+
+  // ── Mini kalendar ─────────────────────────────────────────
+  (function() {
+    const grid  = document.getElementById('calGrid');
+    const title = document.getElementById('calTitle');
+    if (!grid) return;
+
+    const matchDays = new Set({{ kalendar_dani | tojson }});
+    const today     = new Date({{ today_year }}, {{ today_month }} - 1, {{ today_day }});
+    const year      = today.getFullYear();
+    const month     = today.getMonth();
+
+    const monthNames = ['Januar','Februar','Mart','April','Maj','Juni',
+                        'Juli','August','Septembar','Oktobar','Novembar','Decembar'];
+    title.textContent = monthNames[month] + ' ' + year;
+
+    // First day of month (0=Sun..6=Sat) — convert to Mon-based (0=Mon)
+    let firstDay = new Date(year, month, 1).getDay();
+    firstDay = (firstDay + 6) % 7;   // shift so Monday=0
+
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    // Empty cells before first day
+    for (let i = 0; i < firstDay; i++) {
+      const el = document.createElement('div');
+      el.className = 'h-8';
+      grid.appendChild(el);
+    }
+
+    // Day cells
+    for (let d = 1; d <= daysInMonth; d++) {
+      const el = document.createElement('div');
+      el.textContent = d;
+      const isToday  = d === today.getDate();
+      const hasMatch = matchDays.has(d);
+
+      el.className = [
+        'h-8 w-8 mx-auto flex items-center justify-center rounded-lg text-xs font-bold cursor-default transition-colors relative',
+        isToday  ? 'ring-2 ring-red-500 ring-offset-1 dark:ring-offset-gray-900' : '',
+        hasMatch ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                 : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800',
+      ].join(' ');
+
+      if (hasMatch) {
+        const dot = document.createElement('span');
+        dot.className = 'absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-red-500';
+        el.appendChild(dot);
+      }
+      grid.appendChild(el);
+    }
+  })();
 </script>
 </body>
 </html>
