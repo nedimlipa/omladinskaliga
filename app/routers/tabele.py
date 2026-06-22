@@ -442,8 +442,8 @@ async def admin_utakmica_dodaj(
     gost_id:       int           = Form(...),
     kolo:          Optional[int] = Form(None),
     datum_utakmice: Optional[str] = Form(None),
-    gol_domacin:   Optional[int] = Form(None),
-    gol_gost:      Optional[int] = Form(None),
+    gol_domacin:   Optional[str] = Form(None),
+    gol_gost:      Optional[str] = Form(None),
     napomena:      Optional[str] = Form(None),
     db: AsyncSession = Depends(get_db),
 ):
@@ -451,7 +451,9 @@ async def admin_utakmica_dodaj(
     if not user or user.get("tip") not in ("admin", "moderator"):
         return RedirectResponse("/login", status_code=302)
 
-    odigrana = gol_domacin is not None and gol_gost is not None
+    gd = int(gol_domacin) if gol_domacin and gol_domacin.strip() else None
+    gg = int(gol_gost)    if gol_gost    and gol_gost.strip()    else None
+    odigrana = gd is not None and gg is not None
     datum    = None
     if datum_utakmice and datum_utakmice.strip():
         try:
@@ -465,8 +467,8 @@ async def admin_utakmica_dodaj(
         gost_id=gost_id,
         kolo=kolo,
         datum_utakmice=datum,
-        gol_domacin=gol_domacin,
-        gol_gost=gol_gost,
+        gol_domacin=gd,
+        gol_gost=gg,
         odigrana=odigrana,
         napomena=napomena.strip() if napomena else None,
     ))
@@ -482,10 +484,10 @@ async def admin_utakmica_uredi(
     domacin_id:           int           = Form(...),
     gost_id:              int           = Form(...),
     kolo:                 Optional[int] = Form(None),
-    datum_utakmice_date:  Optional[str] = Form(None),   # YYYY-MM-DD
-    datum_utakmice_time:  Optional[str] = Form(None),   # HH:MM
-    gol_domacin:          Optional[int] = Form(None),
-    gol_gost:             Optional[int] = Form(None),
+    datum_utakmice_date:  Optional[str] = Form(None),
+    datum_utakmice_time:  Optional[str] = Form(None),
+    gol_domacin:          Optional[str] = Form(None),
+    gol_gost:             Optional[str] = Form(None),
     napomena:             Optional[str] = Form(None),
     db: AsyncSession = Depends(get_db),
 ):
@@ -495,12 +497,14 @@ async def admin_utakmica_uredi(
 
     u = (await db.execute(select(Utakmica).where(Utakmica.id == uid, Utakmica.tabela_id == tabela_id))).scalar_one_or_none()
     if u:
+        gd = int(gol_domacin) if gol_domacin and gol_domacin.strip() else None
+        gg = int(gol_gost)    if gol_gost    and gol_gost.strip()    else None
         u.domacin_id  = domacin_id
         u.gost_id     = gost_id
         u.kolo        = kolo
-        u.gol_domacin = gol_domacin
-        u.gol_gost    = gol_gost
-        u.odigrana    = gol_domacin is not None and gol_gost is not None
+        u.gol_domacin = gd
+        u.gol_gost    = gg
+        u.odigrana    = gd is not None and gg is not None
         u.napomena    = napomena.strip() if napomena else None
         if datum_utakmice_date and datum_utakmice_date.strip():
             time_str = datum_utakmice_time.strip() if datum_utakmice_time and datum_utakmice_time.strip() else "00:00"
