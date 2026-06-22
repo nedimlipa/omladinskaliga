@@ -214,13 +214,13 @@ async def admin_utakmice_pregled(
         all_items.append({"u": u, "tabela": tabela, "uzrast": uzrast, "takm": takm, "dom": dom, "gost": gost})
 
     # ── Odredi sljedeće kolo (min kolo s budućim neodigranim) ─
-    now = datetime.datetime.now()
+    now = datetime.datetime.now(datetime.timezone.utc)
     upcoming = [
         item["u"].kolo for item in all_items
         if not item["u"].je_bye
         and not item["u"].odigrana
         and item["u"].datum_utakmice
-        and item["u"].datum_utakmice >= now
+        and (item["u"].datum_utakmice if item["u"].datum_utakmice.tzinfo else item["u"].datum_utakmice.replace(tzinfo=datetime.timezone.utc)) >= now
         and item["u"].kolo
     ]
     next_kolo = min(upcoming, default=None)
