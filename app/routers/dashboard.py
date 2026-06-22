@@ -4,7 +4,8 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from ..database import get_db
-from ..models import Klub, Admin, Uzrast, Sezona, Takmicenje, PrijavaKluba, Igrac, Registracija, SluzbenoLice, RegistracijaSL, PozicijaSL
+from ..models import Klub, Admin, Uzrast, Sezona, Takmicenje, PrijavaKluba, Igrac, Registracija, SluzbenoLice, RegistracijaSL, PozicijaSL, Tabela, TabelaEkipa, Utakmica, TabelaSortPravilo
+from .tabele import _izracunaj
 from ..security import hash_password
 from .auth import get_current_user
 import os, io
@@ -183,6 +184,65 @@ async def klub_dashboard(request: Request, db: AsyncSession = Depends(get_db)):
         for reg, sl, poz in sl_rows
     ]
 
+    # ── Tabele u kojima je ovaj klub ─────────────────────────
+    moje_tabele = []
+    tabela_member_rows = (await db.execute(
+        select(Tabela, TabelaEkipa)
+        .join(TabelaEkipa, Tabela.id == TabelaEkipa.tabela_id)
+        .join(PrijavaKluba, TabelaEkipa.prijava_id == PrijavaKluba.id)
+        .where(
+            PrijavaKluba.klub_id  == klub_id,
+            Tabela.aktivan        == True,
+            TabelaEkipa.aktivan   == True,
+        )
+        .order_by(Tabela.kreiran_datum.desc())
+    )).all()
+
+    for t_tabela, moja_te in tabela_member_rows:
+        uzrast_t = (await db.execute(select(Uzrast).where(Uzrast.id == t_tabela.uzrast_id))).scalar_one_or_none()
+        sezona_t = (await db.execute(select(Sezona).where(Sezona.id == uzrast_t.sezona_id))).scalar_one_or_none() if uzrast_t else None
+        takm_t   = (await db.execute(select(Takmicenje).where(Takmicenje.id == uzrast_t.takmicenje_id))).scalar_one_or_none() if uzrast_t else None
+
+        ekipe_rows_t = (await db.execute(
+            select(TabelaEkipa, PrijavaKluba, Klub)
+            .join(PrijavaKluba, TabelaEkipa.prijava_id == PrijavaKluba.id)
+            .join(Klub, PrijavaKluba.klub_id == Klub.id)
+            .where(TabelaEkipa.tabela_id == t_tabela.id, TabelaEkipa.aktivan == True)
+            .order_by(Klub.naziv_kluba)
+        )).all()
+
+        utakmice_t = (await db.execute(
+            select(Utakmica)
+            .where(Utakmica.tabela_id == t_tabela.id)
+            .order_by(Utakmica.kolo, Utakmica.datum_utakmice)
+        )).scalars().all()
+
+        sort_pravila_t = (await db.execute(
+            select(TabelaSortPravilo)
+            .where(TabelaSortPravilo.tabela_id == t_tabela.id)
+            .order_by(TabelaSortPravilo.prioritet)
+        )).scalars().all()
+
+        klub_map_t = {
+            r[0].prijava_id: {"naziv": r[2].naziv_kluba, "logo": r[2].logo, "id": r[2].id}
+            for r in ekipe_rows_t
+        }
+        standings_t = _izracunaj(t_tabela, [r[0] for r in ekipe_rows_t], utakmice_t, sort_pravila_t, klub_map_t)
+
+        moj_rank = next((i + 1 for i, row in enumerate(standings_t) if row["klub"]["id"] == klub_id), None)
+        odigrane = sum(1 for u in utakmice_t if u.odigrana)
+
+        moje_tabele.append({
+            "tabela":    t_tabela,
+            "uzrast":    uzrast_t,
+            "sezona":    sezona_t,
+            "takm":      takm_t,
+            "standings": standings_t,
+            "moj_rank":  moj_rank,
+            "moja_prijava_id": moja_te.prijava_id,
+            "odigrane":  odigrane,
+        })
+
     return templates.TemplateResponse("dashboard_klub.html", {
         "request":        request,
         "user":           user,
@@ -193,6 +253,7 @@ async def klub_dashboard(request: Request, db: AsyncSession = Depends(get_db)):
         "moje_prijave":   moje_prijave,
         "igraci_kluba":   igraci_kluba,
         "sluzbena_kluba": sluzbena_kluba,
+        "moje_tabele":    moje_tabele,
     })
 
 
