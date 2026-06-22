@@ -195,6 +195,10 @@
             <th class="px-4 py-3"></th>
           </tr></thead>
           <tbody id="tbodyIgraci" class="divide-y divide-gray-100 dark:divide-gray-800">
+            {% for i in igraci %}
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition">
+              <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white whitespace-nowrap">{{ i.prezime }} {{ i.ime }}</td>
+              <td class="px-4 py-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">{{ i.datum }}</td>
               <td class="px-4 py-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">{{ i.drzavljanstvo }}</td>
               <td class="px-4 py-3 text-gray-700 dark:text-gray-300 whitespace-nowrap">{{ i.klub }}</td>
               <td class="px-4 py-3">
@@ -248,6 +252,10 @@
             <th class="px-4 py-3"></th>
           </tr></thead>
           <tbody id="tbodyReg" class="divide-y divide-gray-100 dark:divide-gray-800">
+            {% for r in registracije %}
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition">
+              <td class="px-4 py-3">
+                {% if r.status == 'aktivna' %}
                 <input type="checkbox" class="reg-checkbox rounded" value="{{ r.id }}"/>
                 {% endif %}
               </td>
