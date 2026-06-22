@@ -145,7 +145,7 @@
 
 <!-- ════════════════════════ MAIN CONTENT ════════════════════════ -->
 <main class="md:ml-64 pt-16 min-h-screen">
-  <div class="max-w-4xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+  <div class="px-4 sm:px-6 py-6 space-y-6">
 
   {% if not klub.aktivan %}
   <!-- ── NEAKTIVAN NALOG ── -->
@@ -463,7 +463,7 @@
 
     <!-- ── Sljedeće utakmice + Kalendar ── -->
     {% if upcoming_matches or kalendar_dani %}
-    <div class="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4">
+    <div class="grid grid-cols-1 xl:grid-cols-[1fr_280px] gap-4">
 
       <!-- Sljedeće utakmice -->
       <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
