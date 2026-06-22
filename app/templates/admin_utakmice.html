@@ -161,23 +161,41 @@
 
       <div class="divide-y divide-gray-100 dark:divide-gray-800/60">
         {% for item in utakmice %}
-        <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-1.5 px-3 py-3">
-          <p class="text-sm font-bold text-gray-900 dark:text-white text-right truncate">{{ item.dom.naziv if item.dom else '—' }}</p>
-          <div class="flex flex-col items-center gap-0.5 min-w-[72px]">
+        <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-3 py-3">
+          <!-- Domaćin -->
+          <div class="flex items-center justify-end gap-2 min-w-0">
+            <p class="text-sm font-bold text-gray-900 dark:text-white text-right truncate">{{ item.dom.naziv if item.dom else '—' }}</p>
+            {% if item.dom and item.dom.logo %}
+            <img src="/static/logos/{{ item.dom.logo }}" alt="" class="w-8 h-8 rounded-lg object-cover flex-shrink-0 shadow-sm"/>
+            {% else %}
+            <div class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0 text-gray-400 dark:text-gray-600 text-[10px] font-black">{{ (item.dom.naziv[:2] if item.dom else '?').upper() }}</div>
+            {% endif %}
+          </div>
+          <!-- Centar -->
+          <div class="flex flex-col items-center gap-0.5 min-w-[76px]">
             {% if item.u.je_bye %}
               <span class="px-2 py-0.5 rounded-lg text-[10px] font-extrabold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-700/40 whitespace-nowrap">SLOBODNA</span>
             {% elif item.u.odigrana %}
-              <span class="px-2.5 py-0.5 rounded-xl text-sm font-extrabold bg-gray-900 dark:bg-gray-950 text-white border border-gray-700 tracking-wide">{{ item.u.gol_domacin }} : {{ item.u.gol_gost }}</span>
+              <span class="px-3 py-1 rounded-xl text-sm font-extrabold bg-gray-900 dark:bg-gray-950 text-white border border-gray-700 tracking-wide tabular-nums shadow-sm">{{ item.u.gol_domacin }} : {{ item.u.gol_gost }}</span>
             {% elif item.u.datum_utakmice %}
               <span class="text-xs font-extrabold text-blue-600 dark:text-blue-400 whitespace-nowrap">{{ item.u.datum_utakmice.strftime('%H:%M') }}</span>
             {% else %}
               <span class="text-xs font-bold text-gray-400 dark:text-gray-600">vs</span>
             {% endif %}
           </div>
-          <p class="text-sm font-bold text-gray-900 dark:text-white text-left truncate">
-            {% if item.u.je_bye %}<span class="text-amber-600 dark:text-amber-400 italic text-xs">Slobodna</span>
-            {% else %}{{ item.gost.naziv if item.gost else '—' }}{% endif %}
-          </p>
+          <!-- Gost -->
+          <div class="flex items-center gap-2 min-w-0">
+            {% if item.u.je_bye %}
+              <span class="text-amber-600 dark:text-amber-400 italic text-xs font-semibold">Slobodna</span>
+            {% else %}
+              {% if item.gost and item.gost.logo %}
+              <img src="/static/logos/{{ item.gost.logo }}" alt="" class="w-8 h-8 rounded-lg object-cover flex-shrink-0 shadow-sm"/>
+              {% else %}
+              <div class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0 text-gray-400 dark:text-gray-600 text-[10px] font-black">{{ (item.gost.naziv[:2] if item.gost else '?').upper() }}</div>
+              {% endif %}
+              <p class="text-sm font-bold text-gray-900 dark:text-white text-left truncate">{{ item.gost.naziv if item.gost else '—' }}</p>
+            {% endif %}
+          </div>
         </div>
         {% if item.u.napomena %}<div class="px-3 pb-1.5 -mt-2 text-[10px] text-amber-600 dark:text-amber-400 italic truncate">{{ item.u.napomena }}</div>{% endif %}
         {% endfor %}
