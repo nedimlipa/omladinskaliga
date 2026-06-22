@@ -356,6 +356,9 @@
             </tr>
           </thead>
           <tbody id="tbodyKlubovi" class="divide-y divide-gray-100 dark:divide-gray-800">
+            {% for k in klubovi %}
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition">
+              <td class="px-5 py-3.5 text-gray-400 dark:text-gray-600 text-xs font-mono">{{ k.id }}</td>
               <td class="px-5 py-3.5 font-bold text-gray-900 dark:text-white whitespace-nowrap">{{ k.naziv_kluba }}</td>
               <td class="px-5 py-3.5 text-gray-500 dark:text-gray-400">@{{ k.username }}</td>
               <td class="px-5 py-3.5 text-gray-500 dark:text-gray-400">{{ k.email }}</td>
