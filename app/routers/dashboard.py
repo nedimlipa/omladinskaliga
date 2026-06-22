@@ -8,7 +8,7 @@ from ..models import Klub, Admin, Uzrast, Sezona, Takmicenje, PrijavaKluba, Igra
 from .tabele import _izracunaj
 from ..security import hash_password
 from .auth import get_current_user
-import os, io
+import os, io, time
 from PIL import Image
 
 router = APIRouter()
@@ -331,7 +331,7 @@ async def upload_logo(
 
     os.makedirs(LOGO_DIR, exist_ok=True)
     klub_id  = int(user["sub"])
-    filename = f"klub_{klub_id}.jpg"
+    filename = f"klub_{klub_id}_{int(time.time())}.jpg"
     filepath = os.path.join(LOGO_DIR, filename)
 
     with open(filepath, "wb") as f:
@@ -339,6 +339,11 @@ async def upload_logo(
 
     klub = await db.get(Klub, klub_id)
     if klub:
+        # Obriši stari logo fajl ako postoji
+        if klub.logo and klub.logo != filename:
+            old_path = os.path.join(LOGO_DIR, klub.logo)
+            if os.path.isfile(old_path):
+                os.remove(old_path)
         klub.logo = filename
         await db.commit()
 

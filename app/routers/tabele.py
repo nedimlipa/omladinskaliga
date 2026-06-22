@@ -27,6 +27,51 @@ KRITERIJI = [
 ]
 
 
+# ─── Berger schedule generator ────────────────────────────────────────────────
+
+def _berger_schedule(n_real: int, dvokruzni: bool = True) -> list[list[tuple]]:
+    """Generira raspored po Bergerovom sistemu.
+
+    Vraća listu kola; svako kolo je lista (home_seed, away_seed | None, is_bye).
+    BYE: is_bye=True, away_seed=None — ekipa je slobodna to kolo.
+
+    Za neparan broj ekipa dodaje se slot BYE = n_real+1.
+    """
+    n = n_real
+    has_bye = (n % 2 == 1)
+    if has_bye:
+        n += 1  # BYE slot = n (nije dodijeljen nijednoj ekipi)
+
+    teams = list(range(1, n + 1))   # [1, 2, ..., n]  — teams[0]=1 je fiksan
+    rounds: list[list[tuple]] = []
+
+    for _ in range(n - 1):
+        pairs: list[tuple] = []
+        for i in range(n // 2):
+            home = teams[i]
+            away = teams[n - 1 - i]
+            if has_bye and home == n:
+                pairs.append((away, None, True))   # 'away' je slobodan
+            elif has_bye and away == n:
+                pairs.append((home, None, True))   # 'home' je slobodan
+            else:
+                pairs.append((home, away, False))
+        rounds.append(pairs)
+        # Rotacija: teams[0] fiksan; zadnji element teams[1:] ide na čelo
+        teams = [teams[0]] + [teams[-1]] + teams[1:-1]
+
+    if dvokruzni:
+        # Druga polovina = iste utakmice, zamijenjen domaćin/gost
+        second: list[list[tuple]] = []
+        for rnd in rounds:
+            swapped = [(a, h, bye) if not bye else (h, None, bye)
+                       for (h, a, bye) in rnd]
+            second.append(swapped)
+        rounds = rounds + second
+
+    return rounds
+
+
 # ─── helper: izračun tabele ───────────────────────────────────────────────────
 
 def _izracunaj(tabela: Tabela, ekipe, utakmice, sort_pravila, klub_map: dict) -> list:
@@ -267,20 +312,57 @@ async def admin_tabela_detalji(tabela_id: int, request: Request, db: AsyncSessio
     te_list  = [r[0] for r in ekipe_rows]
     standings = _izracunaj(tabela, te_list, utakmice_rows, sort_pravila, klub_map)
 
+    # ── Seed info za Raspored tab ────────────────────────────────────────────
+    active_ekipe  = [e for e in ekipe if e["te"].aktivan]
+    n_active      = len(active_ekipe)
+    seeds_set_list = [e["te"].seed_broj for e in active_ekipe if e["te"].seed_broj is not None]
+    seeds_valid = (
+        len(seeds_set_list) == n_active and
+        n_active > 0 and
+        sorted(seeds_set_list) == list(range(1, n_active + 1))
+    )
+    seed_to_naziv: dict[int, str] = {
+        e["te"].seed_broj: e["klub"].naziv_kluba
+        for e in active_ekipe if e["te"].seed_broj is not None
+    }
+
+    berger_preview: list | None = None
+    if seeds_valid:
+        raw = _berger_schedule(n_active, dvokruzni=True)
+        berger_preview = []
+        for rnd in raw:
+            round_display = []
+            for (h, a, bye) in rnd:
+                round_display.append({
+                    "home":       seed_to_naziv.get(h, f"Seed {h}"),
+                    "away":       seed_to_naziv.get(a, "?") if a else "Slobodna ekipa",
+                    "bye":        bye,
+                    "home_seed":  h,
+                    "away_seed":  a,
+                })
+            berger_preview.append(round_display)
+
     return templates.TemplateResponse("admin_tabela_detalji.html", {
-        "request":      request,
-        "user":         user,
-        "tabela":       tabela,
-        "uzrast":       uzrast,
-        "sezona":       sezona,
-        "takm":         takm,
-        "ekipe":        ekipe,
-        "slobodne":     slobodne,
-        "utakmice":     utakmice_rows,
-        "prijava_klub": prijava_klub,
-        "sort_pravila": sort_pravila,
-        "standings":    standings,
-        "kriteriji":    KRITERIJI,
+        "request":        request,
+        "user":           user,
+        "tabela":         tabela,
+        "uzrast":         uzrast,
+        "sezona":         sezona,
+        "takm":           takm,
+        "ekipe":          ekipe,
+        "slobodne":       slobodne,
+        "utakmice":       utakmice_rows,
+        "prijava_klub":   prijava_klub,
+        "sort_pravila":   sort_pravila,
+        "standings":      standings,
+        "kriteriji":      KRITERIJI,
+        # Raspored tab
+        "seeds_valid":    seeds_valid,
+        "n_active":       n_active,
+        "n_seeds_set":    len(seeds_set_list),
+        "berger_preview": berger_preview,
+        "n_utakmica":     len(utakmice_rows),
+        "n_kola_preview": len(berger_preview) if berger_preview else 0,
     })
 
 
@@ -521,6 +603,116 @@ async def admin_sort_dole(
             await db.commit()
             break
     return RedirectResponse(f"/admin/tabela/{tabela_id}", status_code=303)
+
+
+# ═══════════════════════════════════════════════════════════════
+#  ADMIN — Seed (žrijeb broj za ekipu u tabeli)
+# ═══════════════════════════════════════════════════════════════
+
+@router.post("/admin/tabela/{tabela_id}/ekipa/{te_id}/seed")
+async def admin_tabela_seed(
+    tabela_id: int,
+    te_id:     int,
+    request:   Request,
+    seed_broj: Optional[int] = Form(None),
+    db: AsyncSession = Depends(get_db),
+):
+    user = get_current_user(request)
+    if not user or user.get("tip") not in ("admin", "moderator"):
+        return RedirectResponse("/login", status_code=302)
+    te = (await db.execute(
+        select(TabelaEkipa).where(TabelaEkipa.id == te_id, TabelaEkipa.tabela_id == tabela_id)
+    )).scalar_one_or_none()
+    if te:
+        te.seed_broj = seed_broj if seed_broj and seed_broj > 0 else None
+        await db.commit()
+    return RedirectResponse(f"/admin/tabela/{tabela_id}#ekipe", status_code=303)
+
+
+# ═══════════════════════════════════════════════════════════════
+#  ADMIN — Generiraj Bergerov raspored
+# ═══════════════════════════════════════════════════════════════
+
+@router.post("/admin/tabela/{tabela_id}/raspored/generiraj")
+async def admin_raspored_generiraj(
+    tabela_id: int,
+    request:   Request,
+    format:    str = Form("dvokruzni"),
+    db: AsyncSession = Depends(get_db),
+):
+    user = get_current_user(request)
+    if not user or user.get("tip") not in ("admin", "moderator"):
+        return RedirectResponse("/login", status_code=302)
+
+    tabela = (await db.execute(select(Tabela).where(Tabela.id == tabela_id))).scalar_one_or_none()
+    if not tabela:
+        raise HTTPException(status_code=404, detail="Tabela nije pronađena")
+
+    # Dohvati aktivne ekipe sa seed brojevima
+    te_list = (await db.execute(
+        select(TabelaEkipa)
+        .where(TabelaEkipa.tabela_id == tabela_id, TabelaEkipa.aktivan == True)
+    )).scalars().all()
+
+    n = len(te_list)
+    seeds = [te.seed_broj for te in te_list if te.seed_broj is not None]
+
+    # Validacija: svi moraju imati seed i mora biti 1..N bez duplikata
+    if len(seeds) != n or sorted(seeds) != list(range(1, n + 1)):
+        return RedirectResponse(f"/admin/tabela/{tabela_id}#raspored", status_code=303)
+
+    seed_map: dict[int, int] = {te.seed_broj: te.prijava_id for te in te_list}
+
+    # Obriši postojeće neodigrane utakmice
+    existing = (await db.execute(
+        select(Utakmica)
+        .where(Utakmica.tabela_id == tabela_id, Utakmica.odigrana == False)
+    )).scalars().all()
+    for u in existing:
+        await db.delete(u)
+    await db.commit()
+
+    # Generiraj raspored
+    dvokruzni = (format == "dvokruzni")
+    schedule = _berger_schedule(n, dvokruzni=dvokruzni)
+
+    for kolo_idx, rnd in enumerate(schedule, 1):
+        for (h_seed, a_seed, bye) in rnd:
+            dom_prijava  = seed_map[h_seed]
+            gost_prijava = seed_map[a_seed] if a_seed is not None else None
+            db.add(Utakmica(
+                tabela_id  = tabela_id,
+                domacin_id = dom_prijava,
+                gost_id    = gost_prijava,
+                je_bye     = bye,
+                kolo       = kolo_idx,
+                odigrana   = False,
+            ))
+    await db.commit()
+    return RedirectResponse(f"/admin/tabela/{tabela_id}#utakmice", status_code=303)
+
+
+# ═══════════════════════════════════════════════════════════════
+#  ADMIN — Obriši raspored (sve neodigrane utakmice)
+# ═══════════════════════════════════════════════════════════════
+
+@router.post("/admin/tabela/{tabela_id}/raspored/obrisi")
+async def admin_raspored_obrisi(
+    tabela_id: int,
+    request:   Request,
+    db: AsyncSession = Depends(get_db),
+):
+    user = get_current_user(request)
+    if not user or user.get("tip") not in ("admin", "moderator"):
+        return RedirectResponse("/login", status_code=302)
+    existing = (await db.execute(
+        select(Utakmica)
+        .where(Utakmica.tabela_id == tabela_id, Utakmica.odigrana == False)
+    )).scalars().all()
+    for u in existing:
+        await db.delete(u)
+    await db.commit()
+    return RedirectResponse(f"/admin/tabela/{tabela_id}#raspored", status_code=303)
 
 
 # ═══════════════════════════════════════════════════════════════

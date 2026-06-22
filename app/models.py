@@ -173,6 +173,7 @@ class TabelaEkipa(Base):
     id               = Column(Integer, primary_key=True)
     tabela_id        = Column(Integer, ForeignKey("tabele.id"), nullable=False)
     prijava_id       = Column(Integer, ForeignKey("prijave_klubova.id"), nullable=False)
+    seed_broj        = Column(Integer, nullable=True)              # žrijeb: 1..N
     bonus_bodovi     = Column(Integer, nullable=False, default=0)
     kazneni_bodovi   = Column(Integer, nullable=False, default=0)
     aktivan          = Column(Boolean, nullable=False, default=True)
@@ -185,7 +186,8 @@ class Utakmica(Base):
     id              = Column(Integer, primary_key=True)
     tabela_id       = Column(Integer, ForeignKey("tabele.id"), nullable=False)
     domacin_id      = Column(Integer, ForeignKey("prijave_klubova.id"), nullable=False)
-    gost_id         = Column(Integer, ForeignKey("prijave_klubova.id"), nullable=False)
+    gost_id         = Column(Integer, ForeignKey("prijave_klubova.id"), nullable=True)   # NULL za BYE
+    je_bye          = Column(Boolean, nullable=False, default=False)  # slobodna ekipa
     gol_domacin     = Column(Integer, nullable=True)    # NULL = nije odigrana
     gol_gost        = Column(Integer, nullable=True)
     odigrana        = Column(Boolean, nullable=False, default=False)

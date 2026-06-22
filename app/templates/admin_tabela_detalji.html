@@ -210,6 +210,10 @@
         class="tab-btn px-4 py-2 text-sm font-semibold rounded-xl transition text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
         ⚙️ Sortiranje
       </button>
+      <button onclick="switchTab('raspored')" id="tab-raspored"
+        class="tab-btn px-4 py-2 text-sm font-semibold rounded-xl transition text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+        🗓 Raspored
+      </button>
     </div>
 
     <!-- ════ TAB: Standings ════ -->
@@ -249,7 +253,7 @@
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-2.5">
                     {% if row.klub.logo %}
-                    <img src="/static/logos/klub_{{ row.klub.id }}.jpg" alt="" class="w-7 h-7 rounded-lg object-cover flex-shrink-0" />
+                    <img src="/static/logos/{{ row.klub.logo }}" alt="" class="w-7 h-7 rounded-lg object-cover flex-shrink-0" />
                     {% else %}
                     <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                       {{ row.klub.naziv[0] | upper if row.klub.naziv else '?' }}
@@ -324,9 +328,10 @@
         <ul class="divide-y divide-gray-100 dark:divide-gray-800">
           {% for e in ekipe %}
           <li class="flex items-center justify-between gap-3 px-5 py-3.5 hover:bg-gray-50 dark:hover:bg-gray-800/40 transition">
-            <div class="flex items-center gap-3">
+            <!-- Logo + naziv -->
+            <div class="flex items-center gap-3 flex-1 min-w-0">
               {% if e.klub.logo %}
-              <img src="/static/logos/klub_{{ e.klub.id }}.jpg" alt="" class="w-8 h-8 rounded-lg object-cover" />
+              <img src="/static/logos/{{ e.klub.logo }}" alt="" class="w-8 h-8 rounded-lg object-cover" />
               {% else %}
               <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-white text-xs font-bold">
                 {{ e.klub.naziv_kluba[0] | upper }}
@@ -342,6 +347,26 @@
                 {% endif %}
               </div>
             </div>
+            <!-- Seed broj (žrijeb) -->
+            <form method="POST" action="/admin/tabela/{{ tabela.id }}/ekipa/{{ e.te.id }}/seed"
+              class="flex items-center gap-1.5 flex-shrink-0">
+              <span class="text-xs text-gray-400 dark:text-gray-500 font-semibold hidden sm:inline">Br.</span>
+              <input type="number" name="seed_broj" min="1" max="{{ ekipe | length }}"
+                value="{{ e.te.seed_broj if e.te.seed_broj else '' }}"
+                placeholder="—"
+                class="w-14 px-2 py-1.5 text-sm text-center rounded-lg border
+                  {% if e.te.seed_broj %}border-violet-400 dark:border-violet-600 bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-300 font-bold
+                  {% else %}border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white{% endif %}
+                  focus:ring-2 focus:ring-violet-500 focus:border-transparent" />
+              <button type="submit"
+                class="p-1.5 rounded-lg bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 hover:bg-violet-200 dark:hover:bg-violet-800/40 transition"
+                title="Spremi broj žrijeba">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                </svg>
+              </button>
+            </form>
+            <!-- Ukloni -->
             <form method="POST" action="/admin/tabela/{{ tabela.id }}/ekipa/{{ e.te.id }}/ukloni"
               onsubmit="return confirm('Ukloniti {{ e.klub.naziv_kluba }} iz tabele?')">
               <button type="submit"
@@ -360,6 +385,166 @@
         </div>
         {% endif %}
       </div>
+    </div>
+
+    <!-- ════ TAB: Raspored (Berger) ════ -->
+    <div id="panel-raspored" class="hidden space-y-4">
+
+      <!-- Status žrijeba -->
+      <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-5">
+        <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
+          <h3 class="text-sm font-bold text-gray-900 dark:text-white">Žrijeb — dodjela brojeva ekipama</h3>
+          <div class="flex items-center gap-2 text-xs">
+            <span class="px-2.5 py-1 rounded-full font-bold
+              {% if seeds_valid %}bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400
+              {% else %}bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400{% endif %}">
+              {{ n_seeds_set }}/{{ n_active }} dodijeljeno
+            </span>
+          </div>
+        </div>
+        {% if not seeds_valid and n_active > 0 %}
+        <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50 rounded-xl p-3 text-xs text-amber-700 dark:text-amber-400 mb-4">
+          {% if n_seeds_set == 0 %}
+          Nijedna ekipa nema dodijeljen broj žrijeba. Idi na tab <strong>Ekipe</strong> i unesi brojeve 1–{{ n_active }} za svaku ekipu.
+          {% elif n_seeds_set < n_active %}
+          {{ n_active - n_seeds_set }} ekipa {{ 'nema' if (n_active - n_seeds_set) == 1 else 'nemaju' }} dodijeljen broj. Svi moraju imati jedinstveni broj 1–{{ n_active }}.
+          {% else %}
+          Brojevi nisu ispravni — moraju biti 1 do {{ n_active }} bez ponavljanja.
+          {% endif %}
+        </div>
+        {% endif %}
+
+        {% if seeds_valid %}
+        <!-- Pregled žrijeba -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-gray-50 dark:bg-gray-800/60 border-b border-gray-200 dark:border-gray-700">
+                <th class="px-3 py-2 text-center text-xs font-bold text-gray-400 uppercase tracking-wider w-12">Br.</th>
+                <th class="px-4 py-2 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Ekipa</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+              {% for e in ekipe | sort(attribute='te.seed_broj') if e.te.aktivan and e.te.seed_broj %}
+              <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40">
+                <td class="px-3 py-2.5 text-center">
+                  <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400 font-extrabold text-sm">
+                    {{ e.te.seed_broj }}
+                  </span>
+                </td>
+                <td class="px-4 py-2.5 font-semibold text-gray-900 dark:text-white text-sm">{{ e.klub.naziv_kluba }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Generiraj raspored -->
+      {% if seeds_valid %}
+      <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-5">
+        <h3 class="text-sm font-bold text-gray-900 dark:text-white mb-1">Generiraj Bergerov raspored</h3>
+        <p class="text-xs text-gray-400 dark:text-gray-500 mb-4">
+          {{ n_active }} ekip{{ 'a' if n_active == 1 else 'e' if n_active < 5 else 'a' }} →
+          <strong class="text-gray-700 dark:text-gray-300">{{ n_active - 1 if n_active % 2 == 0 else n_active }} kola</strong> (jednokružni) /
+          <strong class="text-gray-700 dark:text-gray-300">{{ (n_active - 1) * 2 if n_active % 2 == 0 else n_active * 2 }} kola</strong> (dvokružni)
+          {% if n_active % 2 == 1 %} · <span class="text-orange-600 dark:text-orange-400 font-semibold">Neparan broj — 1 ekipa slobodna po kolu</span>{% endif %}
+        </p>
+        {% if n_utakmica > 0 %}
+        <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50 rounded-xl p-3 text-xs text-amber-700 dark:text-amber-400 mb-4">
+          ⚠️ Postoji {{ n_utakmica }} utakmica. Generisanjem se brišu sve <strong>neodigrane</strong> utakmice i kreira novi raspored.
+        </div>
+        {% endif %}
+        <form method="POST" action="/admin/tabela/{{ tabela.id }}/raspored/generiraj"
+          {% if n_utakmica > 0 %}onsubmit="return confirm('Brisanje neodigranih utakmica i generisanje novog rasporeda?')"{% endif %}>
+          <div class="flex flex-wrap items-end gap-4">
+            <div>
+              <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Format</label>
+              <div class="flex gap-2">
+                <label class="flex items-center gap-2 cursor-pointer px-3 py-2 rounded-xl border-2 border-violet-400 dark:border-violet-600 bg-violet-50 dark:bg-violet-900/20 has-[:checked]:border-violet-600 has-[:checked]:bg-violet-100 dark:has-[:checked]:bg-violet-900/40 transition">
+                  <input type="radio" name="format" value="dvokruzni" checked class="accent-violet-600" />
+                  <span class="text-sm font-semibold text-violet-700 dark:text-violet-400">Dvokružni</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer px-3 py-2 rounded-xl border-2 border-gray-300 dark:border-gray-700 hover:border-gray-400 transition">
+                  <input type="radio" name="format" value="jednokruzni" class="accent-violet-600" />
+                  <span class="text-sm font-semibold text-gray-600 dark:text-gray-400">Jednokružni</span>
+                </label>
+              </div>
+            </div>
+            <button type="submit"
+              class="px-6 py-2.5 text-sm font-bold rounded-xl bg-violet-600 hover:bg-violet-700 text-white transition shadow-sm">
+              Generiši raspored
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Berger preview -->
+      <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+          <h3 class="text-sm font-bold text-gray-900 dark:text-white">Pregled rasporeda (dvokružni)</h3>
+          <span class="text-xs text-gray-400">{{ n_kola_preview }} kola · {{ n_active }} ekipa</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs">
+            <thead>
+              <tr class="bg-gray-50 dark:bg-gray-800/60 border-b border-gray-200 dark:border-gray-700">
+                <th class="px-3 py-2 text-center font-bold text-gray-400 uppercase tracking-wider w-16">Kolo</th>
+                <th class="px-4 py-2 text-left font-bold text-gray-400 uppercase tracking-wider">Utakmice</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+              {% for rnd in berger_preview %}
+              {% set kolo_idx = loop.index %}
+              <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 {% if kolo_idx > (n_kola_preview // 2) %}bg-blue-50/30 dark:bg-blue-900/5{% endif %}">
+                <td class="px-3 py-2.5 text-center font-bold
+                  {% if kolo_idx > (n_kola_preview // 2) %}text-blue-600 dark:text-blue-400{% else %}text-gray-500 dark:text-gray-400{% endif %}">
+                  {{ kolo_idx }}
+                  {% if kolo_idx > (n_kola_preview // 2) %}
+                  <span class="block text-[9px] font-semibold text-blue-400 dark:text-blue-500 uppercase tracking-wider">2. krug</span>
+                  {% endif %}
+                </td>
+                <td class="px-4 py-2.5">
+                  <div class="flex flex-wrap gap-x-4 gap-y-1">
+                    {% for m in rnd %}
+                    <span class="{% if m.bye %}text-orange-600 dark:text-orange-400 italic{% else %}text-gray-700 dark:text-gray-300{% endif %}">
+                      {% if m.bye %}
+                      <span class="font-semibold">{{ m.home }}</span> — <span class="font-bold text-orange-500">SLOBODNA</span>
+                      {% else %}
+                      <span class="font-semibold">{{ m.home }}</span> – <span class="font-semibold">{{ m.away }}</span>
+                      {% endif %}
+                    </span>
+                    {% endfor %}
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Obriši raspored -->
+      {% if n_utakmica > 0 %}
+      <div class="bg-white dark:bg-gray-900 rounded-2xl border border-red-200 dark:border-red-900/40 shadow-sm p-5">
+        <div class="flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <h3 class="text-sm font-bold text-gray-900 dark:text-white">Obriši neodigrane utakmice</h3>
+            <p class="text-xs text-gray-400 mt-0.5">Briše se {{ n_utakmica }} utakmica (samo neodigrane). Odigrane ostaju.</p>
+          </div>
+          <form method="POST" action="/admin/tabela/{{ tabela.id }}/raspored/obrisi"
+            onsubmit="return confirm('Obrisati sve neodigrane utakmice iz ovog rasporeda?')">
+            <button type="submit"
+              class="px-4 py-2 text-sm font-bold rounded-xl bg-red-600 hover:bg-red-700 text-white transition">
+              Obriši raspored
+            </button>
+          </form>
+        </div>
+      </div>
+      {% endif %}
+
     </div>
 
     <!-- ════ TAB: Utakmice ════ -->
@@ -461,7 +646,9 @@
                   {{ prijava_klub.get(u.domacin_id, '?') }}
                 </span>
                 <span class="flex-shrink-0 text-center min-w-[4rem]">
-                  {% if u.odigrana %}
+                  {% if u.je_bye %}
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-lg bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-[10px] font-extrabold uppercase tracking-wider">slobodna</span>
+                  {% elif u.odigrana %}
                   <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-gray-100 dark:bg-gray-800 font-extrabold text-sm text-gray-900 dark:text-white">
                     {{ u.gol_domacin }} : {{ u.gol_gost }}
                   </span>
@@ -472,17 +659,23 @@
                   {% endif %}
                 </span>
                 <span class="text-sm font-semibold text-gray-900 dark:text-white truncate text-right flex-1">
+                  {% if u.je_bye %}
+                  <span class="text-orange-500 italic text-xs">Slobodna ekipa</span>
+                  {% else %}
                   {{ prijava_klub.get(u.gost_id, '?') }}
+                  {% endif %}
                 </span>
               </div>
               <div class="flex items-center gap-1 flex-shrink-0 ml-2">
+                {% if not u.je_bye %}
                 <!-- Edit button -->
-                <button onclick="openEditModal({{ u.id }}, {{ u.domacin_id }}, {{ u.gost_id }}, {{ u.gol_domacin if u.gol_domacin is not none else 'null' }}, {{ u.gol_gost if u.gol_gost is not none else 'null' }}, {{ u.kolo if u.kolo else 'null' }}, '{{ u.napomena or '' }}')"
+                <button onclick="openEditModal({{ u.id }}, {{ u.domacin_id }}, {{ u.gost_id if u.gost_id is not none else 'null' }}, {{ u.gol_domacin if u.gol_domacin is not none else 'null' }}, {{ u.gol_gost if u.gol_gost is not none else 'null' }}, {{ u.kolo if u.kolo else 'null' }}, '{{ u.napomena or '' }}')"
                   class="p-1.5 rounded-lg text-violet-500 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                   </svg>
                 </button>
+                {% endif %}
                 <!-- Delete button -->
                 <form method="POST" action="/admin/tabela/{{ tabela.id }}/utakmica/{{ u.id }}/ukloni"
                   onsubmit="return confirm('Obrisati ovu utakmicu?')">
@@ -717,7 +910,7 @@
   document.addEventListener('click', () => userMenu.classList.add('hidden'));
 
   // Tabs
-  const panels = ['standings', 'ekipe', 'utakmice', 'sort'];
+  const panels = ['standings', 'ekipe', 'utakmice', 'sort', 'raspored'];
   function switchTab(name) {
     panels.forEach(p => {
       document.getElementById('panel-' + p).classList.toggle('hidden', p !== name);
@@ -747,6 +940,7 @@
   // URL hash za tab (opcionalno)
   const hash = window.location.hash.replace('#', '');
   if (panels.includes(hash)) switchTab(hash);
+  else switchTab('standings');
 </script>
 </body>
 </html>
