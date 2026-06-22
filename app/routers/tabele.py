@@ -521,3 +521,98 @@ async def admin_sort_dole(
             await db.commit()
             break
     return RedirectResponse(f"/admin/tabela/{tabela_id}", status_code=303)
+
+
+# ═══════════════════════════════════════════════════════════════
+#  KLUB — Pregled tabela
+# ═══════════════════════════════════════════════════════════════
+
+async def _get_klub_tabele(klub_id: int, db: AsyncSession) -> list:
+    """Zajednička logika: dohvat svih tabela u kojima je klub, sa standings."""
+    moje_tabele = []
+    tabela_member_rows = (await db.execute(
+        select(Tabela, TabelaEkipa)
+        .join(TabelaEkipa, Tabela.id == TabelaEkipa.tabela_id)
+        .join(PrijavaKluba, TabelaEkipa.prijava_id == PrijavaKluba.id)
+        .where(
+            PrijavaKluba.klub_id == klub_id,
+            Tabela.aktivan == True,
+            TabelaEkipa.aktivan == True,
+        )
+        .order_by(Tabela.kreiran_datum.desc())
+    )).all()
+
+    for t_tabela, moja_te in tabela_member_rows:
+        uzrast_t = (await db.execute(select(Uzrast).where(Uzrast.id == t_tabela.uzrast_id))).scalar_one_or_none()
+        sezona_t = (await db.execute(select(Sezona).where(Sezona.id == uzrast_t.sezona_id))).scalar_one_or_none() if uzrast_t else None
+        takm_t   = (await db.execute(select(Takmicenje).where(Takmicenje.id == uzrast_t.takmicenje_id))).scalar_one_or_none() if uzrast_t else None
+
+        ekipe_rows_t = (await db.execute(
+            select(TabelaEkipa, PrijavaKluba, Klub)
+            .join(PrijavaKluba, TabelaEkipa.prijava_id == PrijavaKluba.id)
+            .join(Klub, PrijavaKluba.klub_id == Klub.id)
+            .where(TabelaEkipa.tabela_id == t_tabela.id, TabelaEkipa.aktivan == True)
+            .order_by(Klub.naziv_kluba)
+        )).all()
+
+        utakmice_t = (await db.execute(
+            select(Utakmica)
+            .where(Utakmica.tabela_id == t_tabela.id)
+            .order_by(Utakmica.kolo, Utakmica.datum_utakmice)
+        )).scalars().all()
+
+        sort_pravila_t = (await db.execute(
+            select(TabelaSortPravilo)
+            .where(TabelaSortPravilo.tabela_id == t_tabela.id)
+            .order_by(TabelaSortPravilo.prioritet)
+        )).scalars().all()
+
+        klub_map_t = {
+            r[0].prijava_id: {"naziv": r[2].naziv_kluba, "logo": r[2].logo, "id": r[2].id}
+            for r in ekipe_rows_t
+        }
+        standings_t = _izracunaj(t_tabela, [r[0] for r in ekipe_rows_t], utakmice_t, sort_pravila_t, klub_map_t)
+
+        moj_rank = next((i + 1 for i, row in enumerate(standings_t) if row["klub"]["id"] == klub_id), None)
+        prijava_klub_t = {r[0].prijava_id: r[2].naziv_kluba for r in ekipe_rows_t}
+        odigrane = sum(1 for u in utakmice_t if u.odigrana)
+
+        # Utakmice kluba (odigrane)
+        moje_utakmice = [
+            u for u in utakmice_t
+            if u.odigrana and (u.domacin_id == moja_te.prijava_id or u.gost_id == moja_te.prijava_id)
+        ]
+
+        moje_tabele.append({
+            "tabela":      t_tabela,
+            "uzrast":      uzrast_t,
+            "sezona":      sezona_t,
+            "takm":        takm_t,
+            "standings":   standings_t,
+            "moj_rank":    moj_rank,
+            "n_ekipa":     len(standings_t),
+            "moja_prijava_id": moja_te.prijava_id,
+            "odigrane":    odigrane,
+            "moje_utakmice": moje_utakmice,
+            "prijava_klub": prijava_klub_t,
+        })
+
+    return moje_tabele
+
+
+@router.get("/klub/tabele", response_class=HTMLResponse)
+async def klub_tabele_page(request: Request, db: AsyncSession = Depends(get_db)):
+    user = get_current_user(request)
+    if not user or user.get("tip") != "klub":
+        return RedirectResponse("/login", status_code=302)
+
+    klub_id = int(user["sub"])
+    klub = (await db.execute(select(Klub).where(Klub.id == klub_id))).scalar_one_or_none()
+    moje_tabele = await _get_klub_tabele(klub_id, db)
+
+    return templates.TemplateResponse("klub_tabele.html", {
+        "request":     request,
+        "user":        user,
+        "klub":        klub,
+        "moje_tabele": moje_tabele,
+    })
