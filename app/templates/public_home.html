@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="bs" id="html-root">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ORL Sjever — Omladinska Rukometna Liga</title>
+  <script>(function(){const t=localStorage.getItem('theme')||'dark';document.documentElement.classList.toggle('dark',t==='dark');})();</script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{sans:['Plus Jakarta Sans','system-ui','sans-serif']}}}}</script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;}
+    .tab-btn.active{color:#dc2626;border-bottom-color:#dc2626;}
+    .tab-btn{border-bottom:2px solid transparent;transition:color .15s,border-color .15s;}
+  </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased min-h-screen">
+
+<!-- NAVBAR -->
+<nav class="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm">
+  <div class="px-4 sm:px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-2.5">
+      <div class="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center text-base shadow shadow-red-900/40 flex-shrink-0">&#127942;</div>
+      <div>
+        <p class="text-sm font-extrabold tracking-tight text-gray-900 dark:text-white leading-none">ORL Sjever</p>
+        <p class="text-[10px] text-gray-400 dark:text-gray-500 font-semibold uppercase tracking-widest leading-none mt-0.5">Omladinska Rukometna Liga</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button id="themeToggle" type="button" class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+        <svg id="iconSun" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m8.66-9h-1M4.34 12h-1m15.07-6.07-.71.71M5.64 18.36l-.71.71M18.36 18.36l-.71-.71M5.64 5.64l-.71-.71M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
+        <svg id="iconMoon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      </button>
+      <a href="/login" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold bg-red-600 hover:bg-red-700 text-white shadow shadow-red-900/30 transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
+        Prijava
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="bg-gradient-to-br from-red-700 via-red-600 to-rose-700 dark:from-red-900 dark:via-red-800 dark:to-rose-900 px-4 sm:px-6 py-10">
+  <div class="max-w-5xl mx-auto text-center">
+    <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full mb-4 tracking-widest uppercase">
+      <span class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
+      Sezona 2025/2026
+    </div>
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-2">Omladinska Rukometna Liga Sjever</h1>
+    <p class="text-red-100 text-sm font-medium">Rasporedi, rezultati i tabele takmičenja</p>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-[57px] z-40">
+  <div class="px-4 sm:px-6 flex gap-0">
+    <button id="tab-utakmice" onclick="switchTab('utakmice')"
+      class="tab-btn active px-5 py-3.5 text-sm font-bold text-red-600 dark:text-red-400 flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      Utakmice
+    </button>
+    <button id="tab-tabele" onclick="switchTab('tabele')"
+      class="tab-btn px-5 py-3.5 text-sm font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 6h18M3 14h18M3 18h16"/></svg>
+      Tabele
+    </button>
+  </div>
+</div>
+
+<div class="px-4 sm:px-6 py-6">
+
+  {% if not ligas %}
+  <div class="max-w-md mx-auto text-center py-20">
+    <div class="text-6xl mb-4">&#127950;</div>
+    <p class="text-lg font-bold text-gray-500 dark:text-gray-400">Nema aktivnih takmičenja</p>
+    <p class="text-sm text-gray-400 dark:text-gray-600 mt-1">Liga još nije konfigurisana.</p>
+  </div>
+  {% else %}
+
+  <!-- ══ UTAKMICE SECTION ══ -->
+  <div id="section-utakmice">
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 items-start">
+      {% for lg in ligas %}
+      <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+
+        <!-- Liga header -->
+        <div class="px-4 py-3 bg-gray-50 dark:bg-gray-800/60 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+          <div class="min-w-0">
+            <p class="text-[10px] font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-widest truncate">{{ lg.takm.naziv }}</p>
+            <p class="text-sm font-extrabold text-gray-900 dark:text-white truncate mt-0.5">{{ lg.uzrast.naziv }}</p>
+          </div>
+          <div class="flex-shrink-0 ml-2 text-right">
+            {% if lg.display_kolo %}
+            <span class="text-[10px] font-extrabold uppercase tracking-widest
+              {% if lg.show_results %}text-gray-400 dark:text-gray-600{% else %}text-blue-500 dark:text-blue-400{% endif %}">
+              {% if lg.show_results %}Zadnji rezultati &middot;{% endif %}
+              Kolo {{ lg.display_kolo }}
+            </span>
+            {% else %}
+            <span class="text-[10px] text-gray-400 dark:text-gray-600 font-semibold">Nema utakmica</span>
+            {% endif %}
+          </div>
+        </div>
+
+        {% if not lg.kolo_utakmice %}
+        <div class="px-4 py-8 text-center">
+          <p class="text-sm text-gray-400 dark:text-gray-600 font-semibold">Nema utakmica za prikaz</p>
+        </div>
+        {% else %}
+        <div class="divide-y divide-gray-100 dark:divide-gray-800/60">
+          {% for item in lg.kolo_utakmice %}
+          <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-1.5 px-3 py-3">
+            <!-- Domaćin -->
+            <div class="flex flex-col items-end gap-0.5 min-w-0">
+              {% if item.dom and item.dom.logo %}
+              <img src="/static/logos/{{ item.dom.logo }}" alt="" class="w-5 h-5 rounded object-cover mb-0.5"/>
+              {% endif %}
+              <p class="text-sm font-bold text-gray-900 dark:text-white text-right truncate w-full">{{ item.dom.naziv if item.dom else '—' }}</p>
+            </div>
+
+            <!-- Centar -->
+            <div class="flex flex-col items-center gap-0.5 min-w-[72px]">
+              {% if item.u.je_bye %}
+                <span class="px-2 py-0.5 rounded-lg text-[10px] font-extrabold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-700/40 whitespace-nowrap">SLOBODNA</span>
+              {% elif item.u.odigrana %}
+                <span class="px-2.5 py-0.5 rounded-xl text-sm font-extrabold bg-gray-900 dark:bg-gray-950 text-white border border-gray-700 tracking-wide tabular-nums">{{ item.u.gol_domacin }} : {{ item.u.gol_gost }}</span>
+              {% elif item.u.datum_utakmice %}
+                <span class="text-xs font-extrabold text-blue-600 dark:text-blue-400 whitespace-nowrap">{{ item.u.datum_utakmice.strftime('%d.%m') }}</span>
+                <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 whitespace-nowrap">{{ item.u.datum_utakmice.strftime('%H:%M') }}</span>
+              {% else %}
+                <span class="text-xs font-bold text-gray-400 dark:text-gray-600">vs</span>
+              {% endif %}
+            </div>
+
+            <!-- Gost -->
+            <div class="flex flex-col items-start gap-0.5 min-w-0">
+              {% if item.u.je_bye %}
+                <span class="text-amber-600 dark:text-amber-400 italic text-xs font-semibold">Slobodna</span>
+              {% else %}
+                {% if item.gost and item.gost.logo %}
+                <img src="/static/logos/{{ item.gost.logo }}" alt="" class="w-5 h-5 rounded object-cover mb-0.5"/>
+                {% endif %}
+                <p class="text-sm font-bold text-gray-900 dark:text-white text-left truncate w-full">{{ item.gost.naziv if item.gost else '—' }}</p>
+              {% endif %}
+            </div>
+          </div>
+          {% if item.u.napomena %}
+          <div class="px-3 pb-1.5 -mt-2 text-[10px] text-amber-600 dark:text-amber-400 italic truncate">{{ item.u.napomena }}</div>
+          {% endif %}
+          {% endfor %}
+        </div>
+        {% endif %}
+
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- ══ TABELE SECTION (hidden by default) ══ -->
+  <div id="section-tabele" class="hidden">
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 items-start">
+      {% for lg in ligas %}
+      <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+
+        <!-- Liga header -->
+        <div class="px-4 py-3 bg-gray-50 dark:bg-gray-800/60 border-b border-gray-200 dark:border-gray-800">
+          <p class="text-[10px] font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-widest truncate">{{ lg.takm.naziv }}</p>
+          <p class="text-sm font-extrabold text-gray-900 dark:text-white truncate mt-0.5">{{ lg.uzrast.naziv }}</p>
+        </div>
+
+        {% if not lg.standings %}
+        <div class="px-4 py-8 text-center">
+          <p class="text-sm text-gray-400 dark:text-gray-600 font-semibold">Nema ekipa u tabeli</p>
+        </div>
+        {% else %}
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs">
+            <thead>
+              <tr class="border-b border-gray-100 dark:border-gray-800">
+                <th class="px-3 py-2 text-left font-extrabold text-gray-400 dark:text-gray-600 w-6">#</th>
+                <th class="px-2 py-2 text-left font-extrabold text-gray-400 dark:text-gray-600">Klub</th>
+                <th class="px-2 py-2 text-center font-extrabold text-gray-400 dark:text-gray-600 w-7" title="Utakmice">UT</th>
+                <th class="px-2 py-2 text-center font-extrabold text-gray-400 dark:text-gray-600 w-7" title="Pobjede">P</th>
+                <th class="px-2 py-2 text-center font-extrabold text-gray-400 dark:text-gray-600 w-7" title="Neriješeno">N</th>
+                <th class="px-2 py-2 text-center font-extrabold text-gray-400 dark:text-gray-600 w-7" title="Izgubljeno">I</th>
+                <th class="px-2 py-2 text-center font-extrabold text-gray-400 dark:text-gray-600 w-14" title="Golovi">G</th>
+                <th class="px-2 py-2 text-center font-extrabold text-gray-400 dark:text-gray-600 w-8" title="Gol-razlika">GR</th>
+                <th class="px-3 py-2 text-center font-extrabold text-gray-500 dark:text-gray-400 w-9" title="Bodovi">BOD</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 dark:divide-gray-800/60">
+              {% for row in lg.standings %}
+              <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition">
+                <td class="px-3 py-2.5 text-center">
+                  {% if loop.index <= 3 %}
+                  <span class="inline-flex w-5 h-5 rounded-full items-center justify-center text-[10px] font-extrabold
+                    {% if loop.index == 1 %}bg-yellow-400 text-yellow-900
+                    {% elif loop.index == 2 %}bg-gray-300 dark:bg-gray-500 text-gray-800 dark:text-gray-100
+                    {% else %}bg-amber-600 text-white{% endif %}">{{ loop.index }}</span>
+                  {% else %}
+                  <span class="text-gray-400 dark:text-gray-600 font-bold">{{ loop.index }}</span>
+                  {% endif %}
+                </td>
+                <td class="px-2 py-2.5">
+                  <div class="flex items-center gap-1.5 min-w-0">
+                    {% if row.klub.logo %}
+                    <img src="/static/logos/{{ row.klub.logo }}" alt="" class="w-5 h-5 rounded object-cover flex-shrink-0"/>
+                    {% endif %}
+                    <span class="font-bold text-gray-900 dark:text-white truncate text-xs">{{ row.klub.naziv }}</span>
+                  </div>
+                </td>
+                <td class="px-2 py-2.5 text-center font-semibold text-gray-500 dark:text-gray-400 tabular-nums">{{ row.UT }}</td>
+                <td class="px-2 py-2.5 text-center font-semibold text-green-600 dark:text-green-400 tabular-nums">{{ row.P }}</td>
+                <td class="px-2 py-2.5 text-center font-semibold text-gray-500 dark:text-gray-400 tabular-nums">{{ row.N }}</td>
+                <td class="px-2 py-2.5 text-center font-semibold text-red-500 dark:text-red-400 tabular-nums">{{ row.I }}</td>
+                <td class="px-2 py-2.5 text-center font-semibold text-gray-600 dark:text-gray-300 tabular-nums">{{ row.DG }}:{{ row.PG }}</td>
+                <td class="px-2 py-2.5 text-center tabular-nums
+                  {% if row.GR > 0 %}text-green-600 dark:text-green-400 font-bold
+                  {% elif row.GR < 0 %}text-red-500 dark:text-red-400 font-bold
+                  {% else %}text-gray-400 dark:text-gray-600 font-semibold{% endif %}">
+                  {% if row.GR > 0 %}+{% endif %}{{ row.GR }}
+                </td>
+                <td class="px-3 py-2.5 text-center font-extrabold text-gray-900 dark:text-white tabular-nums text-sm">{{ row.BOD }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% endif %}
+
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% endif %}
+</div>
+
+<!-- Footer -->
+<footer class="mt-12 border-t border-gray-200 dark:border-gray-800 px-4 sm:px-6 py-6 text-center">
+  <p class="text-xs text-gray-400 dark:text-gray-600 font-semibold">ORL Sjever &copy; 2025/2026 &mdash; Sva prava pridržana</p>
+</footer>
+
+<script>
+// Theme
+const html = document.getElementById('html-root');
+function applyTheme(t) {
+  html.classList.toggle('dark', t === 'dark');
+  document.getElementById('iconSun').classList.toggle('hidden', t !== 'dark');
+  document.getElementById('iconMoon').classList.toggle('hidden', t === 'dark');
+}
+applyTheme(localStorage.getItem('theme') || 'dark');
+document.getElementById('themeToggle').addEventListener('click', () => {
+  const t = html.classList.contains('dark') ? 'light' : 'dark';
+  localStorage.setItem('theme', t); applyTheme(t);
+});
+
+// Tabs
+function switchTab(tab) {
+  document.getElementById('section-utakmice').classList.toggle('hidden', tab !== 'utakmice');
+  document.getElementById('section-tabele').classList.toggle('hidden', tab !== 'tabele');
+  document.getElementById('tab-utakmice').classList.toggle('active', tab === 'utakmice');
+  document.getElementById('tab-tabele').classList.toggle('active', tab === 'tabele');
+  document.getElementById('tab-utakmice').classList.toggle('text-red-600', tab === 'utakmice');
+  document.getElementById('tab-utakmice').classList.toggle('dark:text-red-400', tab === 'utakmice');
+  document.getElementById('tab-utakmice').classList.toggle('text-gray-500', tab !== 'utakmice');
+  document.getElementById('tab-utakmice').classList.toggle('dark:text-gray-400', tab !== 'utakmice');
+  document.getElementById('tab-tabele').classList.toggle('text-red-600', tab === 'tabele');
+  document.getElementById('tab-tabele').classList.toggle('dark:text-red-400', tab === 'tabele');
+  document.getElementById('tab-tabele').classList.toggle('text-gray-500', tab !== 'tabele');
+  document.getElementById('tab-tabele').classList.toggle('dark:text-gray-400', tab !== 'tabele');
+}
+</script>
+</body>
+</html>
