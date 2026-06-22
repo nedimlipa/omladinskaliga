@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, func, DateTime, ForeignKey, Date
+from sqlalchemy import Column, Integer, String, Boolean, func, DateTime, ForeignKey, Date, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase
 from .database import Base
 
@@ -144,3 +144,68 @@ class RegistracijaSL(Base):
     kreiran_datum    = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     odobren_datum    = Column(DateTime(timezone=True), nullable=True)
     nevazeca_datum   = Column(DateTime(timezone=True), nullable=True)
+
+
+# ─── TABELE TAKMIČENJA ───────────────────────────────────────────────────────
+
+class Tabela(Base):
+    """Liga tabela — vezana za uzrast (koji nosi sezona + takmicenje).
+    Opcionalna 'grupa' za raspored po grupama (A, B, ...)."""
+    __tablename__ = "tabele"
+    __table_args__ = (UniqueConstraint("uzrast_id", "grupa", name="uq_tabela_uzrast_grupa"),)
+
+    id                = Column(Integer, primary_key=True)
+    naziv             = Column(String(200), nullable=False)
+    uzrast_id         = Column(Integer, ForeignKey("uzrasti.id"), nullable=False)
+    grupa             = Column(String(50), nullable=True)          # npr. "A", "B", ili NULL
+    bodovi_pobjeda    = Column(Integer, nullable=False, default=2)
+    bodovi_nerjeseno  = Column(Integer, nullable=False, default=1)
+    bodovi_poraz      = Column(Integer, nullable=False, default=0)
+    aktivan           = Column(Boolean, nullable=False, default=True)
+    kreiran_datum     = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+
+class TabelaEkipa(Base):
+    """Ekipa (klub) dodata u tabelu — uvijek ref na odobrenu prijavu."""
+    __tablename__ = "tabela_ekipe"
+    __table_args__ = (UniqueConstraint("tabela_id", "prijava_id", name="uq_te_tabela_prijava"),)
+
+    id               = Column(Integer, primary_key=True)
+    tabela_id        = Column(Integer, ForeignKey("tabele.id"), nullable=False)
+    prijava_id       = Column(Integer, ForeignKey("prijave_klubova.id"), nullable=False)
+    bonus_bodovi     = Column(Integer, nullable=False, default=0)
+    kazneni_bodovi   = Column(Integer, nullable=False, default=0)
+    aktivan          = Column(Boolean, nullable=False, default=True)
+
+
+class Utakmica(Base):
+    """Odigrana ili zakazana utakmica unutar tabele."""
+    __tablename__ = "utakmice"
+
+    id              = Column(Integer, primary_key=True)
+    tabela_id       = Column(Integer, ForeignKey("tabele.id"), nullable=False)
+    domacin_id      = Column(Integer, ForeignKey("prijave_klubova.id"), nullable=False)
+    gost_id         = Column(Integer, ForeignKey("prijave_klubova.id"), nullable=False)
+    gol_domacin     = Column(Integer, nullable=True)    # NULL = nije odigrana
+    gol_gost        = Column(Integer, nullable=True)
+    odigrana        = Column(Boolean, nullable=False, default=False)
+    kolo            = Column(Integer, nullable=True)
+    datum_utakmice  = Column(DateTime(timezone=True), nullable=True)
+    napomena        = Column(String(300), nullable=True)
+    kreiran_datum   = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+
+class TabelaSortPravilo(Base):
+    """Pravila sortiranja tabele (prioritet 1 = najvažniji).
+    kriterij: bodovi | gol_razlika | dati_golovi | primljeni_golovi | pobjede | porazi | medjusobno_bodovi | medjusobno_gol_razlika
+    smjer: DESC | ASC
+    """
+    __tablename__ = "tabela_sort_pravila"
+    __table_args__ = (UniqueConstraint("tabela_id", "prioritet", name="uq_sort_tabela_prioritet"),)
+
+    id          = Column(Integer, primary_key=True)
+    tabela_id   = Column(Integer, ForeignKey("tabele.id"), nullable=False)
+    kriterij    = Column(String(50), nullable=False)   # bodovi, gol_razlika, ...
+    prioritet   = Column(Integer, nullable=False)      # 1 = najvažniji
+    smjer       = Column(String(4), nullable=False, default="DESC")  # DESC | ASC
+    aktivan     = Column(Boolean, nullable=False, default=True)

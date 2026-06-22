@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="bs" id="html-root">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tabele | ORL Sjever</title>
+  <script>
+    (function () {
+      const t = localStorage.getItem('theme') || 'dark';
+      document.documentElement.classList.toggle('dark', t === 'dark');
+    })();
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { fontFamily: { sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'] } } }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+    .sidebar-transition { transition: transform 0.25s ease; }
+  </style>
+</head>
+
+<body class="bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased">
+
+<!-- ════════════════════════ NAVBAR ════════════════════════ -->
+<nav class="fixed top-0 z-50 w-full bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm">
+  <div class="px-4 py-3 lg:px-6">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <button id="sidebarToggle" type="button"
+          class="inline-flex items-center p-2 text-gray-500 dark:text-gray-400 rounded-lg md:hidden hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+        <a href="/admin/dashboard" class="flex items-center gap-2.5">
+          <div class="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center text-base shadow shadow-red-900/40 flex-shrink-0">&#127942;</div>
+          <span class="text-base font-extrabold tracking-tight text-gray-900 dark:text-white hidden sm:block">ORL Sjever</span>
+        </a>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="themeToggle" type="button" title="Promijeni temu"
+          class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+          <svg id="iconSun" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 3v1m0 16v1m8.66-9h-1M4.34 12h-1m15.07-6.07-.71.71M5.64 18.36l-.71.71M18.36 18.36l-.71-.71M5.64 5.64l-.71-.71M12 8a4 4 0 100 8 4 4 0 000-8z"/>
+          </svg>
+          <svg id="iconMoon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+          </svg>
+        </button>
+        <span class="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase
+          bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-700/50">
+          {{ user.tip }}
+        </span>
+        <div class="relative">
+          <button type="button" id="userMenuBtn"
+            class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition">
+            <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+              {{ (user.ime[0] | upper) if user.ime else 'A' }}
+            </div>
+            <span class="hidden sm:block font-semibold">{{ user.ime }}</span>
+            <svg class="w-3.5 h-3.5 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+          <div id="userMenu" class="hidden absolute right-0 top-10 z-50 w-44
+            bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700">
+            <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+              <p class="text-sm font-bold text-gray-900 dark:text-white truncate">{{ user.ime }}</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400 capitalize">{{ user.tip }}</p>
+            </div>
+            <ul class="py-1">
+              <li>
+                <a href="/logout"
+                  class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-red-600 dark:hover:text-red-400 transition">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                  </svg>
+                  Odjava
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ════════════════════════ SIDEBAR ════════════════════════ -->
+<aside id="sidebar"
+  class="sidebar-transition fixed top-0 left-0 z-40 w-64 h-screen pt-16
+    bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800
+    -translate-x-full md:translate-x-0">
+  <div class="h-full px-3 py-5 overflow-y-auto flex flex-col">
+    <ul class="space-y-1">
+      <li>
+        <a href="/admin/dashboard"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm
+            text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+          </svg>
+          Dashboard
+        </a>
+      </li>
+      <li>
+        <a href="/admin/takmicenja"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm
+            text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+          </svg>
+          Takmičenja
+        </a>
+      </li>
+      <li>
+        <a href="/admin/tabele"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm
+            bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 10h18M3 6h18M3 14h18M3 18h18"/>
+          </svg>
+          Tabele
+        </a>
+      </li>
+      <li>
+        <a href="/admin/igraci"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm
+            text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          Igrači
+        </a>
+      </li>
+      <li>
+        <a href="/admin/sluzbena-lica"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm
+            text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+          </svg>
+          Službena lica
+        </a>
+      </li>
+    </ul>
+    <div class="mt-auto pt-6 border-t border-gray-200 dark:border-gray-800">
+      <div class="flex items-center justify-between px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-800/60">
+        <span class="text-xs text-gray-500 dark:text-gray-400">Ukupno tabela</span>
+        <span class="text-sm font-bold text-gray-900 dark:text-white">{{ enriched | length }}</span>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<div id="sidebarOverlay" class="hidden fixed inset-0 z-30 bg-black/50 md:hidden"></div>
+
+<!-- ════════════════════════ MAIN ════════════════════════ -->
+<main class="md:ml-64 pt-16 min-h-screen">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white">Tabele takmičenja</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Kreiranje i upravljanje ligaškim tabelama</p>
+      </div>
+      <button onclick="document.getElementById('modalDodajTabelu').classList.remove('hidden')"
+        class="inline-flex items-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-xl shadow-sm transition flex-shrink-0">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+        </svg>
+        <span class="hidden sm:inline">Nova tabela</span>
+        <span class="sm:hidden">Nova</span>
+      </button>
+    </div>
+
+    <!-- ── Lista tabela ── -->
+    {% if enriched %}
+    <!-- Desktop table -->
+    <div class="hidden md:block bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-gray-50 dark:bg-gray-800/60 border-b border-gray-200 dark:border-gray-700">
+            <th class="px-5 py-3.5 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tabela</th>
+            <th class="px-5 py-3.5 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Takmičenje</th>
+            <th class="px-5 py-3.5 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Sezona</th>
+            <th class="px-5 py-3.5 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Uzrast</th>
+            <th class="px-5 py-3.5 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ekipe</th>
+            <th class="px-5 py-3.5 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Utakmice</th>
+            <th class="px-5 py-3.5 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+            <th class="px-5 py-3.5 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Akcije</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+          {% for row in enriched %}
+          <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition">
+            <td class="px-5 py-3.5">
+              <div class="font-semibold text-gray-900 dark:text-white">{{ row.tabela.naziv }}</div>
+              {% if row.tabela.grupa %}
+              <div class="text-xs text-gray-400 mt-0.5">Grupa {{ row.tabela.grupa }}</div>
+              {% endif %}
+            </td>
+            <td class="px-5 py-3.5 text-gray-700 dark:text-gray-300">{{ row.takm.naziv if row.takm else '—' }}</td>
+            <td class="px-5 py-3.5 text-gray-700 dark:text-gray-300">{{ row.sezona.naziv if row.sezona else '—' }}</td>
+            <td class="px-5 py-3.5 text-gray-700 dark:text-gray-300">{{ row.uzrast.naziv if row.uzrast else '—' }}</td>
+            <td class="px-5 py-3.5 text-center font-bold text-gray-900 dark:text-white">{{ row.n_ekipa }}</td>
+            <td class="px-5 py-3.5 text-center font-bold text-gray-900 dark:text-white">{{ row.n_utakmica }}</td>
+            <td class="px-5 py-3.5 text-center">
+              {% if row.tabela.aktivan %}
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">Aktivna</span>
+              {% else %}
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">Neaktivna</span>
+              {% endif %}
+            </td>
+            <td class="px-5 py-3.5 text-right">
+              <div class="flex items-center justify-end gap-2">
+                <a href="/admin/tabela/{{ row.tabela.id }}"
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg
+                    bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400
+                    hover:bg-violet-200 dark:hover:bg-violet-900/50 transition">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                  </svg>
+                  Uredi
+                </a>
+                <form method="POST" action="/admin/tabela/{{ row.tabela.id }}/toggle" class="inline">
+                  <button type="submit"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg
+                      bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400
+                      hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+                    {{ 'Deaktiviraj' if row.tabela.aktivan else 'Aktiviraj' }}
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile cards -->
+    <div class="md:hidden space-y-3">
+      {% for row in enriched %}
+      <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-4">
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <div>
+            <div class="font-bold text-gray-900 dark:text-white">{{ row.tabela.naziv }}</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+              {{ row.takm.naziv if row.takm else '—' }} · {{ row.sezona.naziv if row.sezona else '—' }} · {{ row.uzrast.naziv if row.uzrast else '—' }}
+              {% if row.tabela.grupa %} · Grupa {{ row.tabela.grupa }}{% endif %}
+            </div>
+          </div>
+          {% if row.tabela.aktivan %}
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 flex-shrink-0">Aktivna</span>
+          {% else %}
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 flex-shrink-0">Neaktivna</span>
+          {% endif %}
+        </div>
+        <div class="flex items-center gap-4 text-sm mb-3">
+          <div class="text-center">
+            <div class="text-xs text-gray-400 dark:text-gray-500">Ekipe</div>
+            <div class="font-bold text-gray-900 dark:text-white">{{ row.n_ekipa }}</div>
+          </div>
+          <div class="text-center">
+            <div class="text-xs text-gray-400 dark:text-gray-500">Utakmice</div>
+            <div class="font-bold text-gray-900 dark:text-white">{{ row.n_utakmica }}</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <a href="/admin/tabela/{{ row.tabela.id }}"
+            class="flex-1 text-center py-2 text-sm font-semibold rounded-xl
+              bg-violet-600 hover:bg-violet-700 text-white transition">
+            Uredi tabelu
+          </a>
+          <form method="POST" action="/admin/tabela/{{ row.tabela.id }}/toggle">
+            <button type="submit"
+              class="px-3 py-2 text-sm font-semibold rounded-xl
+                bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400
+                hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+              {{ 'Deaktiviraj' if row.tabela.aktivan else 'Aktiviraj' }}
+            </button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <!-- Empty state -->
+    <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-12 text-center">
+      <div class="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M3 6h18M3 14h18M3 18h18"/>
+        </svg>
+      </div>
+      <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Nema tabela</h3>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Još uvijek nisu kreirana nijedna tabela takmičenja.</p>
+      <button onclick="document.getElementById('modalDodajTabelu').classList.remove('hidden')"
+        class="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-xl transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+        </svg>
+        Kreiraj prvu tabelu
+      </button>
+    </div>
+    {% endif %}
+
+  </div>
+</main>
+
+<!-- ════════════════════════ MODAL — Nova tabela ════════════════════════ -->
+<div id="modalDodajTabelu" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
+  <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-800 w-full max-w-lg">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+      <h2 class="text-lg font-extrabold text-gray-900 dark:text-white">Nova tabela</h2>
+      <button onclick="document.getElementById('modalDodajTabelu').classList.add('hidden')"
+        class="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <form method="POST" action="/admin/tabela/dodaj" class="px-6 py-5 space-y-4">
+      <!-- Uzrast select -->
+      <div>
+        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">Uzrast *</label>
+        <select name="uzrast_id" required
+          class="w-full px-3 py-2.5 text-sm rounded-xl border border-gray-300 dark:border-gray-700
+            bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent">
+          <option value="">— Odaberi uzrast —</option>
+          {% for ui in uzrasti_info %}
+          <option value="{{ ui.uzrast.id }}">
+            {{ ui.takm.naziv if ui.takm else '?' }} · {{ ui.sezona.naziv if ui.sezona else '?' }} · {{ ui.uzrast.naziv }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <!-- Naziv -->
+      <div>
+        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">Naziv tabele *</label>
+        <input type="text" name="naziv" required placeholder="npr. Ligaška tabela Seniori"
+          class="w-full px-3 py-2.5 text-sm rounded-xl border border-gray-300 dark:border-gray-700
+            bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent" />
+      </div>
+      <!-- Grupa (opcionalno) -->
+      <div>
+        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">Grupa (opcionalno)</label>
+        <input type="text" name="grupa" placeholder="npr. A, B, ili prazno"
+          class="w-full px-3 py-2.5 text-sm rounded-xl border border-gray-300 dark:border-gray-700
+            bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent" />
+      </div>
+      <!-- Bodovi -->
+      <div class="grid grid-cols-3 gap-3">
+        <div>
+          <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">Pobjeda</label>
+          <input type="number" name="bodovi_pobjeda" value="2" min="0" max="99"
+            class="w-full px-3 py-2.5 text-sm rounded-xl border border-gray-300 dark:border-gray-700
+              bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-center focus:ring-2 focus:ring-red-500 focus:border-transparent" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">Neriješeno</label>
+          <input type="number" name="bodovi_nerjeseno" value="1" min="0" max="99"
+            class="w-full px-3 py-2.5 text-sm rounded-xl border border-gray-300 dark:border-gray-700
+              bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-center focus:ring-2 focus:ring-red-500 focus:border-transparent" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">Poraz</label>
+          <input type="number" name="bodovi_poraz" value="0" min="0" max="99"
+            class="w-full px-3 py-2.5 text-sm rounded-xl border border-gray-300 dark:border-gray-700
+              bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-center focus:ring-2 focus:ring-red-500 focus:border-transparent" />
+        </div>
+      </div>
+      <div class="flex gap-3 pt-1">
+        <button type="button" onclick="document.getElementById('modalDodajTabelu').classList.add('hidden')"
+          class="flex-1 py-2.5 text-sm font-semibold rounded-xl border border-gray-300 dark:border-gray-700
+            text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+          Odustani
+        </button>
+        <button type="submit"
+          class="flex-1 py-2.5 text-sm font-bold rounded-xl bg-red-600 hover:bg-red-700 text-white transition">
+          Kreiraj tabelu
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ════════════════════════ JS ════════════════════════ -->
+<script>
+  // Sidebar toggle
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  document.getElementById('sidebarToggle').addEventListener('click', () => {
+    sidebar.classList.toggle('-translate-x-full');
+    overlay.classList.toggle('hidden');
+  });
+  overlay.addEventListener('click', () => {
+    sidebar.classList.add('-translate-x-full');
+    overlay.classList.add('hidden');
+  });
+
+  // Theme toggle
+  const html = document.getElementById('html-root');
+  const btnTheme = document.getElementById('themeToggle');
+  const iconSun  = document.getElementById('iconSun');
+  const iconMoon = document.getElementById('iconMoon');
+  function applyTheme(t) {
+    html.classList.toggle('dark', t === 'dark');
+    iconSun.classList.toggle('hidden', t !== 'dark');
+    iconMoon.classList.toggle('hidden', t === 'dark');
+  }
+  applyTheme(localStorage.getItem('theme') || 'dark');
+  btnTheme.addEventListener('click', () => {
+    const next = html.classList.contains('dark') ? 'light' : 'dark';
+    localStorage.setItem('theme', next);
+    applyTheme(next);
+  });
+
+  // User dropdown
+  const userMenuBtn = document.getElementById('userMenuBtn');
+  const userMenu    = document.getElementById('userMenu');
+  userMenuBtn.addEventListener('click', (e) => { e.stopPropagation(); userMenu.classList.toggle('hidden'); });
+  document.addEventListener('click', () => userMenu.classList.add('hidden'));
+</script>
+</body>
+</html>
