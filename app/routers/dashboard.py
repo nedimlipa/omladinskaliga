@@ -404,7 +404,7 @@ async def klub_utakmice(
             q = q.where(Utakmica.odigrana == True)
         elif odigrana == "ne":
             q = q.where(Utakmica.odigrana == False)
-        q = q.order_by(Utakmica.datum_utakmice.asc().nullslast(), Utakmica.kolo.nullslast())
+        q = q.order_by(Utakmica.kolo.nullslast(), Utakmica.je_bye.asc(), Utakmica.datum_utakmice.asc().nullslast())
 
         rows = (await db.execute(q)).all()
 

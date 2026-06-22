@@ -207,7 +207,7 @@ async def admin_utakmice_pregled(
     )
     if uzrast_id:
         q = q.where(Uzrast.id == uzrast_id)
-    q = q.order_by(Takmicenje.naziv, Uzrast.naziv, Utakmica.kolo.nullslast(), Utakmica.datum_utakmice.nullslast())
+    q = q.order_by(Takmicenje.naziv, Uzrast.naziv, Utakmica.kolo.nullslast(), Utakmica.je_bye.asc(), Utakmica.datum_utakmice.nullslast())
     rows = (await db.execute(q)).all()
 
     all_items = []
