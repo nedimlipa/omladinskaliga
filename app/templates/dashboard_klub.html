@@ -524,11 +524,18 @@
             <span class="w-2.5 h-2.5 rounded-full bg-red-500 inline-block flex-shrink-0"></span>
             Utakmica zakazana
           </div>
+          <!-- Detail panel — prikazuje se na klik -->
+          <div id="calDetail" class="hidden mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 space-y-2"></div>
         </div>
       </div>
 
     </div>
     {% endif %}
+
+    <!-- Kalendar matches data -->
+    <script>
+      window._calMatches = {{ kalendar_matches | tojson }};
+    </script>
 
     <!-- ── Igrači kluba ── -->
     <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
@@ -832,33 +839,32 @@
 
   // ── Mini kalendar ─────────────────────────────────────────
   (function() {
-    const grid  = document.getElementById('calGrid');
-    const title = document.getElementById('calTitle');
+    const grid   = document.getElementById('calGrid');
+    const title  = document.getElementById('calTitle');
+    const detail = document.getElementById('calDetail');
     if (!grid) return;
 
-    const matchDays = new Set({{ kalendar_dani | tojson }});
-    const today     = new Date({{ today_year }}, {{ today_month }} - 1, {{ today_day }});
-    const year      = today.getFullYear();
-    const month     = today.getMonth();
+    const calMatches = window._calMatches || {};
+    const matchDays  = new Set(Object.keys(calMatches).map(Number));
+    const today      = new Date({{ today_year }}, {{ today_month }} - 1, {{ today_day }});
+    const year       = today.getFullYear();
+    const month      = today.getMonth();
 
     const monthNames = ['Januar','Februar','Mart','April','Maj','Juni',
                         'Juli','August','Septembar','Oktobar','Novembar','Decembar'];
     title.textContent = monthNames[month] + ' ' + year;
 
-    // First day of month (0=Sun..6=Sat) — convert to Mon-based (0=Mon)
     let firstDay = new Date(year, month, 1).getDay();
-    firstDay = (firstDay + 6) % 7;   // shift so Monday=0
-
+    firstDay = (firstDay + 6) % 7;
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-    // Empty cells before first day
+    let activeDay = null;
+
     for (let i = 0; i < firstDay; i++) {
-      const el = document.createElement('div');
-      el.className = 'h-8';
+      const el = document.createElement('div'); el.className = 'h-8';
       grid.appendChild(el);
     }
 
-    // Day cells
     for (let d = 1; d <= daysInMonth; d++) {
       const el = document.createElement('div');
       el.textContent = d;
@@ -866,16 +872,59 @@
       const hasMatch = matchDays.has(d);
 
       el.className = [
-        'h-8 w-8 mx-auto flex items-center justify-center rounded-lg text-xs font-bold cursor-default transition-colors relative',
+        'h-8 w-8 mx-auto flex items-center justify-center rounded-lg text-xs font-bold transition-colors relative',
         isToday  ? 'ring-2 ring-red-500 ring-offset-1 dark:ring-offset-gray-900' : '',
-        hasMatch ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
-                 : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800',
+        hasMatch ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 cursor-pointer hover:bg-red-200 dark:hover:bg-red-900/60'
+                 : 'text-gray-700 dark:text-gray-300 cursor-default',
       ].join(' ');
 
       if (hasMatch) {
         const dot = document.createElement('span');
         dot.className = 'absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-red-500';
         el.appendChild(dot);
+
+        el.addEventListener('click', () => {
+          if (activeDay === d) {
+            // toggle off
+            activeDay = null;
+            el.classList.remove('ring-2','ring-red-400','ring-offset-1');
+            detail.classList.add('hidden');
+            detail.innerHTML = '';
+            // deselect all
+            grid.querySelectorAll('[data-selected]').forEach(x => x.removeAttribute('data-selected'));
+            return;
+          }
+          // deselect previous
+          grid.querySelectorAll('[data-selected]').forEach(x => {
+            x.removeAttribute('data-selected');
+            x.classList.remove('ring-2','ring-red-400','ring-offset-1','dark:ring-offset-gray-900');
+          });
+          activeDay = d;
+          el.setAttribute('data-selected','1');
+          el.classList.add('ring-2','ring-red-400','ring-offset-1','dark:ring-offset-gray-900');
+
+          const matches = calMatches[String(d)] || [];
+          detail.innerHTML = '';
+          matches.forEach(m => {
+            const card = document.createElement('div');
+            card.className = 'rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 px-3 py-2 space-y-0.5';
+            const score = m.odigrana
+              ? `<span class="font-extrabold text-white bg-gray-900 dark:bg-black px-2 py-0.5 rounded-lg text-xs tracking-wide">${m.gol_d} : ${m.gol_g}</span>`
+              : `<span class="text-xs font-bold text-blue-600 dark:text-blue-400">${m.vrijeme}</span>`;
+            card.innerHTML = `
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-xs font-bold text-gray-900 dark:text-white truncate flex-1">${m.domacin}</span>
+                ${score}
+                <span class="text-xs font-bold text-gray-900 dark:text-white truncate flex-1 text-right">${m.gost}</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-[10px] text-gray-400 dark:text-gray-500">${m.uzrast}</span>
+                ${m.kolo ? `<span class="text-[10px] text-gray-400 dark:text-gray-500">· Kolo ${m.kolo}</span>` : ''}
+              </div>`;
+            detail.appendChild(card);
+          });
+          detail.classList.remove('hidden');
+        });
       }
       grid.appendChild(el);
     }

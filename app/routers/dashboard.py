@@ -303,7 +303,10 @@ async def klub_dashboard(request: Request, db: AsyncSession = Depends(get_db)):
         _, last_day = _cal.monthrange(today.year, today.month)
         cal_end = _dt.datetime(today.year, today.month, last_day, 23, 59, 59)
         cal_rows = (await db.execute(
-            select(Utakmica.datum_utakmice)
+            select(Utakmica, Uzrast, Takmicenje)
+            .join(Tabela,     Utakmica.tabela_id    == Tabela.id)
+            .join(Uzrast,     Tabela.uzrast_id      == Uzrast.id)
+            .join(Takmicenje, Uzrast.takmicenje_id  == Takmicenje.id)
             .where(
                 or_(
                     Utakmica.domacin_id.in_(moje_pk_ids),
@@ -314,8 +317,26 @@ async def klub_dashboard(request: Request, db: AsyncSession = Depends(get_db)):
                 Utakmica.je_bye         == False,
                 Utakmica.datum_utakmice.isnot(None),
             )
-        )).scalars().all()
-        kalendar_dani = list({d.day for d in cal_rows if d})
+        )).all()
+        kalendar_dani = list({u.datum_utakmice.day for u, uz, t in cal_rows if u.datum_utakmice})
+
+        from collections import defaultdict as _dd
+        _km: dict = _dd(list)
+        for u, uzrast, takm in cal_rows:
+            if u.datum_utakmice:
+                dom  = prijava_map.get(u.domacin_id)
+                gost = prijava_map.get(u.gost_id) if u.gost_id else None
+                _km[u.datum_utakmice.day].append({
+                    "domacin":  dom["naziv"]  if dom  else "—",
+                    "gost":     gost["naziv"] if gost else "—",
+                    "uzrast":   uzrast.naziv,
+                    "kolo":     u.kolo,
+                    "vrijeme":  u.datum_utakmice.strftime("%H:%M"),
+                    "odigrana": u.odigrana,
+                    "gol_d":    u.gol_domacin,
+                    "gol_g":    u.gol_gost,
+                })
+        kalendar_matches = {str(k): v for k, v in _km.items()}
 
     return templates.TemplateResponse("dashboard_klub.html", {
         "request":          request,
@@ -328,11 +349,12 @@ async def klub_dashboard(request: Request, db: AsyncSession = Depends(get_db)):
         "igraci_kluba":     igraci_kluba,
         "sluzbena_kluba":   sluzbena_kluba,
         "moje_tabele":      moje_tabele,
-        "upcoming_matches": upcoming_matches,
-        "kalendar_dani":    kalendar_dani,
-        "today_month":      __import__('datetime').date.today().month,
-        "today_year":       __import__('datetime').date.today().year,
-        "today_day":        __import__('datetime').date.today().day,
+        "upcoming_matches":  upcoming_matches,
+        "kalendar_dani":     kalendar_dani,
+        "kalendar_matches":  kalendar_matches,
+        "today_month":       __import__('datetime').date.today().month,
+        "today_year":        __import__('datetime').date.today().year,
+        "today_day":         __import__('datetime').date.today().day,
     })
 
 
