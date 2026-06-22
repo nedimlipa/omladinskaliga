@@ -243,16 +243,24 @@
 
     <!-- ── Clubs table ── -->
     <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
-      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-800">
+      <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-gray-200 dark:border-gray-800">
         <h2 class="text-sm font-bold text-gray-900 dark:text-white">Klubovi</h2>
-        <button onclick="openModal()"
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg transition">
-          + Dodaj klub
-        </button>
+        <div class="flex items-center gap-2 flex-1 max-w-sm">
+          <div class="relative flex-1">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input id="searchKlubovi" type="text" placeholder="Pretraži klubove..."
+              oninput="searchKlubCards('mobileKlubovi', this.value); filterPaginated('pgKlubovi', this.value)"
+              class="w-full pl-8 pr-3 py-1.5 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-xs rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition"/>
+          </div>
+          <button onclick="openModal()"
+            class="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg transition">
+            + Dodaj klub
+          </button>
+        </div>
       </div>
 
       <!-- Mobile cards -->
-      <div class="md:hidden divide-y divide-gray-100 dark:divide-gray-800">
+      <div id="mobileKlubovi" class="md:hidden divide-y divide-gray-100 dark:divide-gray-800">
         {% for k in klubovi %}
         <div class="p-4 space-y-3">
 
@@ -347,10 +355,7 @@
               <th class="px-5 py-3 text-left">Akcije</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-            {% for k in klubovi %}
-            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition">
-              <td class="px-5 py-3.5 text-gray-400 dark:text-gray-600 text-xs font-mono">{{ k.id }}</td>
+          <tbody id="tbodyKlubovi" class="divide-y divide-gray-100 dark:divide-gray-800">
               <td class="px-5 py-3.5 font-bold text-gray-900 dark:text-white whitespace-nowrap">{{ k.naziv_kluba }}</td>
               <td class="px-5 py-3.5 text-gray-500 dark:text-gray-400">@{{ k.username }}</td>
               <td class="px-5 py-3.5 text-gray-500 dark:text-gray-400">{{ k.email }}</td>
@@ -413,13 +418,14 @@
               </td>
             </tr>
             {% else %}
-            <tr>
+            <tr data-empty>
               <td colspan="9" class="px-5 py-10 text-center text-gray-400 dark:text-gray-600 text-sm">Nema registrovanih klubova</td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
+      <div id="pgKlubovi"></div>
     </div>
 
     <!-- ── Admins table ── -->
@@ -654,6 +660,69 @@
 
   // ── Detalji kluba modal ───────────────────────────────
   const modalDetalji = document.getElementById('modalDetalji');
+
+  // ── Paginator ─────────────────────────────────────────────
+  const _pag = {};
+
+  function makePaginator(tbodyId, paginatorId, perPage) {
+    _pag[paginatorId] = { tbodyId, perPage: perPage || 10, page: 0, query: '' };
+    _renderPag(paginatorId);
+  }
+
+  function filterPaginated(paginatorId, q) {
+    if (!_pag[paginatorId]) return;
+    _pag[paginatorId].query = q.toLowerCase();
+    _pag[paginatorId].page = 0;
+    _renderPag(paginatorId);
+  }
+
+  function goPage(paginatorId, p) {
+    if (!_pag[paginatorId]) return;
+    _pag[paginatorId].page = p;
+    _renderPag(paginatorId);
+  }
+
+  function _renderPag(pid) {
+    const s = _pag[pid];
+    const tbody = document.getElementById(s.tbodyId);
+    if (!tbody) return;
+    const allRows = Array.from(tbody.querySelectorAll('tr'));
+    const dataRows = allRows.filter(r => !r.hasAttribute('data-empty'));
+    const emptyRow = allRows.find(r => r.hasAttribute('data-empty'));
+    const matching = dataRows.filter(r => r.textContent.toLowerCase().includes(s.query));
+    const total = matching.length;
+    const totalPages = Math.max(1, Math.ceil(total / s.perPage));
+    if (s.page >= totalPages) s.page = totalPages - 1;
+    dataRows.forEach(r => r.style.display = 'none');
+    matching.slice(s.page * s.perPage, (s.page + 1) * s.perPage).forEach(r => r.style.display = '');
+    if (emptyRow) emptyRow.style.display = total === 0 ? '' : 'none';
+    const c = document.getElementById(pid);
+    if (!c) return;
+    if (totalPages <= 1 && !s.query) { c.innerHTML = ''; return; }
+    const from = total === 0 ? 0 : s.page * s.perPage + 1;
+    const to = Math.min((s.page + 1) * s.perPage, total);
+    c.innerHTML = `<div class="flex items-center justify-between px-5 py-3 text-xs border-t border-gray-100 dark:border-gray-800">
+      <span class="text-gray-500 dark:text-gray-400">${total === 0 ? 'Nema rezultata' : `${from}–${to} od ${total}`}</span>
+      <div class="flex items-center gap-1">
+        <button onclick="goPage('${pid}', ${s.page - 1})" ${s.page === 0 ? 'disabled' : ''}
+          class="px-2.5 py-1 rounded-lg border border-gray-200 dark:border-gray-700 text-sm font-bold text-gray-600 dark:text-gray-300 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-800 transition">&#8249;</button>
+        <span class="px-2 text-gray-600 dark:text-gray-300 font-semibold">${s.page + 1} / ${totalPages}</span>
+        <button onclick="goPage('${pid}', ${s.page + 1})" ${s.page >= totalPages - 1 ? 'disabled' : ''}
+          class="px-2.5 py-1 rounded-lg border border-gray-200 dark:border-gray-700 text-sm font-bold text-gray-600 dark:text-gray-300 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-800 transition">&#8250;</button>
+      </div>
+    </div>`;
+  }
+
+  // Mobile cards search
+  function searchKlubCards(containerId, q) {
+    q = q.toLowerCase();
+    document.querySelectorAll(`#${containerId} > div`).forEach(card => {
+      card.style.display = card.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  }
+
+  // Init paginator for clubs table
+  makePaginator('tbodyKlubovi', 'pgKlubovi', 10);
 
   function openDetalji(btn) {
     const d = btn.dataset;

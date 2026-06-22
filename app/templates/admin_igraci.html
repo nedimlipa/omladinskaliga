@@ -178,7 +178,7 @@
     <!-- ─── Tab: Igrači ─── -->
     <div id="panel-igraci" class="tab-panel hidden">
       <div class="p-4 border-b border-gray-100 dark:border-gray-800">
-        <input id="filterIgraci" type="text" placeholder="Pretraži igrače..." oninput="filterTable('tblIgraci', this.value)"
+        <input id="filterIgraci" type="text" placeholder="Pretraži igrače..." oninput="filterPaginated('pgIgraci', this.value)"
           class="w-full sm:w-72 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-sm rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 transition"/>
       </div>
       {% if not igraci %}
@@ -194,11 +194,7 @@
             <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-400">Status</th>
             <th class="px-4 py-3"></th>
           </tr></thead>
-          <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-            {% for i in igraci %}
-            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition">
-              <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white whitespace-nowrap">{{ i.prezime }} {{ i.ime }}</td>
-              <td class="px-4 py-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">{{ i.datum }}</td>
+          <tbody id="tbodyIgraci" class="divide-y divide-gray-100 dark:divide-gray-800">
               <td class="px-4 py-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">{{ i.drzavljanstvo }}</td>
               <td class="px-4 py-3 text-gray-700 dark:text-gray-300 whitespace-nowrap">{{ i.klub }}</td>
               <td class="px-4 py-3">
@@ -221,13 +217,14 @@
           </tbody>
         </table>
       </div>
+      <div id="pgIgraci"></div>
       {% endif %}
     </div>
 
     <!-- ─── Tab: Registracije ─── -->
     <div id="panel-registracije" class="tab-panel hidden">
       <div class="p-4 border-b border-gray-100 dark:border-gray-800 flex flex-wrap items-center gap-3">
-        <input id="filterReg" type="text" placeholder="Pretraži registracije..." oninput="filterTable('tblReg', this.value)"
+        <input id="filterReg" type="text" placeholder="Pretraži registracije..." oninput="filterPaginated('pgReg', this.value)"
           class="w-full sm:w-72 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-sm rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 transition"/>
         <button onclick="confirmBulk()"
           class="ml-auto inline-flex items-center gap-2 px-3.5 py-2 text-sm font-bold text-white bg-red-700 hover:bg-red-800 rounded-xl transition">
@@ -250,11 +247,7 @@
             <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-400">Datum</th>
             <th class="px-4 py-3"></th>
           </tr></thead>
-          <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-            {% for r in registracije %}
-            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition">
-              <td class="px-4 py-3">
-                {% if r.status == 'aktivna' %}
+          <tbody id="tbodyReg" class="divide-y divide-gray-100 dark:divide-gray-800">
                 <input type="checkbox" class="reg-checkbox rounded" value="{{ r.id }}"/>
                 {% endif %}
               </td>
@@ -285,6 +278,7 @@
           </tbody>
         </table>
       </div>
+      <div id="pgReg"></div>
       {% endif %}
     </div>
 
@@ -577,7 +571,56 @@
     document.getElementById('modalBulk').classList.remove('hidden');
   }
 
-  // ── Table filter ─────────────────────────────────────────────
+  // ── Paginator ─────────────────────────────────────────────
+  const _pag = {};
+  function makePaginator(tbodyId, paginatorId, perPage) {
+    _pag[paginatorId] = { tbodyId, perPage: perPage || 10, page: 0, query: '' };
+    _renderPag(paginatorId);
+  }
+  function filterPaginated(paginatorId, q) {
+    if (!_pag[paginatorId]) return;
+    _pag[paginatorId].query = q.toLowerCase();
+    _pag[paginatorId].page = 0;
+    _renderPag(paginatorId);
+  }
+  function goPage(paginatorId, p) {
+    if (!_pag[paginatorId]) return;
+    _pag[paginatorId].page = p;
+    _renderPag(paginatorId);
+  }
+  function _renderPag(pid) {
+    const s = _pag[pid];
+    const tbody = document.getElementById(s.tbodyId);
+    if (!tbody) return;
+    const allRows = Array.from(tbody.querySelectorAll('tr'));
+    const dataRows = allRows.filter(r => !r.hasAttribute('data-empty'));
+    const matching = dataRows.filter(r => r.textContent.toLowerCase().includes(s.query));
+    const total = matching.length;
+    const totalPages = Math.max(1, Math.ceil(total / s.perPage));
+    if (s.page >= totalPages) s.page = totalPages - 1;
+    dataRows.forEach(r => r.style.display = 'none');
+    matching.slice(s.page * s.perPage, (s.page + 1) * s.perPage).forEach(r => r.style.display = '');
+    const c = document.getElementById(pid);
+    if (!c) return;
+    if (totalPages <= 1 && !s.query) { c.innerHTML = ''; return; }
+    const from = total === 0 ? 0 : s.page * s.perPage + 1;
+    const to = Math.min((s.page + 1) * s.perPage, total);
+    c.innerHTML = `<div class="flex items-center justify-between px-5 py-3 text-xs border-t border-gray-100 dark:border-gray-800">
+      <span class="text-gray-500 dark:text-gray-400">${total === 0 ? 'Nema rezultata' : `${from}–${to} od ${total}`}</span>
+      <div class="flex items-center gap-1">
+        <button onclick="goPage('${pid}', ${s.page - 1})" ${s.page === 0 ? 'disabled' : ''}
+          class="px-2.5 py-1 rounded-lg border border-gray-200 dark:border-gray-700 text-sm font-bold text-gray-600 dark:text-gray-300 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-800 transition">&#8249;</button>
+        <span class="px-2 text-gray-600 dark:text-gray-300 font-semibold">${s.page + 1} / ${totalPages}</span>
+        <button onclick="goPage('${pid}', ${s.page + 1})" ${s.page >= totalPages - 1 ? 'disabled' : ''}
+          class="px-2.5 py-1 rounded-lg border border-gray-200 dark:border-gray-700 text-sm font-bold text-gray-600 dark:text-gray-300 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-800 transition">&#8250;</button>
+      </div>
+    </div>`;
+  }
+  // Init
+  makePaginator('tbodyIgraci', 'pgIgraci', 10);
+  makePaginator('tbodyReg',    'pgReg',    15);
+
+  // ── Table filter (legacy, kept for other tables) ────────────────────
   function filterTable(tableId, q) {
     const rows = document.getElementById(tableId).querySelectorAll('tbody tr');
     q = q.toLowerCase();
