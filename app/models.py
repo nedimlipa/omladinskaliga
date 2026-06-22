@@ -106,3 +106,41 @@ class Registracija(Base):
     kreiran_datum    = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     odobren_datum    = Column(DateTime(timezone=True), nullable=True)
     nevazeca_datum   = Column(DateTime(timezone=True), nullable=True)
+
+
+class PozicijaSL(Base):
+    __tablename__ = "pozicije_sl"
+
+    id      = Column(Integer, primary_key=True)
+    naziv   = Column(String(100), nullable=False, unique=True)
+    aktivan = Column(Boolean, nullable=False, default=True)
+
+
+class SluzbenoLice(Base):
+    __tablename__ = "sluzbena_lica"
+
+    id                = Column(Integer, primary_key=True)
+    ime               = Column(String(100), nullable=False)
+    prezime           = Column(String(100), nullable=False)
+    datum_rodjenja    = Column(Date, nullable=True)
+    mjesto            = Column(String(150), nullable=True)
+    trenutni_klub_id  = Column(Integer, ForeignKey("klubovi.id"), nullable=True)
+    prethodni_klub_id = Column(Integer, ForeignKey("klubovi.id"), nullable=True)
+    pozicija_id       = Column(Integer, ForeignKey("pozicije_sl.id"), nullable=True)
+    status            = Column(String(20), nullable=False, default="aktivan")
+    kreiran_datum     = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+
+class RegistracijaSL(Base):
+    __tablename__ = "registracije_sl"
+
+    id               = Column(Integer, primary_key=True)
+    sluzbeno_lice_id = Column(Integer, ForeignKey("sluzbena_lica.id"), nullable=False)
+    klub_id          = Column(Integer, ForeignKey("klubovi.id"), nullable=False)
+    sezona_id        = Column(Integer, ForeignKey("sezone.id"), nullable=False)
+    br_registracije  = Column(String(50), nullable=True, unique=True)
+    status           = Column(String(20), nullable=False, default="na_cekanju")
+    napomena         = Column(String(500), nullable=True)
+    kreiran_datum    = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    odobren_datum    = Column(DateTime(timezone=True), nullable=True)
+    nevazeca_datum   = Column(DateTime(timezone=True), nullable=True)

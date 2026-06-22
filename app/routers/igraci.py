@@ -5,7 +5,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from ..database import get_db
-from ..models import Igrac, Registracija, Klub, Sezona
+from ..models import Igrac, Registracija, Klub, Sezona, SluzbenoLice, RegistracijaSL, PozicijaSL
 from .auth import get_current_user
 
 router    = APIRouter()
@@ -423,8 +423,79 @@ async def admin_nevazece_bulk(
 # ═══════════════════════════════════════════════════════════════
 #  PRINT — A4 spisak igrača kluba (admin ili vlastiti klub)
 # ═══════════════════════════════════════════════════════════════
+#  ADMIN — Detaljna stranica kluba (igrači + službena lica)
+# ═══════════════════════════════════════════════════════════════
 
-@router.get("/print/klub/{klub_id}/igraci", response_class=HTMLResponse)
+@router.get("/admin/klub/{klub_id}", response_class=HTMLResponse)
+async def admin_klub_detalji(klub_id: int, request: Request, db: AsyncSession = Depends(get_db)):
+    user = get_current_user(request)
+    if not user or user.get("tip") not in ("admin", "moderator"):
+        return RedirectResponse("/login", status_code=302)
+
+    klub = await db.get(Klub, klub_id)
+    if not klub:
+        return RedirectResponse("/admin/dashboard", status_code=302)
+
+    # ── Sve registracije igrača (sve statuse) ──
+    igrac_rows = (await db.execute(
+        select(Registracija, Igrac, Sezona)
+        .join(Igrac,  Registracija.igrac_id  == Igrac.id)
+        .join(Sezona, Registracija.sezona_id == Sezona.id)
+        .where(Registracija.klub_id == klub_id)
+        .order_by(Registracija.status, Igrac.prezime, Igrac.ime)
+    )).all()
+
+    igraci = [
+        {
+            "ime":           igr.ime,
+            "prezime":       igr.prezime,
+            "datum":         igr.datum_rodjenja.strftime("%d.%m.%Y") if igr.datum_rodjenja else "—",
+            "drzavljanstvo": igr.drzavljanstvo or "—",
+            "br":            reg.br_registracije or "—",
+            "sezona":        sez.naziv,
+            "reg_status":    reg.status,
+            "igrac_status":  igr.status,
+        }
+        for reg, igr, sez in igrac_rows
+    ]
+
+    # ── Sve registracije SL (sve statuse) ──
+    sl_rows = (await db.execute(
+        select(RegistracijaSL, SluzbenoLice, Sezona, PozicijaSL)
+        .join(SluzbenoLice, RegistracijaSL.sluzbeno_lice_id == SluzbenoLice.id)
+        .join(Sezona,       RegistracijaSL.sezona_id        == Sezona.id)
+        .outerjoin(PozicijaSL, SluzbenoLice.pozicija_id     == PozicijaSL.id)
+        .where(RegistracijaSL.klub_id == klub_id)
+        .order_by(RegistracijaSL.status, SluzbenoLice.prezime, SluzbenoLice.ime)
+    )).all()
+
+    sluzbena = [
+        {
+            "ime":        sl.ime,
+            "prezime":    sl.prezime,
+            "datum":      sl.datum_rodjenja.strftime("%d.%m.%Y") if sl.datum_rodjenja else "—",
+            "mjesto":     sl.mjesto or "—",
+            "pozicija":   poz.naziv if poz else "—",
+            "br":         reg.br_registracije or "—",
+            "sezona":     sez.naziv,
+            "reg_status": reg.status,
+            "sl_status":  sl.status,
+        }
+        for reg, sl, sez, poz in sl_rows
+    ]
+
+    return templates.TemplateResponse("admin_klub.html", {
+        "request":  request,
+        "user":     user,
+        "klub":     klub,
+        "igraci":   igraci,
+        "sluzbena": sluzbena,
+    })
+
+
+# ═══════════════════════════════════════════════════════════════
+#  PRINT — A4 spisak igrača kluba (admin ili vlastiti klub)
+# ═══════════════════════════════════════════════════════════════
 async def print_igraci_kluba(klub_id: int, request: Request, db: AsyncSession = Depends(get_db)):
     user = get_current_user(request)
     if not user:
@@ -471,6 +542,88 @@ async def print_igraci_kluba(klub_id: int, request: Request, db: AsyncSession = 
         "klub":         klub,
         "igraci":       igraci,
         "sezona_naziv": None,
+    })
+
+
+
+# ═══════════════════════════════════════════════════════════════
+#  PRINT — Kombinirani pregled kluba: igrači + službena lica
+# ═══════════════════════════════════════════════════════════════
+
+@router.get("/print/klub/{klub_id}", response_class=HTMLResponse)
+async def print_klub(klub_id: int, request: Request, db: AsyncSession = Depends(get_db)):
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+
+    tip = user.get("tip")
+    if tip == "klub" and int(user["sub"]) != klub_id:
+        return RedirectResponse("/klub/igraci", status_code=302)
+    if tip not in ("admin", "moderator", "klub"):
+        return RedirectResponse("/login", status_code=302)
+
+    klub = await db.get(Klub, klub_id)
+    if not klub:
+        back = "/admin/dashboard" if tip in ("admin", "moderator") else "/klub/dashboard"
+        return RedirectResponse(back, status_code=302)
+
+    # ── Igrači ──
+    igrac_rows = (await db.execute(
+        select(Registracija, Igrac, Sezona)
+        .join(Igrac,  Registracija.igrac_id  == Igrac.id)
+        .join(Sezona, Registracija.sezona_id == Sezona.id)
+        .where(
+            Registracija.klub_id == klub_id,
+            Registracija.status  == "aktivna",
+        )
+        .order_by(Igrac.prezime, Igrac.ime)
+    )).all()
+
+    igraci = [
+        {
+            "ime":           igr.ime,
+            "prezime":       igr.prezime,
+            "datum":         igr.datum_rodjenja.strftime("%d.%m.%Y") if igr.datum_rodjenja else "—",
+            "drzavljanstvo": igr.drzavljanstvo or "—",
+            "br":            reg.br_registracije or "—",
+            "sezona":        sez.naziv,
+            "status":        igr.status,
+        }
+        for reg, igr, sez in igrac_rows
+    ]
+
+    # ── Službena lica ──
+    sl_rows = (await db.execute(
+        select(RegistracijaSL, SluzbenoLice, Sezona, PozicijaSL)
+        .join(SluzbenoLice, RegistracijaSL.sluzbeno_lice_id == SluzbenoLice.id)
+        .join(Sezona,       RegistracijaSL.sezona_id        == Sezona.id)
+        .outerjoin(PozicijaSL, SluzbenoLice.pozicija_id     == PozicijaSL.id)
+        .where(
+            RegistracijaSL.klub_id == klub_id,
+            RegistracijaSL.status  == "aktivna",
+        )
+        .order_by(SluzbenoLice.prezime, SluzbenoLice.ime)
+    )).all()
+
+    sluzbena = [
+        {
+            "ime":           sl.ime,
+            "prezime":       sl.prezime,
+            "datum":         sl.datum_rodjenja.strftime("%d.%m.%Y") if sl.datum_rodjenja else "—",
+            "mjesto":        sl.mjesto or "—",
+            "pozicija":      poz.naziv if poz else "—",
+            "br":            reg.br_registracije or "—",
+            "sezona":        sez.naziv,
+            "sl_status":     sl.status,
+        }
+        for reg, sl, sez, poz in sl_rows
+    ]
+
+    return templates.TemplateResponse("print_klub.html", {
+        "request":  request,
+        "klub":     klub,
+        "igraci":   igraci,
+        "sluzbena": sluzbena,
     })
 
 

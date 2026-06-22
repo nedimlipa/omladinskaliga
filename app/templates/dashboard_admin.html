@@ -166,6 +166,17 @@
           Igrači
         </a>
       </li>
+      <li>
+        <a href="/admin/sluzbena-lica"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm
+            text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800
+            hover:text-gray-900 dark:hover:text-white transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+          </svg>
+          Službena lica
+        </a>
+      </li>
     </ul>
 
     <!-- Stats in sidebar footer -->
@@ -243,19 +254,44 @@
       <!-- Mobile cards -->
       <div class="md:hidden divide-y divide-gray-100 dark:divide-gray-800">
         {% for k in klubovi %}
-        <div class="p-4 space-y-2">
-          <div class="flex items-start justify-between gap-2">
-            <p class="font-bold text-sm text-gray-900 dark:text-white">{{ k.naziv_kluba }}</p>
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold flex-shrink-0
+        <div class="p-4 space-y-3">
+
+          <!-- Naziv + status -->
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              {% if k.logo %}
+              <img src="/static/logos/{{ k.logo }}" class="w-11 h-11 rounded-xl object-cover flex-shrink-0"/>
+              {% else %}
+              <div class="w-11 h-11 bg-red-600 rounded-xl flex items-center justify-center text-white font-black text-lg flex-shrink-0">{{ k.naziv_kluba[0] }}</div>
+              {% endif %}
+              <div class="min-w-0">
+                <p class="font-extrabold text-gray-900 dark:text-white truncate">{{ k.naziv_kluba }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">@{{ k.username }}{% if k.grad %} &bull; {{ k.grad }}{% endif %}</p>
+              </div>
+            </div>
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold flex-shrink-0
               {% if k.aktivan %}bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-700/40
               {% else %}bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-700/40{% endif %}">
               <span class="w-1.5 h-1.5 rounded-full {% if k.aktivan %}bg-green-500{% else %}bg-red-500{% endif %}"></span>
               {{ 'Aktivan' if k.aktivan else 'Neaktivan' }}
             </span>
           </div>
-          <p class="text-xs text-gray-500 dark:text-gray-400">@{{ k.username }} &bull; {{ k.grad or '—' }}</p>
-          <p class="text-xs text-gray-400 dark:text-gray-500">{{ k.email }}</p>
-          <div class="flex gap-1 pt-2 items-center">
+
+          <!-- Email -->
+          <p class="text-xs text-gray-400 dark:text-gray-500 pl-14">{{ k.email }}</p>
+
+          <!-- Primarna akcija: pregled tima -->
+          <a href="/admin/klub/{{ k.id }}"
+            class="flex items-center justify-between w-full px-4 py-3 bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-700/40 rounded-xl text-sm font-bold text-violet-700 dark:text-violet-400 hover:bg-violet-100 dark:hover:bg-violet-900/30 transition">
+            <span class="flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              Pregled tima (igrači + SL)
+            </span>
+            <svg class="w-4 h-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </a>
+
+          <!-- Sekundarne akcije -->
+          <div class="flex items-center gap-2">
             <button type="button" onclick="openDetalji(this)"
               data-naziv="{{ k.naziv_kluba }}"
               data-username="{{ k.username }}"
@@ -264,26 +300,22 @@
               data-mobitel="{{ k.mobitel or '—' }}"
               data-grad="{{ k.grad or '—' }}"
               data-aktivan="{{ 'Aktivan' if k.aktivan else 'Neaktivan' }}"
-              data-aktivan-bool="{{ k.aktivan | lower }}"              data-logo="{{ k.logo or '' }}"              data-kreiran="{{ k.kreiran_datum.strftime('%d.%m.%Y u %H:%M') if k.kreiran_datum else '—' }}"
+              data-aktivan-bool="{{ k.aktivan | lower }}"
+              data-logo="{{ k.logo or '' }}"
+              data-kreiran="{{ k.kreiran_datum.strftime('%d.%m.%Y u %H:%M') if k.kreiran_datum else '—' }}"
               data-azuriran="{{ k.azuriran_datum.strftime('%d.%m.%Y u %H:%M') if k.azuriran_datum else '—' }}"
-              title="Detalji kluba"
-              class="p-2 rounded-lg border border-blue-300 dark:border-blue-700 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition">
+              class="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 text-xs font-bold hover:bg-blue-50 dark:hover:bg-blue-900/20 transition">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              Detalji
             </button>
-            <a href="/print/klub/{{ k.id }}/igraci" target="_blank"
-              title="Pregledaj igrače — printaj ili spremi kao PDF"
-              class="p-2 rounded-lg border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition">
+            <a href="/print/klub/{{ k.id }}" target="_blank"
+              class="flex items-center justify-center p-2.5 rounded-xl border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition" title="Štampaj / PDF">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-            </a>
-            <a href="/download/klub/{{ k.id }}/igraci.pdf"
-              title="Preuzmi PDF spisak igrača"
-              class="p-2 rounded-lg border border-green-300 dark:border-green-700 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
             </a>
             <form method="post" action="/admin/klub/{{ k.id }}/toggle" class="contents">
               <button type="submit"
-                title="{{ 'Deaktiviraj klub' if k.aktivan else 'Aktiviraj klub' }}"
-                class="p-2 rounded-lg border transition {% if k.aktivan %}border-orange-300 dark:border-orange-700 text-orange-500 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20{% else %}border-emerald-300 dark:border-emerald-700 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20{% endif %}">
+                class="flex items-center justify-center p-2.5 rounded-xl border transition {% if k.aktivan %}border-orange-200 dark:border-orange-800 text-orange-500 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20{% else %}border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20{% endif %}"
+                title="{{ 'Deaktiviraj' if k.aktivan else 'Aktiviraj' }}">
                 {% if k.aktivan %}
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 {% else %}
@@ -292,6 +324,7 @@
               </button>
             </form>
           </div>
+
         </div>
         {% else %}
         <div class="p-8 text-center text-sm text-gray-400">Nema registrovanih klubova</div>
@@ -334,6 +367,11 @@
               </td>
               <td class="px-4 py-3.5">
                 <div class="flex items-center gap-1">
+                  <a href="/admin/klub/{{ k.id }}"
+                    title="Pregled tima — igrači + službena lica"
+                    class="p-2 rounded-lg border border-violet-300 dark:border-violet-700 text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                  </a>
                   <button type="button" onclick="openDetalji(this)"
                     data-naziv="{{ k.naziv_kluba }}"
                     data-username="{{ k.username }}"
@@ -350,8 +388,8 @@
                     class="p-2 rounded-lg border border-blue-300 dark:border-blue-700 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                   </button>
-                  <a href="/print/klub/{{ k.id }}/igraci" target="_blank"
-                    title="Pregledaj igrače — printaj ili spremi kao PDF"
+                  <a href="/print/klub/{{ k.id }}" target="_blank"
+                    title="Pregled tima — igrači + službena lica — štampaj/PDF"
                     class="p-2 rounded-lg border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                   </a>

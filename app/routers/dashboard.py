@@ -4,7 +4,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from ..database import get_db
-from ..models import Klub, Admin, Uzrast, Sezona, Takmicenje, PrijavaKluba, Igrac, Registracija
+from ..models import Klub, Admin, Uzrast, Sezona, Takmicenje, PrijavaKluba, Igrac, Registracija, SluzbenoLice, RegistracijaSL, PozicijaSL
 from ..security import hash_password
 from .auth import get_current_user
 import os, io
@@ -163,15 +163,36 @@ async def klub_dashboard(request: Request, db: AsyncSession = Depends(get_db)):
         for reg, igr in igrac_rows
     ]
 
+    # Aktivna službena lica kluba
+    sl_rows = (await db.execute(
+        select(RegistracijaSL, SluzbenoLice, PozicijaSL)
+        .join(SluzbenoLice, RegistracijaSL.sluzbeno_lice_id == SluzbenoLice.id)
+        .outerjoin(PozicijaSL, SluzbenoLice.pozicija_id == PozicijaSL.id)
+        .where(RegistracijaSL.klub_id == klub_id, RegistracijaSL.status == "aktivna")
+        .order_by(SluzbenoLice.prezime, SluzbenoLice.ime)
+    )).all()
+
+    sluzbena_kluba = [
+        {
+            "br":      reg.br_registracije or "—",
+            "ime":     sl.ime,
+            "prezime": sl.prezime,
+            "pozicija": poz.naziv if poz else "—",
+            "status":  sl.status,
+        }
+        for reg, sl, poz in sl_rows
+    ]
+
     return templates.TemplateResponse("dashboard_klub.html", {
-        "request":       request,
-        "user":          user,
-        "klub":          klub,
-        "ok":            ok,
-        "error":         error,
-        "available":     available,
-        "moje_prijave":  moje_prijave,
-        "igraci_kluba":  igraci_kluba,
+        "request":        request,
+        "user":           user,
+        "klub":           klub,
+        "ok":             ok,
+        "error":          error,
+        "available":      available,
+        "moje_prijave":   moje_prijave,
+        "igraci_kluba":   igraci_kluba,
+        "sluzbena_kluba": sluzbena_kluba,
     })
 
 

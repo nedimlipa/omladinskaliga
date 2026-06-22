@@ -89,6 +89,17 @@
           Igrači
         </a>
       </li>
+      <li>
+        <a href="/klub/sluzbena-lica"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm
+            text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800
+            hover:text-gray-900 dark:hover:text-white transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+          </svg>
+          Službena lica
+        </a>
+      </li>
     </ul>
 
     <!-- Status u sidebar-u -->
@@ -171,99 +182,112 @@
     </div>
     {% endif %}
 
-    <!-- Welcome banner -->
-    <div class="rounded-2xl border p-6 flex items-center gap-4
-      bg-gradient-to-r from-red-50 to-white dark:from-red-900/20 dark:to-gray-900
-      border-red-200 dark:border-red-700/30">
+    <!-- ── Profil kartice ── -->
+    <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
 
-      <!-- Logo / upload -->  
-      <div class="relative flex-shrink-0 group">
-        {% if klub.logo %}
-        <img src="/static/logos/{{ klub.logo }}" alt="Logo"
-          class="w-16 h-16 rounded-2xl object-cover shadow-lg shadow-red-600/20 ring-2 ring-red-200 dark:ring-red-700/40"/>
-        {% else %}
-        <div class="w-16 h-16 bg-red-600 rounded-2xl flex items-center justify-center text-2xl shadow-lg shadow-red-600/30">&#127885;</div>
-        {% endif %}
-        <!-- Upload overlay on hover -->
-        <label for="logoInput"
-          class="absolute inset-0 rounded-2xl flex items-center justify-center
-            bg-black/50 opacity-0 group-hover:opacity-100 cursor-pointer transition
-            text-white text-xs font-bold">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
-          </svg>
-        </label>
-        <form id="logoForm" method="post" action="/klub/logo/upload" enctype="multipart/form-data" class="hidden">
-          <input id="logoInput" type="file" name="logo" accept=".jpg,.jpeg,.png,image/jpeg,image/png"
-            onchange="document.getElementById('logoForm').submit()" class="hidden"/>
-        </form>
-      </div>
-      <div class="flex-1 min-w-0">
-        <h1 class="text-xl font-extrabold text-gray-900 dark:text-white">Dobrodošli, {{ klub.naziv_kluba }}!</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-          Vaš nalog je
-          <span class="font-bold {% if klub.aktivan %}text-green-600 dark:text-green-400{% else %}text-red-600 dark:text-red-400{% endif %}">
-            {{ 'aktivan' if klub.aktivan else 'neaktivan' }}
+      <!-- Header: logo + ime + akcije -->
+      <div class="p-5 flex items-center gap-4">
+
+        <!-- Logo / upload -->
+        <div class="relative flex-shrink-0 group">
+          {% if klub.logo %}
+          <img src="/static/logos/{{ klub.logo }}" alt="Logo"
+            class="w-16 h-16 rounded-2xl object-cover shadow-lg shadow-red-600/20 ring-2 ring-red-200 dark:ring-red-700/40"/>
+          {% else %}
+          <div class="w-16 h-16 bg-red-600 rounded-2xl flex items-center justify-center text-2xl shadow-lg shadow-red-600/30">&#127885;</div>
+          {% endif %}
+          <label for="logoInput"
+            class="absolute inset-0 rounded-2xl flex items-center justify-center
+              bg-black/50 opacity-0 group-hover:opacity-100 cursor-pointer transition text-white">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+            </svg>
+          </label>
+          <form id="logoForm" method="post" action="/klub/logo/upload" enctype="multipart/form-data" class="hidden">
+            <input id="logoInput" type="file" name="logo" accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+              onchange="document.getElementById('logoForm').submit()" class="hidden"/>
+          </form>
+        </div>
+
+        <!-- Naziv + status -->
+        <div class="flex-1 min-w-0">
+          <h1 class="text-lg font-extrabold text-gray-900 dark:text-white leading-tight truncate">{{ klub.naziv_kluba }}</h1>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">@{{ klub.username }}{% if klub.grad %} &bull; {{ klub.grad }}{% endif %}</p>
+          <span class="inline-flex items-center gap-1.5 mt-2 px-2.5 py-0.5 rounded-full text-xs font-bold
+            {% if klub.aktivan %}bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-700/40
+            {% else %}bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-700/40{% endif %}">
+            <span class="w-1.5 h-1.5 rounded-full {% if klub.aktivan %}bg-green-500{% else %}bg-red-500{% endif %}"></span>
+            {{ 'Aktivan' if klub.aktivan else 'Neaktivan' }}
           </span>
-          i imate pristup platformi ORL Sjever.
-        </p>
-      </div>
-      <button onclick="openEdit()"
-        class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700
-          border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 text-sm font-bold rounded-xl shadow-sm transition flex-shrink-0">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-        </svg>
-        Uredi profil
-      </button>
-    </div>
+        </div>
 
-    <!-- Info grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Uredi profil -->
+        <button onclick="openEdit()"
+          class="flex-shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700
+            border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 text-xs font-bold rounded-xl transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+          </svg>
+          <span class="hidden sm:inline">Uredi profil</span>
+        </button>
 
-      <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-5 shadow-sm">
-        <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Kontakt osoba</p>
-        <p class="text-sm font-semibold {% if klub.kontakt_osoba %}text-gray-900 dark:text-white{% else %}text-gray-400 dark:text-gray-600 italic{% endif %}">
-          {{ klub.kontakt_osoba or 'Nije unešeno' }}
-        </p>
       </div>
 
-      <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-5 shadow-sm">
-        <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Mobitel</p>
-        <p class="text-sm font-semibold {% if klub.mobitel %}text-gray-900 dark:text-white{% else %}text-gray-400 dark:text-gray-600 italic{% endif %}">
-          {{ klub.mobitel or 'Nije unešeno' }}
-        </p>
+      <!-- Divider + toggle dugme -->
+      <div class="border-t border-gray-100 dark:border-gray-800">
+        <button id="toggleDetalji" onclick="toggleDetaljiProfila()"
+          class="w-full flex items-center justify-between px-5 py-3 text-xs font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/60 transition">
+          <span class="flex items-center gap-2">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            DETALJI PROFILA
+          </span>
+          <svg id="chevronDetalji" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
       </div>
 
-      <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-5 shadow-sm">
-        <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Grad</p>
-        <p class="text-sm font-semibold {% if klub.grad %}text-gray-900 dark:text-white{% else %}text-gray-400 dark:text-gray-600 italic{% endif %}">
-          {{ klub.grad or 'Nije unešeno' }}
-        </p>
-      </div>
+      <!-- Collapsible detalji -->
+      <div id="detaljiProfila" class="hidden border-t border-gray-100 dark:border-gray-800">
+        <dl class="divide-y divide-gray-100 dark:divide-gray-800">
 
-      <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-5 shadow-sm">
-        <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Email</p>
-        <p class="text-sm font-semibold text-gray-900 dark:text-white break-all">{{ klub.email }}</p>
-      </div>
+          <div class="flex items-center justify-between px-5 py-3">
+            <dt class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider w-32 flex-shrink-0">Kontakt osoba</dt>
+            <dd class="text-sm font-semibold text-right {% if klub.kontakt_osoba %}text-gray-900 dark:text-white{% else %}text-gray-400 dark:text-gray-600 italic{% endif %}">
+              {{ klub.kontakt_osoba or 'Nije unešeno' }}
+            </dd>
+          </div>
 
-      <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-5 shadow-sm">
-        <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Registrovan</p>
-        <p class="text-sm font-semibold text-gray-900 dark:text-white">
-          {{ klub.kreiran_datum.strftime('%d.%m.%Y') if klub.kreiran_datum else '—' }}
-        </p>
-      </div>
+          <div class="flex items-center justify-between px-5 py-3">
+            <dt class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider w-32 flex-shrink-0">Mobitel</dt>
+            <dd class="text-sm font-semibold text-right {% if klub.mobitel %}text-gray-900 dark:text-white{% else %}text-gray-400 dark:text-gray-600 italic{% endif %}">
+              {{ klub.mobitel or 'Nije unešeno' }}
+            </dd>
+          </div>
 
-      <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-5 shadow-sm">
-        <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Status</p>
-        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold
-          {% if klub.aktivan %}bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-700/40
-          {% else %}bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-700/40{% endif %}">
-          <span class="w-1.5 h-1.5 rounded-full {% if klub.aktivan %}bg-green-500{% else %}bg-red-500{% endif %}"></span>
-          {{ 'Aktivan' if klub.aktivan else 'Neaktivan' }}
-        </span>
+          <div class="flex items-center justify-between px-5 py-3">
+            <dt class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider w-32 flex-shrink-0">Grad</dt>
+            <dd class="text-sm font-semibold text-right {% if klub.grad %}text-gray-900 dark:text-white{% else %}text-gray-400 dark:text-gray-600 italic{% endif %}">
+              {{ klub.grad or 'Nije unešeno' }}
+            </dd>
+          </div>
+
+          <div class="flex items-center justify-between px-5 py-3">
+            <dt class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider w-32 flex-shrink-0">Email</dt>
+            <dd class="text-sm font-semibold text-right text-gray-900 dark:text-white break-all">{{ klub.email }}</dd>
+          </div>
+
+          <div class="flex items-center justify-between px-5 py-3">
+            <dt class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider w-32 flex-shrink-0">Registrovan</dt>
+            <dd class="text-sm font-semibold text-right text-gray-900 dark:text-white">
+              {{ klub.kreiran_datum.strftime('%d.%m.%Y') if klub.kreiran_datum else '—' }}
+            </dd>
+          </div>
+
+        </dl>
       </div>
 
     </div>
@@ -360,10 +384,29 @@
         <a href="/klub/igraci" class="inline-block mt-3 text-xs font-bold text-red-600 dark:text-red-400 hover:underline">Pošalji zahtjev →</a>
       </div>
       {% else %}
-      <div class="overflow-x-auto">
+      <!-- Mobile: card list -->
+      <div class="md:hidden divide-y divide-gray-100 dark:divide-gray-800">
+        {% for i in igraci_kluba %}
+        <div class="px-4 py-3 flex items-center justify-between gap-3">
+          <div class="min-w-0">
+            <p class="font-semibold text-gray-900 dark:text-white text-sm truncate">{{ i.prezime }} {{ i.ime }}</p>
+            <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{{ i.datum }} &bull; <span class="font-mono">{{ i.br }}</span></p>
+          </div>
+          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold flex-shrink-0
+            {% if i.status == 'aktivan' %}bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-700/40
+            {% elif i.status == 'suspendovan' %}bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-700/40
+            {% else %}bg-gray-100 dark:bg-gray-800 text-gray-500 border border-gray-200 dark:border-gray-700{% endif %}">
+            <span class="w-1.5 h-1.5 rounded-full {% if i.status == 'aktivan' %}bg-green-500{% elif i.status == 'suspendovan' %}bg-red-500{% else %}bg-gray-400{% endif %}"></span>
+            {{ i.status | capitalize }}
+          </span>
+        </div>
+        {% endfor %}
+      </div>
+      <!-- Desktop: table -->
+      <div class="hidden md:block overflow-x-auto">
         <table class="w-full text-sm">
           <thead><tr class="bg-gray-50 dark:bg-gray-800/60">
-            <th class="text-left px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-gray-400">Igrac</th>
+            <th class="text-left px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-gray-400">Igrač</th>
             <th class="text-left px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-gray-400">Datum roj.</th>
             <th class="text-left px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-gray-400">Br. reg.</th>
             <th class="text-left px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-gray-400">Status</th>
@@ -391,13 +434,79 @@
       {% endif %}
     </div>
 
-    <!-- Coming soon -->
-    <div class="bg-white dark:bg-gray-900 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800 p-10 text-center">
-      <div class="text-4xl mb-4">&#128679;</div>
-      <h3 class="text-base font-extrabold text-gray-900 dark:text-white mb-2">Uskoro dostupno</h3>
-      <p class="text-sm text-gray-500 dark:text-gray-400 max-w-xs mx-auto">
-        Statistike igrača, raspored utakmica i tabela lige bit će dostupni uskoro.
-      </p>
+    <!-- ── Službena lica kluba ── -->
+    <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-800">
+        <div class="flex items-center gap-3">
+          <h2 class="font-extrabold text-gray-900 dark:text-white text-base">Službena lica</h2>
+          {% if sluzbena_kluba %}
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-700/40">
+            {{ sluzbena_kluba | length }} aktivnih
+          </span>
+          {% endif %}
+        </div>
+        <a href="/klub/sluzbena-lica" class="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline">Upravljaj →</a>
+      </div>
+      {% if not sluzbena_kluba %}
+      <div class="px-5 py-8 text-center">
+        <div class="text-3xl mb-2">&#128101;</div>
+        <p class="text-sm text-gray-400 dark:text-gray-500">Nemate registrovanih službenih lica.</p>
+        <a href="/klub/sluzbena-lica" class="inline-block mt-3 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline">Pošalji zahtjev →</a>
+      </div>
+      {% else %}
+      <!-- Mobile: card list -->
+      <div class="md:hidden divide-y divide-gray-100 dark:divide-gray-800">
+        {% for s in sluzbena_kluba %}
+        <div class="px-4 py-3 flex items-center justify-between gap-3">
+          <div class="min-w-0">
+            <p class="font-semibold text-gray-900 dark:text-white text-sm truncate">{{ s.prezime }} {{ s.ime }}</p>
+            <div class="flex items-center gap-2 mt-0.5">
+              <span class="inline-block px-1.5 py-0.5 rounded text-xs font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">{{ s.pozicija }}</span>
+              <span class="font-mono text-xs text-gray-400 dark:text-gray-500">{{ s.br }}</span>
+            </div>
+          </div>
+          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold flex-shrink-0
+            {% if s.status == 'aktivan' %}bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-700/40
+            {% elif s.status == 'suspendovan' %}bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-700/40
+            {% else %}bg-gray-100 dark:bg-gray-800 text-gray-500 border border-gray-200 dark:border-gray-700{% endif %}">
+            <span class="w-1.5 h-1.5 rounded-full {% if s.status == 'aktivan' %}bg-green-500{% elif s.status == 'suspendovan' %}bg-red-500{% else %}bg-gray-400{% endif %}"></span>
+            {{ s.status | capitalize }}
+          </span>
+        </div>
+        {% endfor %}
+      </div>
+      <!-- Desktop: table -->
+      <div class="hidden md:block overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead><tr class="bg-gray-50 dark:bg-gray-800/60">
+            <th class="text-left px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-gray-400">Ime i prezime</th>
+            <th class="text-left px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-gray-400">Pozicija</th>
+            <th class="text-left px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-gray-400">Br. reg.</th>
+            <th class="text-left px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-gray-400">Status</th>
+          </tr></thead>
+          <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+            {% for s in sluzbena_kluba %}
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition">
+              <td class="px-5 py-2.5 font-semibold text-gray-900 dark:text-white whitespace-nowrap">{{ s.prezime }} {{ s.ime }}</td>
+              <td class="px-4 py-2.5">
+                <span class="inline-block px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-700/40">{{ s.pozicija }}</span>
+              </td>
+              <td class="px-4 py-2.5 font-mono text-xs font-bold text-gray-700 dark:text-gray-300 whitespace-nowrap">{{ s.br }}</td>
+              <td class="px-4 py-2.5">
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold
+                  {% if s.status == 'aktivan' %}bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-700/40
+                  {% elif s.status == 'suspendovan' %}bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-700/40
+                  {% else %}bg-gray-100 dark:bg-gray-800 text-gray-500 border border-gray-200 dark:border-gray-700{% endif %}">
+                  <span class="w-1.5 h-1.5 rounded-full {% if s.status == 'aktivan' %}bg-green-500{% elif s.status == 'suspendovan' %}bg-red-500{% else %}bg-gray-400{% endif %}"></span>
+                  {{ s.status | capitalize }}
+                </span>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
     </div>
 
   {% endif %}
@@ -537,6 +646,12 @@
   });
 
   const modalEdit=document.getElementById('modalEdit');
+  function toggleDetaljiProfila(){
+    const el=document.getElementById('detaljiProfila');
+    const ch=document.getElementById('chevronDetalji');
+    const hidden=el.classList.toggle('hidden');
+    ch.style.transform=hidden?'':'rotate(180deg)';
+  }
   function openEdit(){modalEdit.classList.remove('hidden');}
   function closeEdit(){modalEdit.classList.add('hidden');}
   modalEdit.addEventListener('click',(e)=>{if(e.target===modalEdit)closeEdit();});
