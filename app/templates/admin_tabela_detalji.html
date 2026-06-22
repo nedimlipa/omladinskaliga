@@ -458,11 +458,12 @@
         {% endif %}
         <form method="POST" action="/admin/tabela/{{ tabela.id }}/raspored/generiraj"
           {% if n_utakmica > 0 %}onsubmit="return confirm('Brisanje neodigranih utakmica i generisanje novog rasporeda?')"{% endif %}>
-          <div class="flex flex-wrap items-end gap-4">
+          <div class="space-y-4">
+            <!-- Format -->
             <div>
               <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Format</label>
               <div class="flex gap-2">
-                <label class="flex items-center gap-2 cursor-pointer px-3 py-2 rounded-xl border-2 border-violet-400 dark:border-violet-600 bg-violet-50 dark:bg-violet-900/20 has-[:checked]:border-violet-600 has-[:checked]:bg-violet-100 dark:has-[:checked]:bg-violet-900/40 transition">
+                <label class="flex items-center gap-2 cursor-pointer px-3 py-2 rounded-xl border-2 border-violet-400 dark:border-violet-600 bg-violet-50 dark:bg-violet-900/20 transition">
                   <input type="radio" name="format" value="dvokruzni" checked class="accent-violet-600" />
                   <span class="text-sm font-semibold text-violet-700 dark:text-violet-400">Dvokružni</span>
                 </label>
@@ -472,10 +473,30 @@
                 </label>
               </div>
             </div>
-            <button type="submit"
-              class="px-6 py-2.5 text-sm font-bold rounded-xl bg-violet-600 hover:bg-violet-700 text-white transition shadow-sm">
-              Generiši raspored
-            </button>
+            <!-- Datum i vrijeme prvog kola -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">
+                  Datum 1. kola
+                  <span class="font-normal text-gray-400">(+7 dana po kolu)</span>
+                </label>
+                <input type="date" name="start_date"
+                  class="w-full px-3 py-2.5 text-sm rounded-xl border border-gray-300 dark:border-gray-700
+                    bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500 focus:border-transparent" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">Vrijeme</label>
+                <input type="time" name="start_time" value="12:00"
+                  class="w-full px-3 py-2.5 text-sm rounded-xl border border-gray-300 dark:border-gray-700
+                    bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500 focus:border-transparent" />
+              </div>
+            </div>
+            <div>
+              <button type="submit"
+                class="px-6 py-2.5 text-sm font-bold rounded-xl bg-violet-600 hover:bg-violet-700 text-white transition shadow-sm">
+                Generiši raspored
+              </button>
+            </div>
           </div>
         </form>
       </div>
@@ -639,48 +660,62 @@
         </div>
         <ul class="divide-y divide-gray-100 dark:divide-gray-800">
           {% for u in utakmice if u.kolo == kolo_br %}
-          <li class="px-5 py-3.5">
-            <div class="flex items-center justify-between gap-2">
-              <div class="flex items-center gap-2 flex-1 min-w-0">
-                <span class="text-sm font-semibold text-gray-900 dark:text-white truncate">
+          <li class="px-5 py-4 {% if not loop.first %}border-t border-gray-100 dark:border-gray-800{% endif %}">
+            <!-- MATCH CARD: 3 kolumne -->
+            <div class="flex items-center gap-2">
+              <!-- Domaćin (desno poravnanje) -->
+              <div class="flex-1 text-right">
+                <span class="font-bold text-sm text-gray-900 dark:text-white">
                   {{ prijava_klub.get(u.domacin_id, '?') }}
                 </span>
-                <span class="flex-shrink-0 text-center min-w-[4rem]">
-                  {% if u.je_bye %}
-                  <span class="inline-flex items-center px-2 py-0.5 rounded-lg bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-[10px] font-extrabold uppercase tracking-wider">slobodna</span>
-                  {% elif u.odigrana %}
-                  <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-gray-100 dark:bg-gray-800 font-extrabold text-sm text-gray-900 dark:text-white">
-                    {{ u.gol_domacin }} : {{ u.gol_gost }}
-                  </span>
+              </div>
+              <!-- Sredina: rezultat / status / slobodna -->
+              <div class="flex flex-col items-center flex-shrink-0 w-32">
+                {% if u.je_bye %}
+                <span class="px-3 py-1 rounded-lg bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-[10px] font-extrabold uppercase tracking-wider">slobodna</span>
+                {% elif u.odigrana %}
+                <div class="flex items-center gap-1.5 bg-gray-900 dark:bg-gray-100 rounded-xl px-4 py-1.5">
+                  <span class="text-lg font-extrabold text-white dark:text-gray-900 tabular-nums">{{ u.gol_domacin }}</span>
+                  <span class="text-gray-400 dark:text-gray-500 font-bold text-sm">:</span>
+                  <span class="text-lg font-extrabold text-white dark:text-gray-900 tabular-nums">{{ u.gol_gost }}</span>
+                </div>
+                {% if u.datum_utakmice %}
+                <span class="text-[10px] text-gray-400 mt-1">{{ u.datum_utakmice.strftime('%d.%m.%Y %H:%M') }}</span>
+                {% endif %}
+                {% else %}
+                <div class="flex flex-col items-center">
+                  {% if u.datum_utakmice %}
+                  <span class="text-xs font-bold text-blue-600 dark:text-blue-400">{{ u.datum_utakmice.strftime('%d.%m.%Y') }}</span>
+                  <span class="text-sm font-extrabold text-gray-700 dark:text-gray-300">{{ u.datum_utakmice.strftime('%H:%M') }}</span>
                   {% else %}
-                  <span class="text-xs text-gray-400 dark:text-gray-500">
-                    {% if u.datum_utakmice %}{{ u.datum_utakmice.strftime('%d.%m.') }}{% else %}vs{% endif %}
-                  </span>
+                  <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">vs</span>
                   {% endif %}
-                </span>
-                <span class="text-sm font-semibold text-gray-900 dark:text-white truncate text-right flex-1">
+                </div>
+                {% endif %}
+              </div>
+              <!-- Gost (lijevo poravnanje) -->
+              <div class="flex-1">
+                <span class="font-bold text-sm text-gray-900 dark:text-white">
                   {% if u.je_bye %}
-                  <span class="text-orange-500 italic text-xs">Slobodna ekipa</span>
+                  <span class="text-orange-500 text-xs italic">Slobodna ekipa</span>
                   {% else %}
                   {{ prijava_klub.get(u.gost_id, '?') }}
                   {% endif %}
                 </span>
               </div>
-              <div class="flex items-center gap-1 flex-shrink-0 ml-2">
+              <!-- Akcije -->
+              <div class="flex items-center gap-1 flex-shrink-0">
                 {% if not u.je_bye %}
-                <!-- Edit button -->
-                <button onclick="openEditModal({{ u.id }}, {{ u.domacin_id }}, {{ u.gost_id if u.gost_id is not none else 'null' }}, {{ u.gol_domacin if u.gol_domacin is not none else 'null' }}, {{ u.gol_gost if u.gol_gost is not none else 'null' }}, {{ u.kolo if u.kolo else 'null' }}, '{{ u.napomena or '' }}')"
-                  class="p-1.5 rounded-lg text-violet-500 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition">
+                <button onclick="openEditModal({{ u.id }}, {{ u.domacin_id }}, {{ u.gost_id if u.gost_id is not none else 'null' }}, {{ u.gol_domacin if u.gol_domacin is not none else 'null' }}, {{ u.gol_gost if u.gol_gost is not none else 'null' }}, {{ u.kolo if u.kolo else 'null' }}, '{{ u.napomena or '' }}', '{{ u.datum_utakmice.strftime("%Y-%m-%dT%H:%M") if u.datum_utakmice else "" }}')"
+                  class="p-1.5 rounded-lg text-violet-500 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition" title="Uredi">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                   </svg>
                 </button>
                 {% endif %}
-                <!-- Delete button -->
                 <form method="POST" action="/admin/tabela/{{ tabela.id }}/utakmica/{{ u.id }}/ukloni"
                   onsubmit="return confirm('Obrisati ovu utakmicu?')">
-                  <button type="submit"
-                    class="p-1.5 rounded-lg text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition">
+                  <button type="submit" class="p-1.5 rounded-lg text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition" title="Obriši">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                     </svg>
@@ -689,7 +724,7 @@
               </div>
             </div>
             {% if u.napomena %}
-            <p class="text-xs text-gray-400 mt-1 pl-0.5">{{ u.napomena }}</p>
+            <p class="text-xs text-amber-600 dark:text-amber-400 mt-2 text-center">&#9888;&#65039; {{ u.napomena }}</p>
             {% endif %}
           </li>
           {% endfor %}
@@ -831,7 +866,23 @@
           </select>
         </div>
       </div>
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      <!-- Datum i Vrijeme -->
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">Datum utakmice</label>
+          <input type="date" name="datum_utakmice_date" id="editDatumDate"
+            class="w-full px-3 py-2.5 text-sm rounded-xl border border-gray-300 dark:border-gray-700
+              bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">Vrijeme</label>
+          <input type="time" name="datum_utakmice_time" id="editDatumTime"
+            class="w-full px-3 py-2.5 text-sm rounded-xl border border-gray-300 dark:border-gray-700
+              bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent" />
+        </div>
+      </div>
+      <!-- Golovi + Kolo -->
+      <div class="grid grid-cols-3 gap-3">
         <div>
           <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">Golovi dom.</label>
           <input type="number" name="gol_domacin" id="editGolD" min="0" placeholder="—"
@@ -852,7 +903,7 @@
         </div>
       </div>
       <div>
-        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">Napomena</label>
+        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">Napomena (pomjerena, otkazana...)</label>
         <input type="text" name="napomena" id="editNapomena"
           class="w-full px-3 py-2.5 text-sm rounded-xl border border-gray-300 dark:border-gray-700
             bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent" />
@@ -926,7 +977,7 @@
   }
 
   // Edit utakmica modal
-  function openEditModal(uid, domId, gostId, golD, golG, kolo, napomena) {
+  function openEditModal(uid, domId, gostId, golD, golG, kolo, napomena, datum) {
     document.getElementById('editUtakmicaForm').action = `/admin/tabela/{{ tabela.id }}/utakmica/${uid}/uredi`;
     document.getElementById('editDomacin').value = domId;
     document.getElementById('editGost').value = gostId;
@@ -934,6 +985,15 @@
     document.getElementById('editGolG').value = golG !== null ? golG : '';
     document.getElementById('editKolo').value = kolo !== null ? kolo : '';
     document.getElementById('editNapomena').value = napomena || '';
+    // Datum i vrijeme
+    if (datum) {
+      const [datePart, timePart] = datum.split('T');
+      document.getElementById('editDatumDate').value = datePart || '';
+      document.getElementById('editDatumTime').value = timePart ? timePart.substring(0, 5) : '';
+    } else {
+      document.getElementById('editDatumDate').value = '';
+      document.getElementById('editDatumTime').value = '';
+    }
     document.getElementById('modalEditUtakmica').classList.remove('hidden');
   }
 

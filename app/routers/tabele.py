@@ -462,16 +462,17 @@ async def admin_utakmica_dodaj(
 
 @router.post("/admin/tabela/{tabela_id}/utakmica/{uid}/uredi")
 async def admin_utakmica_uredi(
-    tabela_id:     int,
-    uid:           int,
-    request:       Request,
-    domacin_id:    int           = Form(...),
-    gost_id:       int           = Form(...),
-    kolo:          Optional[int] = Form(None),
-    datum_utakmice: Optional[str] = Form(None),
-    gol_domacin:   Optional[int] = Form(None),
-    gol_gost:      Optional[int] = Form(None),
-    napomena:      Optional[str] = Form(None),
+    tabela_id:            int,
+    uid:                  int,
+    request:              Request,
+    domacin_id:           int           = Form(...),
+    gost_id:              int           = Form(...),
+    kolo:                 Optional[int] = Form(None),
+    datum_utakmice_date:  Optional[str] = Form(None),   # YYYY-MM-DD
+    datum_utakmice_time:  Optional[str] = Form(None),   # HH:MM
+    gol_domacin:          Optional[int] = Form(None),
+    gol_gost:             Optional[int] = Form(None),
+    napomena:             Optional[str] = Form(None),
     db: AsyncSession = Depends(get_db),
 ):
     user = get_current_user(request)
@@ -487,13 +488,18 @@ async def admin_utakmica_uredi(
         u.gol_gost    = gol_gost
         u.odigrana    = gol_domacin is not None and gol_gost is not None
         u.napomena    = napomena.strip() if napomena else None
-        if datum_utakmice and datum_utakmice.strip():
+        if datum_utakmice_date and datum_utakmice_date.strip():
+            time_str = datum_utakmice_time.strip() if datum_utakmice_time and datum_utakmice_time.strip() else "00:00"
             try:
-                u.datum_utakmice = datetime.datetime.fromisoformat(datum_utakmice.strip())
+                u.datum_utakmice = datetime.datetime.strptime(
+                    f"{datum_utakmice_date.strip()} {time_str}", "%Y-%m-%d %H:%M"
+                )
             except ValueError:
-                pass
+                u.datum_utakmice = None
+        else:
+            u.datum_utakmice = None
         await db.commit()
-    return RedirectResponse(f"/admin/tabela/{tabela_id}", status_code=303)
+    return RedirectResponse(f"/admin/tabela/{tabela_id}#utakmice", status_code=303)
 
 
 @router.post("/admin/tabela/{tabela_id}/utakmica/{uid}/ukloni")
@@ -635,9 +641,11 @@ async def admin_tabela_seed(
 
 @router.post("/admin/tabela/{tabela_id}/raspored/generiraj")
 async def admin_raspored_generiraj(
-    tabela_id: int,
-    request:   Request,
-    format:    str = Form("dvokruzni"),
+    tabela_id:   int,
+    request:     Request,
+    format:      str            = Form("dvokruzni"),
+    start_date:  Optional[str]  = Form(None),   # YYYY-MM-DD
+    start_time:  Optional[str]  = Form(None),   # HH:MM
     db: AsyncSession = Depends(get_db),
 ):
     user = get_current_user(request)
@@ -663,6 +671,15 @@ async def admin_raspored_generiraj(
 
     seed_map: dict[int, int] = {te.seed_broj: te.prijava_id for te in te_list}
 
+    # Parsiraj početni datum/vrijeme
+    base_dt: Optional[datetime.datetime] = None
+    if start_date and start_date.strip():
+        try:
+            time_part = start_time.strip() if start_time and start_time.strip() else "12:00"
+            base_dt = datetime.datetime.strptime(f"{start_date.strip()} {time_part}", "%Y-%m-%d %H:%M")
+        except ValueError:
+            base_dt = None
+
     # Obriši postojeće neodigrane utakmice
     existing = (await db.execute(
         select(Utakmica)
@@ -677,16 +694,19 @@ async def admin_raspored_generiraj(
     schedule = _berger_schedule(n, dvokruzni=dvokruzni)
 
     for kolo_idx, rnd in enumerate(schedule, 1):
+        # Datum za ovo kolo = baza + (kolo-1) * 7 dana
+        kolo_dt = base_dt + datetime.timedelta(weeks=kolo_idx - 1) if base_dt else None
         for (h_seed, a_seed, bye) in rnd:
             dom_prijava  = seed_map[h_seed]
             gost_prijava = seed_map[a_seed] if a_seed is not None else None
             db.add(Utakmica(
-                tabela_id  = tabela_id,
-                domacin_id = dom_prijava,
-                gost_id    = gost_prijava,
-                je_bye     = bye,
-                kolo       = kolo_idx,
-                odigrana   = False,
+                tabela_id      = tabela_id,
+                domacin_id     = dom_prijava,
+                gost_id        = gost_prijava,
+                je_bye         = bye,
+                kolo           = kolo_idx,
+                datum_utakmice = kolo_dt,
+                odigrana       = False,
             ))
     await db.commit()
     return RedirectResponse(f"/admin/tabela/{tabela_id}#utakmice", status_code=303)
