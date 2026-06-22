@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="bs" id="html-root">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Raspored | ORL Sjever</title>
+  <script>(function(){const t=localStorage.getItem('theme')||'dark';document.documentElement.classList.toggle('dark',t==='dark');})();</script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{sans:['Plus Jakarta Sans','system-ui','sans-serif']}}}}</script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;}</style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased min-h-screen">
+
+<!-- NAVBAR -->
+<nav class="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm">
+  <div class="px-4 sm:px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="/" class="flex items-center gap-2.5">
+        <div class="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center text-base shadow shadow-red-900/40 flex-shrink-0">&#127942;</div>
+        <div class="hidden sm:block">
+          <p class="text-sm font-extrabold tracking-tight text-gray-900 dark:text-white leading-none">ORL Sjever</p>
+          <p class="text-[10px] text-gray-400 dark:text-gray-500 font-semibold uppercase tracking-widest leading-none mt-0.5">Omladinska Rukometna Liga</p>
+        </div>
+      </a>
+      <span class="text-gray-300 dark:text-gray-700 hidden sm:inline">|</span>
+      <span class="text-sm font-bold text-gray-500 dark:text-gray-400 hidden sm:inline">Raspored utakmica</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <a href="/" class="text-sm font-bold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white px-3 py-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition flex items-center gap-1.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        Početna
+      </a>
+      <button id="themeToggle" type="button" class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+        <svg id="iconSun" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m8.66-9h-1M4.34 12h-1m15.07-6.07-.71.71M5.64 18.36l-.71.71M18.36 18.36l-.71-.71M5.64 5.64l-.71-.71M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
+        <svg id="iconMoon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      </button>
+      <a href="/login" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-bold bg-red-600 hover:bg-red-700 text-white shadow shadow-red-900/30 transition">Prijava</a>
+    </div>
+  </div>
+</nav>
+
+{% if not nav_tabele %}
+<div class="flex flex-col items-center justify-center py-32 text-center px-4">
+  <div class="text-6xl mb-4">&#127950;</div>
+  <p class="text-lg font-bold text-gray-500 dark:text-gray-400">Nema aktivnih takmičenja</p>
+</div>
+{% else %}
+
+<!-- LIGA PILLS -->
+<div class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-[57px] z-40">
+  <div class="px-4 sm:px-6 py-2.5 flex gap-2 overflow-x-auto" style="scrollbar-width:none">
+    {% for nt in nav_tabele %}
+    <a href="/raspored?tabela_id={{ nt.tabela.id }}"
+      class="flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold transition whitespace-nowrap
+        {% if sel.tabela.id == nt.tabela.id %}bg-red-600 text-white shadow shadow-red-900/30{% else %}bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700{% endif %}">
+      {{ nt.takm.naziv }} &middot; {{ nt.uzrast.naziv }}
+    </a>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- KOLO NAVIGACIJA -->
+<div class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+  <div class="px-4 sm:px-6 py-3 flex items-center flex-wrap gap-2">
+
+    {% if prev_kolo %}
+    <a href="/raspored?tabela_id={{ sel.tabela.id }}&kolo={{ prev_kolo }}"
+      class="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-bold bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition shadow-sm">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+      Kolo {{ prev_kolo }}
+    </a>
+    {% endif %}
+
+    <form method="get" action="/raspored" class="flex-shrink-0">
+      <input type="hidden" name="tabela_id" value="{{ sel.tabela.id }}"/>
+      <select name="kolo" onchange="this.form.submit()"
+        class="rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-bold text-gray-900 dark:text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 shadow-sm">
+        {% for k in all_kolos %}
+        <option value="{{ k }}" {% if active_kolo == k %}selected{% endif %}>Kolo {{ k }}</option>
+        {% endfor %}
+        {% if not all_kolos %}<option>—</option>{% endif %}
+      </select>
+    </form>
+
+    {% if next_kolo_nav %}
+    <a href="/raspored?tabela_id={{ sel.tabela.id }}&kolo={{ next_kolo_nav }}"
+      class="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-bold bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition shadow-sm">
+      Kolo {{ next_kolo_nav }}
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+    </a>
+    {% endif %}
+
+    <span class="text-gray-300 dark:text-gray-700 select-none hidden sm:inline">|</span>
+
+    {% if next_kolo %}
+    <a href="/raspored?tabela_id={{ sel.tabela.id }}"
+      class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-bold shadow-sm transition
+        {% if not sve and active_kolo == next_kolo %}bg-red-600 text-white hover:bg-red-700{% else %}bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700{% endif %}">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+      Sljedeće
+    </a>
+    {% endif %}
+
+    <a href="/raspored?tabela_id={{ sel.tabela.id }}&sve=1"
+      class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-bold shadow-sm transition
+        {% if sve %}bg-gray-800 dark:bg-gray-700 text-white{% else %}bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700{% endif %}">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+      Sva kola
+    </a>
+
+    <span class="ml-auto text-xs font-semibold text-gray-400 dark:text-gray-600">{{ total }} utakmica</span>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="max-w-2xl mx-auto px-4 sm:px-6 py-6 space-y-4">
+
+  {% if not kolos %}
+  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm px-6 py-14 text-center">
+    <div class="text-5xl mb-4">&#127950;</div>
+    <p class="text-gray-400 dark:text-gray-500 font-semibold">Nema utakmica za prikaz.</p>
+  </div>
+  {% else %}
+
+  {% for kolo_num, utakmice in kolos.items() %}
+
+  <!-- Kolo header (only in "sve" view) -->
+  {% if sve %}
+  <div class="flex items-center gap-3 pt-2">
+    <span class="text-xs font-extrabold text-gray-400 dark:text-gray-600 uppercase tracking-widest">Kolo {{ kolo_num }}</span>
+    <div class="flex-1 h-px bg-gray-200 dark:bg-gray-800"></div>
+    {% set first_dated = utakmice | selectattr('u.datum_utakmice') | list %}
+    {% if first_dated %}
+    <span class="text-xs font-bold text-blue-500 dark:text-blue-400">{{ first_dated[0].u.datum_utakmice.strftime('%d.%m.%Y') }}</span>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Match cards -->
+  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+
+    {% if not sve %}
+    <!-- Single kolo header -->
+    <div class="px-5 py-3 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+      <div>
+        <p class="text-[10px] font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{{ sel.takm.naziv }} &middot; {{ sel.uzrast.naziv }}</p>
+        <p class="text-base font-extrabold text-gray-900 dark:text-white mt-0.5">Kolo {{ active_kolo }}</p>
+      </div>
+      {% set first_dated = utakmice | selectattr('u.datum_utakmice') | list %}
+      {% if first_dated %}
+      <span class="text-sm font-bold text-blue-500 dark:text-blue-400">{{ first_dated[0].u.datum_utakmice.strftime('%d.%m.%Y') }}</span>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="divide-y divide-gray-100 dark:divide-gray-800/60">
+      {% for item in utakmice %}
+      <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 py-4">
+
+        <!-- Domaćin -->
+        <div class="flex items-center justify-end gap-2.5 min-w-0">
+          <p class="font-bold text-gray-900 dark:text-white text-right truncate text-sm">{{ item.dom.naziv if item.dom else '—' }}</p>
+          {% if item.dom and item.dom.logo %}
+          <img src="/static/logos/{{ item.dom.logo }}" alt="" class="w-10 h-10 rounded-xl object-cover flex-shrink-0 shadow"/>
+          {% else %}
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 flex items-center justify-center flex-shrink-0 text-gray-500 dark:text-gray-400 text-xs font-black shadow-inner">{{ (item.dom.naziv[:2] if item.dom else '?').upper() }}</div>
+          {% endif %}
+        </div>
+
+        <!-- Centar -->
+        <div class="flex flex-col items-center gap-0.5 min-w-[80px]">
+          {% if item.u.je_bye %}
+            <span class="px-2 py-0.5 rounded-lg text-[10px] font-extrabold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-700/40 whitespace-nowrap">SLOBODNA</span>
+          {% elif item.u.odigrana %}
+            <span class="px-3 py-1.5 rounded-xl text-base font-extrabold bg-gray-900 dark:bg-gray-950 text-white border border-gray-700 tracking-wide tabular-nums shadow">{{ item.u.gol_domacin }} : {{ item.u.gol_gost }}</span>
+          {% elif item.u.datum_utakmice %}
+            <span class="text-sm font-extrabold text-blue-600 dark:text-blue-400 whitespace-nowrap">{{ item.u.datum_utakmice.strftime('%d.%m') }}</span>
+            <span class="text-xs font-bold text-gray-500 dark:text-gray-400 whitespace-nowrap">{{ item.u.datum_utakmice.strftime('%H:%M') }}</span>
+          {% else %}
+            <span class="text-sm font-bold text-gray-300 dark:text-gray-700">vs</span>
+          {% endif %}
+        </div>
+
+        <!-- Gost -->
+        <div class="flex items-center gap-2.5 min-w-0">
+          {% if item.u.je_bye %}
+            <span class="text-amber-600 dark:text-amber-400 italic text-sm font-semibold">Slobodna</span>
+          {% else %}
+            {% if item.gost and item.gost.logo %}
+            <img src="/static/logos/{{ item.gost.logo }}" alt="" class="w-10 h-10 rounded-xl object-cover flex-shrink-0 shadow"/>
+            {% else %}
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 flex items-center justify-center flex-shrink-0 text-gray-500 dark:text-gray-400 text-xs font-black shadow-inner">{{ (item.gost.naziv[:2] if item.gost else '?').upper() }}</div>
+            {% endif %}
+            <p class="font-bold text-gray-900 dark:text-white text-left truncate text-sm">{{ item.gost.naziv if item.gost else '—' }}</p>
+          {% endif %}
+        </div>
+      </div>
+      {% if item.u.napomena %}
+      <div class="px-4 pb-3 -mt-3 text-xs text-amber-600 dark:text-amber-400 italic">&#9432; {{ item.u.napomena }}</div>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+  {% endfor %}
+  {% endif %}
+
+</div>
+
+<!-- Footer -->
+<footer class="mt-8 border-t border-gray-200 dark:border-gray-800 px-4 py-5 text-center">
+  <p class="text-xs text-gray-400 dark:text-gray-600 font-semibold">ORL Sjever &copy; 2025/2026</p>
+</footer>
+
+{% endif %}
+
+<script>
+const html = document.getElementById('html-root');
+function applyTheme(t) {
+  html.classList.toggle('dark', t === 'dark');
+  document.getElementById('iconSun').classList.toggle('hidden', t !== 'dark');
+  document.getElementById('iconMoon').classList.toggle('hidden', t === 'dark');
+}
+applyTheme(localStorage.getItem('theme') || 'dark');
+document.getElementById('themeToggle').addEventListener('click', () => {
+  const t = html.classList.contains('dark') ? 'light' : 'dark';
+  localStorage.setItem('theme', t); applyTheme(t);
+});
+</script>
+</body>
+</html>
