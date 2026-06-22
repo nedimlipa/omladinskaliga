@@ -172,11 +172,11 @@ async def _enrich_tabela(tabela: Tabela, db: AsyncSession):
 
 @router.get("/admin/utakmice", response_class=HTMLResponse)
 async def admin_utakmice_pregled(
-    request:    Request,
-    db:         AsyncSession = Depends(get_db),
-    uzrast_id:  Optional[int] = None,
-    klub_id:    Optional[int] = None,
-    odigrana:   Optional[str] = None,   # "da" | "ne" | None (sve)
+    request:   Request,
+    db:        AsyncSession = Depends(get_db),
+    uzrast_id: Optional[int] = None,
+    kolo:      Optional[int] = None,   # specific kolo; None = auto next
+    sve:       Optional[str] = None,   # "1" = show all kolos
 ):
     user = get_current_user(request)
     if not user or user.get("tip") not in ("admin", "moderator"):
@@ -189,63 +189,92 @@ async def admin_utakmice_pregled(
         .order_by(Takmicenje.naziv, Uzrast.naziv)
     )).all()
 
-    klubovi = (await db.execute(
-        select(Klub).where(Klub.aktivan == True).order_by(Klub.naziv_kluba)
-    )).scalars().all()
-
     # ── Pre-fetch prijava → klub map ──────────────────────────
     pk_rows = (await db.execute(
         select(PrijavaKluba, Klub).join(Klub, PrijavaKluba.klub_id == Klub.id)
     )).all()
     prijava_map = {pk.id: {"naziv": k.naziv_kluba, "logo": k.logo, "id": k.id} for pk, k in pk_rows}
 
-    # ── Utakmice query ────────────────────────────────────────
+    # ── Sve utakmice ──────────────────────────────────────────
     q = (
         select(Utakmica, Tabela, Uzrast, Takmicenje)
-        .join(Tabela,     Utakmica.tabela_id  == Tabela.id)
-        .join(Uzrast,     Tabela.uzrast_id    == Uzrast.id)
-        .join(Takmicenje, Uzrast.takmicenje_id == Takmicenje.id)
+        .join(Tabela,     Utakmica.tabela_id    == Tabela.id)
+        .join(Uzrast,     Tabela.uzrast_id      == Uzrast.id)
+        .join(Takmicenje, Uzrast.takmicenje_id  == Takmicenje.id)
     )
     if uzrast_id:
         q = q.where(Uzrast.id == uzrast_id)
-    if odigrana == "da":
-        q = q.where(Utakmica.odigrana == True)
-    elif odigrana == "ne":
-        q = q.where(Utakmica.odigrana == False)
     q = q.order_by(Takmicenje.naziv, Uzrast.naziv, Utakmica.kolo.nullslast(), Utakmica.datum_utakmice.nullslast())
-
     rows = (await db.execute(q)).all()
 
-    utakmice_data = []
+    all_items = []
     for u, tabela, uzrast, takm in rows:
         dom  = prijava_map.get(u.domacin_id)
         gost = prijava_map.get(u.gost_id) if u.gost_id else None
-        # Apply club filter (post-query — keeps index use on other filters)
-        if klub_id and not (
-            (dom  and dom["id"]  == klub_id) or
-            (gost and gost["id"] == klub_id)
-        ):
-            continue
-        utakmice_data.append({
-            "u":      u,
-            "tabela": tabela,
-            "uzrast": uzrast,
-            "takm":   takm,
-            "dom":    dom,
-            "gost":   gost,
-        })
+        all_items.append({"u": u, "tabela": tabela, "uzrast": uzrast, "takm": takm, "dom": dom, "gost": gost})
+
+    # ── Odredi sljedeće kolo (min kolo s budućim neodigranim) ─
+    now = datetime.datetime.now()
+    upcoming = [
+        item["u"].kolo for item in all_items
+        if not item["u"].je_bye
+        and not item["u"].odigrana
+        and item["u"].datum_utakmice
+        and item["u"].datum_utakmice >= now
+        and item["u"].kolo
+    ]
+    next_kolo = min(upcoming, default=None)
+
+    # ── Sva dostupna kola (za navigaciju) ─────────────────────
+    all_kolos = sorted({item["u"].kolo for item in all_items if item["u"].kolo})
+
+    # ── Aktivni kolo ──────────────────────────────────────────
+    if sve:
+        active_kolo = None      # prikaži sve
+    elif kolo:
+        active_kolo = kolo
+    else:
+        active_kolo = next_kolo  # default = sljedeće
+
+    # ── Filtriraj po kolu ────────────────────────────────────
+    filtered = all_items if active_kolo is None else [
+        item for item in all_items if item["u"].kolo == active_kolo
+    ]
+
+    # ── Grupiraj po tabeli → po kolu ─────────────────────────
+    from collections import OrderedDict as _OD
+    tabela_map: dict = _OD()
+    for item in filtered:
+        tid = item["tabela"].id
+        if tid not in tabela_map:
+            tabela_map[tid] = {"tabela": item["tabela"], "uzrast": item["uzrast"],
+                               "takm": item["takm"], "kolos": _OD()}
+        k = item["u"].kolo or 0
+        if k not in tabela_map[tid]["kolos"]:
+            tabela_map[tid]["kolos"][k] = []
+        tabela_map[tid]["kolos"][k].append(item)
 
     filter_uzrasti = [{"id": u.id, "naziv": u.naziv, "takm": t.naziv} for u, t in uzrasti_rows]
+    prev_kolo = (all_kolos[all_kolos.index(active_kolo) - 1]
+                 if active_kolo and active_kolo in all_kolos and all_kolos.index(active_kolo) > 0
+                 else None)
+    next_kolo_nav = (all_kolos[all_kolos.index(active_kolo) + 1]
+                     if active_kolo and active_kolo in all_kolos and all_kolos.index(active_kolo) < len(all_kolos) - 1
+                     else None)
 
     return templates.TemplateResponse("admin_utakmice.html", {
-        "request":         request,
-        "user":            user,
-        "utakmice_data":   utakmice_data,
-        "filter_uzrasti":  filter_uzrasti,
-        "klubovi":         klubovi,
-        "sel_uzrast_id":   uzrast_id,
-        "sel_klub_id":     klub_id,
-        "sel_odigrana":    odigrana,
+        "request":       request,
+        "user":          user,
+        "tabela_groups": list(tabela_map.values()),
+        "filter_uzrasti": filter_uzrasti,
+        "sel_uzrast_id": uzrast_id,
+        "active_kolo":   active_kolo,
+        "next_kolo":     next_kolo,
+        "prev_kolo":     prev_kolo,
+        "next_kolo_nav": next_kolo_nav,
+        "all_kolos":     all_kolos,
+        "sve":           bool(sve),
+        "total":         len(filtered),
     })
 
 

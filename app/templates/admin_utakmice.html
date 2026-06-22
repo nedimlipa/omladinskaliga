@@ -1,18 +1,18 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="bs" id="html-root">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Utakmice | ORL Sjever</title>
-  <script>(function(){const t=localStorage.getItem('theme')||'dark';document.documentElement.classList.toggle('dark',t==='dark');})();</script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{sans:['Plus Jakarta Sans','system-ui','sans-serif']}}}}</script>
+  <script>(function(){const t=localStorage.getItem('theme')||'dark';document.documentElement.classList.toggle('dark',t==='dark');})();<\/script>
+  <script src="https://cdn.tailwindcss.com"><\/script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{sans:['Plus Jakarta Sans','system-ui','sans-serif']}}}}<\/script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;}.sidebar-transition{transition:transform .25s ease;}</style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased">
 
-<!-- ════ NAVBAR ════ -->
+<!-- NAVBAR -->
 <nav class="fixed top-0 z-50 w-full bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm">
   <div class="px-4 py-3 lg:px-6 flex items-center justify-between">
     <div class="flex items-center gap-3">
@@ -34,235 +34,178 @@
   </div>
 </nav>
 
-<!-- ════ SIDEBAR ════ -->
+<!-- SIDEBAR -->
 <aside id="sidebar" class="sidebar-transition fixed top-0 left-0 z-40 w-64 h-screen pt-16 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 -translate-x-full md:translate-x-0">
   <div class="h-full px-3 py-5 overflow-y-auto flex flex-col">
     <ul class="space-y-1">
-      <li>
-        <a href="/admin/dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-          Dashboard
-        </a>
-      </li>
-      <li>
-        <a href="/admin/takmicenja" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
-          Takmičenja
-        </a>
-      </li>
-      <li>
-        <a href="/admin/igraci" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-          Igrači
-        </a>
-      </li>
-      <li>
-        <a href="/admin/tabele" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 6h18M3 14h18M3 18h18"/></svg>
-          Tabele
-        </a>
-      </li>
-      <li>
-        <a href="/admin/utakmice" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-          Utakmice
-        </a>
-      </li>
-      <li>
-        <a href="/admin/sluzbena-lica" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/></svg>
-          Službena lica
-        </a>
-      </li>
+      <li><a href="/admin/dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>Dashboard</a></li>
+      <li><a href="/admin/takmicenja" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>Takmičenja</a></li>
+      <li><a href="/admin/igraci" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Igrači</a></li>
+      <li><a href="/admin/tabele" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 6h18M3 14h18M3 18h18"/></svg>Tabele</a></li>
+      <li><a href="/admin/utakmice" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Utakmice</a></li>
+      <li><a href="/admin/sluzbena-lica" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/></svg>Službena lica</a></li>
     </ul>
   </div>
 </aside>
 <div id="sidebarOverlay" class="hidden fixed inset-0 z-30 bg-black/50 md:hidden"></div>
 
-<!-- ════ MAIN ════ -->
+<!-- MAIN -->
 <main class="md:ml-64 pt-16 min-h-screen">
 <div class="px-4 sm:px-6 py-6 space-y-5">
 
-  <!-- Header -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+  <!-- Header + kolo navigacija -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 flex-wrap">
     <div>
       <h1 class="text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white">Utakmice</h1>
-      <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Sve zakazane i odigrane utakmice</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+        {% if active_kolo %}Kolo {{ active_kolo }}{% elif sve %}Sve utakmice{% else %}Nema zakazanih utakmica{% endif %}
+        &nbsp;&middot;&nbsp; {{ total }} utakmica
+      </p>
     </div>
-    <span class="inline-flex items-center px-3 py-1.5 rounded-xl text-sm font-bold
-      bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
-      {{ utakmice_data | length }} utakmica
-    </span>
-  </div>
 
-  <!-- Filter kartica -->
-  <form method="get" action="/admin/utakmice"
-    class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-4">
-    <div class="flex flex-wrap gap-3 items-end">
+    <div class="flex items-center flex-wrap gap-2">
+      {% if prev_kolo %}
+      <a href="/admin/utakmice?kolo={{ prev_kolo }}{% if sel_uzrast_id %}&uzrast_id={{ sel_uzrast_id }}{% endif %}"
+        class="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-bold bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition shadow-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+        Kolo {{ prev_kolo }}
+      </a>
+      {% endif %}
 
-      <!-- Uzrast / kategorija -->
-      <div class="flex-1 min-w-[160px]">
-        <label class="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1.5">Uzrast</label>
-        <select name="uzrast_id"
-          class="w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800
-            text-sm font-semibold text-gray-900 dark:text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
+      <form method="get" action="/admin/utakmice">
+        {% if sel_uzrast_id %}<input type="hidden" name="uzrast_id" value="{{ sel_uzrast_id }}"/>{% endif %}
+        <select name="kolo" onchange="this.form.submit()"
+          class="rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-bold text-gray-900 dark:text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 shadow-sm">
+          {% for k in all_kolos %}
+          <option value="{{ k }}" {% if active_kolo == k %}selected{% endif %}>Kolo {{ k }}</option>
+          {% endfor %}
+          {% if not all_kolos %}<option>—</option>{% endif %}
+        </select>
+      </form>
+
+      {% if next_kolo_nav %}
+      <a href="/admin/utakmice?kolo={{ next_kolo_nav }}{% if sel_uzrast_id %}&uzrast_id={{ sel_uzrast_id }}{% endif %}"
+        class="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-bold bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition shadow-sm">
+        Kolo {{ next_kolo_nav }}
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+      </a>
+      {% endif %}
+
+      <span class="text-gray-300 dark:text-gray-700 select-none hidden sm:inline">|</span>
+
+      {% if next_kolo %}
+      <a href="/admin/utakmice{% if sel_uzrast_id %}?uzrast_id={{ sel_uzrast_id }}{% endif %}"
+        class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-bold shadow-sm transition
+          {% if not kolo and not sve %}bg-red-600 text-white hover:bg-red-700{% else %}bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800{% endif %}">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Sljedece ({{ next_kolo }})
+      </a>
+      {% endif %}
+
+      <a href="/admin/utakmice?sve=1{% if sel_uzrast_id %}&uzrast_id={{ sel_uzrast_id }}{% endif %}"
+        class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-bold shadow-sm transition
+          {% if sve %}bg-gray-800 dark:bg-gray-700 text-white{% else %}bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800{% endif %}">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+        Sve
+      </a>
+
+      <form method="get" action="/admin/utakmice">
+        {% if active_kolo and not sve %}<input type="hidden" name="kolo" value="{{ active_kolo }}"/>{% endif %}
+        {% if sve %}<input type="hidden" name="sve" value="1"/>{% endif %}
+        <select name="uzrast_id" onchange="this.form.submit()"
+          class="rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-semibold text-gray-700 dark:text-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 shadow-sm">
           <option value="">— Svi uzrasti —</option>
           {% for u in filter_uzrasti %}
-          <option value="{{ u.id }}" {% if sel_uzrast_id == u.id %}selected{% endif %}>
-            {{ u.takm }} · {{ u.naziv }}
-          </option>
+          <option value="{{ u.id }}" {% if sel_uzrast_id == u.id %}selected{% endif %}>{{ u.takm }} · {{ u.naziv }}</option>
           {% endfor %}
         </select>
-      </div>
-
-      <!-- Klub -->
-      <div class="flex-1 min-w-[160px]">
-        <label class="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1.5">Klub</label>
-        <select name="klub_id"
-          class="w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800
-            text-sm font-semibold text-gray-900 dark:text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
-          <option value="">— Svi klubovi —</option>
-          {% for k in klubovi %}
-          <option value="{{ k.id }}" {% if sel_klub_id == k.id %}selected{% endif %}>{{ k.naziv_kluba }}</option>
-          {% endfor %}
-        </select>
-      </div>
-
-      <!-- Status -->
-      <div class="min-w-[140px]">
-        <label class="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1.5">Status</label>
-        <select name="odigrana"
-          class="w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800
-            text-sm font-semibold text-gray-900 dark:text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
-          <option value="" {% if not sel_odigrana %}selected{% endif %}>— Sve —</option>
-          <option value="ne" {% if sel_odigrana == 'ne' %}selected{% endif %}>Zakazane</option>
-          <option value="da" {% if sel_odigrana == 'da' %}selected{% endif %}>Odigrane</option>
-        </select>
-      </div>
-
-      <!-- Buttons -->
-      <div class="flex gap-2">
-        <button type="submit"
-          class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-xl shadow-sm transition">
-          Filtriraj
-        </button>
-        <a href="/admin/utakmice"
-          class="px-4 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700
-            border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300
-            text-sm font-bold rounded-xl transition">
-          Reset
-        </a>
-      </div>
+      </form>
     </div>
-  </form>
+  </div>
 
-  <!-- Tabela utakmica -->
-  {% if not utakmice_data %}
+  {% if not tabela_groups %}
   <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm px-6 py-14 text-center">
-    <div class="text-5xl mb-4">🏐</div>
+    <div class="text-5xl mb-4">&#127950;</div>
     <p class="text-gray-400 dark:text-gray-500 font-semibold">Nema utakmica za odabrane filtere.</p>
   </div>
   {% else %}
 
-  {% set ns = namespace(last_group='') %}
-  {% for item in utakmice_data %}
-  {% set grp = item.takm.naziv ~ ' · ' ~ item.uzrast.naziv %}
-  {% if grp != ns.last_group %}
-  {% if not loop.first %}</div></div>{% endif %}
-  {% set ns.last_group = grp %}
+  <!-- 3-kolone grid po ligama -->
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 items-start">
+    {% for tg in tabela_groups %}
+    <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
 
-  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
-    <!-- Group header -->
-    <div class="flex items-center justify-between px-5 py-3 bg-gray-50 dark:bg-gray-800/60 border-b border-gray-200 dark:border-gray-800">
-      <span class="text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ grp }}</span>
-      <a href="/admin/tabela/{{ item.tabela.id }}"
-        class="text-xs font-bold text-red-600 dark:text-red-400 hover:underline flex items-center gap-1">
-        Otvori tabelu
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
-      </a>
-    </div>
-    <div class="divide-y divide-gray-100 dark:divide-gray-800">
-  {% endif %}
-
-    <!-- Utakmica red -->
-    <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition">
-
-      <!-- Domaćin -->
-      <div class="text-right">
-        <span class="text-sm font-bold text-gray-900 dark:text-white">
-          {% if item.u.je_bye %}
-            {{ item.dom.naziv if item.dom else '—' }}
-          {% else %}
-            {{ item.dom.naziv if item.dom else '—' }}
-          {% endif %}
-        </span>
+      <!-- Liga header -->
+      <div class="flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-800/60 border-b border-gray-200 dark:border-gray-800">
+        <div class="min-w-0">
+          <p class="text-[10px] font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-widest truncate">{{ tg.takm.naziv }}</p>
+          <p class="text-sm font-extrabold text-gray-900 dark:text-white truncate mt-0.5">{{ tg.uzrast.naziv }}</p>
+        </div>
+        <a href="/admin/tabela/{{ tg.tabela.id }}"
+          class="flex-shrink-0 ml-2 text-xs font-bold text-red-600 dark:text-red-400 hover:underline flex items-center gap-1">
+          Tabela <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+        </a>
       </div>
 
-      <!-- Centar: skor / datum / vs / slobodna -->
-      <div class="flex flex-col items-center gap-0.5 min-w-[100px]">
-        {% if item.u.je_bye %}
-          <span class="px-2 py-0.5 rounded-lg text-xs font-extrabold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-700/40">SLOBODNA</span>
-        {% elif item.u.odigrana %}
-          <span class="px-3 py-1 rounded-xl text-sm font-extrabold bg-gray-900 dark:bg-gray-950 text-white border border-gray-700 tracking-wide">
-            {{ item.u.gol_domacin }} : {{ item.u.gol_gost }}
-          </span>
-          <span class="text-xs text-green-500 font-semibold">Odigrana</span>
-        {% elif item.u.datum_utakmice %}
-          <span class="text-sm font-extrabold text-blue-600 dark:text-blue-400">
-            {{ item.u.datum_utakmice.strftime('%d.%m.%Y') }}
-          </span>
-          <span class="text-xs text-gray-400 dark:text-gray-500">{{ item.u.datum_utakmice.strftime('%H:%M') }}</span>
-        {% else %}
-          <span class="text-xs font-bold text-gray-400 dark:text-gray-600 tracking-widest">vs</span>
-        {% endif %}
-        {% if item.u.kolo %}
-        <span class="text-[10px] text-gray-400 dark:text-gray-600">Kolo {{ item.u.kolo }}</span>
+      {% for kolo_num, utakmice in tg.kolos.items() %}
+      {% if kolo_num %}
+      <div class="flex items-center gap-2 px-4 py-1.5 bg-gray-50/60 dark:bg-gray-800/20 border-b border-gray-100 dark:border-gray-800/50">
+        <span class="text-[10px] font-extrabold text-gray-400 dark:text-gray-600 uppercase tracking-widest">Kolo {{ kolo_num }}</span>
+        {% set u_s_dat = utakmice | selectattr('u.datum_utakmice') | list %}
+        {% if u_s_dat %}
+        <span class="text-[10px] text-gray-400 dark:text-gray-600">&middot;</span>
+        <span class="text-[10px] font-bold text-blue-500 dark:text-blue-400">{{ u_s_dat[0].u.datum_utakmice.strftime('%d.%m.%Y') }}</span>
         {% endif %}
       </div>
+      {% endif %}
 
-      <!-- Gost -->
-      <div class="text-left">
-        <span class="text-sm font-bold text-gray-900 dark:text-white">
-          {% if item.u.je_bye %}
-            <span class="text-amber-600 dark:text-amber-400 italic text-xs">Slobodna ekipa</span>
-          {% else %}
-            {{ item.gost.naziv if item.gost else '—' }}
-          {% endif %}
-        </span>
+      <div class="divide-y divide-gray-100 dark:divide-gray-800/60">
+        {% for item in utakmice %}
+        <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-1.5 px-3 py-3">
+          <p class="text-sm font-bold text-gray-900 dark:text-white text-right truncate">{{ item.dom.naziv if item.dom else '—' }}</p>
+          <div class="flex flex-col items-center gap-0.5 min-w-[72px]">
+            {% if item.u.je_bye %}
+              <span class="px-2 py-0.5 rounded-lg text-[10px] font-extrabold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-700/40 whitespace-nowrap">SLOBODNA</span>
+            {% elif item.u.odigrana %}
+              <span class="px-2.5 py-0.5 rounded-xl text-sm font-extrabold bg-gray-900 dark:bg-gray-950 text-white border border-gray-700 tracking-wide">{{ item.u.gol_domacin }} : {{ item.u.gol_gost }}</span>
+            {% elif item.u.datum_utakmice %}
+              <span class="text-xs font-extrabold text-blue-600 dark:text-blue-400 whitespace-nowrap">{{ item.u.datum_utakmice.strftime('%H:%M') }}</span>
+            {% else %}
+              <span class="text-xs font-bold text-gray-400 dark:text-gray-600">vs</span>
+            {% endif %}
+          </div>
+          <p class="text-sm font-bold text-gray-900 dark:text-white text-left truncate">
+            {% if item.u.je_bye %}<span class="text-amber-600 dark:text-amber-400 italic text-xs">Slobodna</span>
+            {% else %}{{ item.gost.naziv if item.gost else '—' }}{% endif %}
+          </p>
+        </div>
+        {% if item.u.napomena %}<div class="px-3 pb-1.5 -mt-2 text-[10px] text-amber-600 dark:text-amber-400 italic truncate">{{ item.u.napomena }}</div>{% endif %}
+        {% endfor %}
       </div>
+      {% endfor %}
 
     </div>
-    {% if item.u.napomena %}
-    <div class="px-4 pb-2 text-xs text-amber-600 dark:text-amber-400 italic">{{ item.u.napomena }}</div>
-    {% endif %}
-
-  {% endfor %}
-  {% if utakmice_data %}</div></div>{% endif %}
+    {% endfor %}
+  </div>
   {% endif %}
 
 </div>
 </main>
 
 <script>
-// Sidebar toggle
 const sidebar = document.getElementById('sidebar');
 const overlay = document.getElementById('sidebarOverlay');
 document.getElementById('sidebarToggle')?.addEventListener('click', () => {
-  sidebar.classList.toggle('-translate-x-full');
-  overlay.classList.toggle('hidden');
+  sidebar.classList.toggle('-translate-x-full'); overlay.classList.toggle('hidden');
 });
 overlay?.addEventListener('click', () => {
-  sidebar.classList.add('-translate-x-full');
-  overlay.classList.add('hidden');
+  sidebar.classList.add('-translate-x-full'); overlay.classList.add('hidden');
 });
-// Theme toggle
 const html = document.getElementById('html-root');
-const sun  = document.getElementById('iconSun');
-const moon = document.getElementById('iconMoon');
 function applyTheme(t) {
   html.classList.toggle('dark', t === 'dark');
-  sun.classList.toggle('hidden', t !== 'dark');
-  moon.classList.toggle('hidden', t === 'dark');
+  document.getElementById('iconSun').classList.toggle('hidden', t !== 'dark');
+  document.getElementById('iconMoon').classList.toggle('hidden', t === 'dark');
 }
 applyTheme(localStorage.getItem('theme') || 'dark');
 document.getElementById('themeToggle')?.addEventListener('click', () => {
