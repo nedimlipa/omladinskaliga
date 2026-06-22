@@ -21,7 +21,7 @@ async def _gen_br(db: AsyncSession, klub_id: int, sezona_id: int) -> str:
             Registracija.br_registracije.isnot(None),
         )
     )).scalar() or 0
-    return f"{klub_id}-{sezona_id}-{seq + 1:04d}"
+    return f"{klub_id}-{sezona_id}-{seq + 1}"
 
 
 # ── Helper: ažuriraj trenutni/prethodni klub igrača ──────────
