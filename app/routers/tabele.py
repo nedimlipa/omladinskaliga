@@ -30,42 +30,56 @@ KRITERIJI = [
 # ─── Berger schedule generator ────────────────────────────────────────────────
 
 def _berger_schedule(n_real: int, dvokruzni: bool = True) -> list[list[tuple]]:
-    """Generira raspored po Bergerovom sistemu.
+    """Generira raspored po standardnim Bergerovim tablicama.
+
+    Algoritam (npr. Wikipedia hr - Bergerove tablice):
+      • Tim N je fiksirani (ili BYE ako je N neparan)
+      • Ring = [1, 2, ..., N-1] rotira se za N//2 mjesta ulijevo po kolu
+      • Parno kolo  → N je domaćin vs ring[0]
+      • Neparno kolo → ring[0] je domaćin vs N
+      • Ostali parovi: ring[i] (dom) vs ring[N-1-i] (gost)
 
     Vraća listu kola; svako kolo je lista (home_seed, away_seed | None, is_bye).
-    BYE: is_bye=True, away_seed=None — ekipa je slobodna to kolo.
-
-    Za neparan broj ekipa dodaje se slot BYE = n_real+1.
+    BYE: is_bye=True, away_seed=None — ta ekipa je slobodna to kolo.
     """
     n = n_real
     has_bye = (n % 2 == 1)
     if has_bye:
-        n += 1  # BYE slot = n (nije dodijeljen nijednoj ekipi)
+        n += 1          # n je sada paran; BYE slot = n (fiksirani "protivnik")
 
-    teams = list(range(1, n + 1))   # [1, 2, ..., n]  — teams[0]=1 je fiksan
+    # ring: ekipe 1..n-1 (ekipa n je fiksirani ili BYE)
+    ring: list[int] = list(range(1, n))   # [1, 2, ..., n-1]
+    half = n // 2
     rounds: list[list[tuple]] = []
 
-    for _ in range(n - 1):
+    for r in range(1, n):       # n-1 kola
         pairs: list[tuple] = []
-        for i in range(n // 2):
-            home = teams[i]
-            away = teams[n - 1 - i]
-            if has_bye and home == n:
-                pairs.append((away, None, True))   # 'away' je slobodan
-            elif has_bye and away == n:
-                pairs.append((home, None, True))   # 'home' je slobodan
-            else:
-                pairs.append((home, away, False))
+
+        # 1. par: ring[0] vs fiksirani n
+        if has_bye:
+            pairs.append((ring[0], None, True))     # ring[0] slobodan (BYE)
+        elif r % 2 == 1:
+            pairs.append((ring[0], n, False))       # neparno: ring[0] domaćin
+        else:
+            pairs.append((n, ring[0], False))       # parno:   n domaćin
+
+        # Ostali parovi: ring[i] (domaćin) vs ring[n-1-i] (gost)
+        for i in range(1, half):
+            pairs.append((ring[i], ring[n - 1 - i], False))
+
         rounds.append(pairs)
-        # Rotacija: teams[0] fiksan; zadnji element teams[1:] ide na čelo
-        teams = [teams[0]] + [teams[-1]] + teams[1:-1]
+
+        # Rotacija CCW za half mjesta: ring = ring[half:] + ring[:half]
+        ring = ring[half:] + ring[:half]
 
     if dvokruzni:
-        # Druga polovina = iste utakmice, zamijenjen domaćin/gost
+        # Drugi krug = isti raspored, zamijenjen domaćin/gost
         second: list[list[tuple]] = []
         for rnd in rounds:
-            swapped = [(a, h, bye) if not bye else (h, None, bye)
-                       for (h, a, bye) in rnd]
+            swapped = [
+                (a, h, False) if not bye else (h, None, True)
+                for (h, a, bye) in rnd
+            ]
             second.append(swapped)
         rounds = rounds + second
 
