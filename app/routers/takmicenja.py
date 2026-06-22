@@ -4,7 +4,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from ..database import get_db
-from ..models import Takmicenje, Sezona, Uzrast, PrijavaKluba
+from ..models import Takmicenje, Sezona, Uzrast, PrijavaKluba, Klub
 from .auth import get_current_user
 import datetime
 
@@ -25,16 +25,39 @@ async def admin_takmicenja_page(request: Request, db: AsyncSession = Depends(get
     takmicenja = (await db.execute(select(Takmicenje).order_by(Takmicenje.naziv))).scalars().all()
     sezone     = (await db.execute(select(Sezona).order_by(Sezona.naziv))).scalars().all()
     uzrasti    = (await db.execute(select(Uzrast).order_by(Uzrast.naziv))).scalars().all()
-    prijave    = (await db.execute(select(PrijavaKluba))).scalars().all()
+
+    # Enriched prijave sa imenima kluba/takmičenja/uzrasta
+    prows = (await db.execute(
+        select(PrijavaKluba, Klub, Uzrast, Sezona, Takmicenje)
+        .join(Klub,       PrijavaKluba.klub_id   == Klub.id)
+        .join(Uzrast,     PrijavaKluba.uzrast_id == Uzrast.id)
+        .join(Sezona,     Uzrast.sezona_id        == Sezona.id)
+        .join(Takmicenje, Sezona.takmicenje_id    == Takmicenje.id)
+        .order_by(PrijavaKluba.prijavljen_datum.desc())
+    )).all()
+    prijave      = [row[0] for row in prows]   # za backward-compat (count po uzrastu)
+    prijave_info = [
+        {
+            "id":         p.id,
+            "klub":       k.naziv_kluba,
+            "uzrast":     u.naziv,
+            "sezona":     s.naziv,
+            "takmicenje": t.naziv,
+            "status":     p.status,
+            "datum":      p.prijavljen_datum.strftime("%d.%m.%Y") if p.prijavljen_datum else "—",
+        }
+        for p, k, u, s, t in prows
+    ]
 
     return templates.TemplateResponse("admin_takmicenja.html", {
-        "request":    request,
-        "user":       user,
-        "takmicenja": takmicenja,
-        "sezone":     sezone,
-        "uzrasti":    uzrasti,
-        "prijave":    prijave,
-        "ok":         request.query_params.get("ok"),
+        "request":      request,
+        "user":         user,
+        "takmicenja":   takmicenja,
+        "sezone":       sezone,
+        "uzrasti":      uzrasti,
+        "prijave":      prijave,
+        "prijave_info": prijave_info,
+        "ok":           request.query_params.get("ok"),
     })
 
 
@@ -169,3 +192,29 @@ async def otkazi_prijavu(prijava_id: int, request: Request, db: AsyncSession = D
         await db.delete(p)
         await db.commit()
     return RedirectResponse("/klub/dashboard", status_code=302)
+
+
+# ══ Admin: odobri / odbij prijavu ════════════════════════════════════
+
+@router.post("/admin/prijava/{prijava_id}/odobri")
+async def admin_odobri_prijavu(prijava_id: int, request: Request, db: AsyncSession = Depends(get_db)):
+    user = get_current_user(request)
+    if not user or user.get("tip") not in ("admin", "moderator"):
+        return RedirectResponse("/login", status_code=302)
+    p = await db.get(PrijavaKluba, prijava_id)
+    if p:
+        p.status = "odobren"
+        await db.commit()
+    return RedirectResponse("/admin/takmicenja?ok=1", status_code=302)
+
+
+@router.post("/admin/prijava/{prijava_id}/odbij")
+async def admin_odbij_prijavu(prijava_id: int, request: Request, db: AsyncSession = Depends(get_db)):
+    user = get_current_user(request)
+    if not user or user.get("tip") not in ("admin", "moderator"):
+        return RedirectResponse("/login", status_code=302)
+    p = await db.get(PrijavaKluba, prijava_id)
+    if p:
+        p.status = "odbijen"
+        await db.commit()
+    return RedirectResponse("/admin/takmicenja?ok=1", status_code=302)
