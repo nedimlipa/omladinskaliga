@@ -174,13 +174,16 @@ async def _enrich_tabela(tabela: Tabela, db: AsyncSession):
 async def admin_utakmice_pregled(
     request:   Request,
     db:        AsyncSession = Depends(get_db),
-    uzrast_id: Optional[int] = None,
+    uzrast_id: Optional[str] = None,
     kolo:      Optional[int] = None,   # specific kolo; None = auto next
     sve:       Optional[str] = None,   # "1" = show all kolos
 ):
     user = get_current_user(request)
     if not user or user.get("tip") not in ("admin", "moderator"):
         return RedirectResponse("/login", status_code=302)
+
+    # Parse uzrast_id (form submits empty string when none selected)
+    uzrast_id = int(uzrast_id) if uzrast_id else None
 
     # ── Filter dropdowns ─────────────────────────────────────
     uzrasti_rows = (await db.execute(
