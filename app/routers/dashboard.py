@@ -475,6 +475,16 @@ async def klub_utakmice(
 
         filter_uzrasti = sorted(seen_uzrasti.values(), key=lambda x: (x["takm"], x["naziv"]))
 
+    # Build zapisnici_map: utakmica_id → zapisnik_id
+    all_u_ids = [item["u"].id for item in utakmice_data]
+    zapisnici_map: dict = {}
+    if all_u_ids:
+        zap_rows = (await db.execute(
+            select(ZapisnikUtakmica.utakmica_id, ZapisnikUtakmica.id)
+            .where(ZapisnikUtakmica.utakmica_id.in_(all_u_ids))
+        )).all()
+        zapisnici_map = {uid: zid for uid, zid in zap_rows}
+
     return templates.TemplateResponse("klub_utakmice.html", {
         "request":        request,
         "user":           user,
@@ -483,6 +493,7 @@ async def klub_utakmice(
         "filter_uzrasti": filter_uzrasti,
         "sel_uzrast_id":  uzrast_id,
         "sel_odigrana":   odigrana,
+        "zapisnici_map":  zapisnici_map,
     })
 
 

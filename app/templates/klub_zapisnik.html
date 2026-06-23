@@ -152,11 +152,11 @@
                   <th class="px-3 py-1.5 w-16"></th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+              <tbody id="igracPickerTbody" class="divide-y divide-gray-100 dark:divide-gray-800">
                 {% for ri in reg_igraci %}
                 {% set aktivan = ri.status == 'aktivan' %}
                 <tr class="{% if aktivan %}hover:bg-emerald-50 dark:hover:bg-emerald-900/10{% else %}opacity-50{% endif %} transition">
-                  <td class="px-3 py-1.5 font-semibold {% if not aktivan %}line-through text-gray-400 dark:text-gray-600{% else %}text-gray-800 dark:text-gray-200{% endif %}">
+                  <td class="px-3 py-1.5 font-semibold {% if not aktivan %}line-through text-gray-400 dark:text-gray-600{% else %}text-gray-800 dark:text-gray-200{% endif %}" data-ime="{{ ri.ime_prezime | replace('"', '&quot;') }}">
                     {{ ri.ime_prezime }}
                   </td>
                   <td class="px-3 py-1.5 text-gray-500 dark:text-gray-400 font-mono whitespace-nowrap">{{ ri.br_reg or '—' }}</td>
@@ -267,7 +267,7 @@
                   <th class="px-3 py-1.5 w-16"></th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+              <tbody id="slPickerTbody" class="divide-y divide-gray-100 dark:divide-gray-800">
                 {% for sl in reg_sl %}
                 {% set aktivan = sl.status == 'aktivan' %}
                 <tr class="{% if aktivan %}hover:bg-blue-50 dark:hover:bg-blue-900/10{% else %}opacity-50{% endif %} transition">
@@ -419,6 +419,57 @@ function addIgracFromReg(ime, brReg) {
   if (brReg) tr.querySelector('[name=br_registracije]').value = brReg;
   tbody.appendChild(tr);
   tr.querySelector('[name=br_dresa]').focus();
+  syncPickerState();
+}
+
+// Marks picker rows as "already added" if the player is in the active table
+function syncPickerState() {
+  // Collect names from igracTbody
+  const igNames = new Set();
+  document.querySelectorAll('#igracTbody tr [name=ime_prezime]').forEach(inp => {
+    if (inp.value.trim()) igNames.add(inp.value.trim().toLowerCase());
+  });
+  // Update each picker button row
+  document.querySelectorAll('#igracPickerTbody tr').forEach(tr => {
+    const nameCell = tr.querySelector('td:first-child');
+    if (!nameCell) return;
+    const name = nameCell.textContent.trim().toLowerCase();
+    const actionCell = tr.querySelector('td:last-child');
+    if (!actionCell) return;
+    if (igNames.has(name)) {
+      actionCell.innerHTML = '<span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">✓ Dodano</span>';
+    } else {
+      // restore button only if it was previously a "✓ Dodano" text
+      if (actionCell.innerHTML.includes('✓')) {
+        const btn = actionCell.querySelector('button');
+        if (!btn) {
+          // get data from the row
+          const regCell = tr.querySelectorAll('td')[1];
+          const regVal = regCell ? regCell.textContent.trim().replace('—','') : '';
+          actionCell.innerHTML = `<button type="button"
+            onclick="addIgracFromReg('${nameCell.dataset.ime || nameCell.textContent.trim()}', '${regVal}')"
+            class="inline-flex items-center gap-0.5 px-2 py-1 rounded-lg text-[10px] font-bold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-900/50 transition">
+            <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+            Dodaj</button>`;
+        }
+      }
+    }
+  });
+  // Same for SL
+  const slNames = new Set();
+  document.querySelectorAll('#slTbody tr [name=ime_prezime]').forEach(inp => {
+    if (inp.value.trim()) slNames.add(inp.value.trim().toLowerCase());
+  });
+  document.querySelectorAll('#slPickerTbody tr').forEach(tr => {
+    const nameCell = tr.querySelector('td:first-child');
+    if (!nameCell) return;
+    const name = nameCell.textContent.trim().toLowerCase();
+    const actionCell = tr.querySelector('td:last-child');
+    if (!actionCell) return;
+    if (slNames.has(name)) {
+      actionCell.innerHTML = '<span class="text-[10px] text-blue-600 dark:text-blue-400 font-bold">✓ Dodano</span>';
+    }
+  });
 }
 
 function addSlRow() {
@@ -513,6 +564,7 @@ async function saveAll() {
         const el=document.getElementById(id);
         if(el){el.textContent=msg;el.classList.remove('hidden');setTimeout(()=>el.classList.add('hidden'),5000);}
       });
+      syncPickerState();
     } else {
       document.getElementById('errMsg').textContent = '✗ ' + (data.poruka||'Greška');
       document.getElementById('errMsg').classList.remove('hidden');
@@ -527,6 +579,9 @@ async function saveAll() {
 
 // Ctrl+S shortcut
 document.addEventListener('keydown', e => { if ((e.ctrlKey||e.metaKey) && e.key==='s') { e.preventDefault(); saveAll(); } });
+
+// Mark already-saved players on page load
+syncPickerState();
 </script>
 </body>
 </html>

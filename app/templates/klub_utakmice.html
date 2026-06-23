@@ -160,7 +160,7 @@
   <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
     <div class="divide-y divide-gray-100 dark:divide-gray-800">
     {% for item in utakmice_data %}
-    <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 py-3.5 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition">
+    <div class="grid grid-cols-[1fr_auto_1fr_auto] items-center gap-2 px-4 py-3.5 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition">
 
       <!-- Domaćin -->
       <div class="text-right space-y-0.5">
@@ -201,6 +201,25 @@
         </p>
         {% if not item.je_domacin and not item.u.je_bye %}
         <span class="text-[10px] font-bold text-red-400 dark:text-red-500 uppercase tracking-wider">Gost</span>
+        {% endif %}
+      </div>
+
+      <!-- Zapisnik akcija -->
+      <div class="flex flex-col items-end gap-1 pl-2">
+        {% set zid = zapisnici_map.get(item.u.id) %}
+        {% if zid %}
+          <a href="/klub/zapisnik/{{ zid }}"
+             class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400 hover:bg-violet-200 dark:hover:bg-violet-900/50 transition whitespace-nowrap">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            Unos
+          </a>
+          <a href="/klub/zapisnik/{{ zid }}/print" target="_blank"
+             class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition whitespace-nowrap">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+            Print
+          </a>
+        {% elif not item.u.je_bye %}
+          <span class="text-[10px] text-gray-300 dark:text-gray-600 italic whitespace-nowrap">nema zapisnika</span>
         {% endif %}
       </div>
 
