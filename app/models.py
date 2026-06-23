@@ -339,6 +339,8 @@ class ZapisnikIgrac(Base):
     plavi_karton       = Column(Boolean, nullable=False, default=False)
     time_out_1         = Column(SmallInteger, nullable=False, default=0)
     time_out_2         = Column(SmallInteger, nullable=False, default=0)
+    sedam_m_dato       = Column(SmallInteger, nullable=True)
+    sedam_m_promj      = Column(SmallInteger, nullable=True)
     zadnje_spasio      = Column(String(200), nullable=True)
     zadnje_izmijenjeno = Column(DateTime(timezone=True), nullable=True)
 

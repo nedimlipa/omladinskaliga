@@ -249,6 +249,7 @@
                 <th class="px-3 py-2 text-center">I</th><th class="px-3 py-2 text-center">I1</th><th class="px-3 py-2 text-center">I2</th>
                 <th class="px-3 py-2 text-center">CK</th><th class="px-3 py-2 text-center">PK</th>
                 <th class="px-3 py-2 text-center">TO1</th><th class="px-3 py-2 text-center">TO2</th>
+                <th class="px-3 py-2 text-center">7mD</th><th class="px-3 py-2 text-center">7mP</th>
                 <th class="px-3 py-2"></th>
               </tr>
             </thead>
@@ -269,8 +270,10 @@
                 <td class="px-3 py-2 text-center">{% if ig.plavi_karton %}<span class="inline-block w-4 h-5 bg-blue-600 rounded-sm"></span>{% else %}—{% endif %}</td>
                 <td class="px-3 py-2 text-center text-gray-600 dark:text-gray-400">{{ ig.time_out_1 or '—' }}</td>
                 <td class="px-3 py-2 text-center text-gray-600 dark:text-gray-400">{{ ig.time_out_2 or '—' }}</td>
+                <td class="px-3 py-2 text-center {% if ig.sedam_m_dato %}text-purple-600 dark:text-purple-400 font-bold{% else %}text-gray-400{% endif %}">{{ ig.sedam_m_dato or '—' }}</td>
+                <td class="px-3 py-2 text-center {% if ig.sedam_m_promj %}text-red-600 dark:text-red-400 font-bold{% else %}text-gray-400{% endif %}">{{ ig.sedam_m_promj or '—' }}</td>
                 <td class="px-3 py-2 text-right whitespace-nowrap">
-                  <button onclick="openIgracModal('A', {{ ig.id }}, '{{ ig.tip }}', '{{ ig.pozicija or '' }}', {{ ig.br_dresa or 'null' }}, '{{ ig.ime_prezime|replace("'", "\\'") }}', '{{ ig.br_registracije or '' }}', {{ ig.golovi }}, {{ ig.opomene }}, '{{ ig.iskljucenje or '' }}', '{{ ig.iskljucenje_1 or '' }}', '{{ ig.iskljucenje_2 or '' }}', {{ 'true' if ig.crveni_karton else 'false' }}, {{ 'true' if ig.plavi_karton else 'false' }}, {{ ig.time_out_1 }}, {{ ig.time_out_2 }})"
+                  <button onclick="openIgracModal('A', {{ ig.id }}, '{{ ig.tip }}', '{{ ig.pozicija or '' }}', {{ ig.br_dresa or 'null' }}, '{{ ig.ime_prezime|replace("'", "\\'") }}', '{{ ig.br_registracije or '' }}', {{ ig.golovi }}, {{ ig.opomene }}, '{{ ig.iskljucenje or '' }}', '{{ ig.iskljucenje_1 or '' }}', '{{ ig.iskljucenje_2 or '' }}', {{ 'true' if ig.crveni_karton else 'false' }}, {{ 'true' if ig.plavi_karton else 'false' }}, {{ ig.time_out_1 }}, {{ ig.time_out_2 }}, {{ ig.sedam_m_dato or 0 }}, {{ ig.sedam_m_promj or 0 }})"
                     class="px-2.5 py-1 rounded-lg text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition mr-1">Uredi</button>
                   <form method="POST" action="/admin/zapisnik/{{ z.id }}/igrac/{{ ig.id }}/obrisi" class="inline" onsubmit="return confirm('Obrisati?')">
                     <button type="submit" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 transition">×</button>
@@ -308,6 +311,7 @@
                 <th class="px-3 py-2 text-center">I</th><th class="px-3 py-2 text-center">I1</th><th class="px-3 py-2 text-center">I2</th>
                 <th class="px-3 py-2 text-center">CK</th><th class="px-3 py-2 text-center">PK</th>
                 <th class="px-3 py-2 text-center">TO1</th><th class="px-3 py-2 text-center">TO2</th>
+                <th class="px-3 py-2 text-center">7mD</th><th class="px-3 py-2 text-center">7mP</th>
                 <th class="px-3 py-2"></th>
               </tr>
             </thead>
@@ -328,8 +332,10 @@
                 <td class="px-3 py-2 text-center">{% if ig.plavi_karton %}<span class="inline-block w-4 h-5 bg-blue-600 rounded-sm"></span>{% else %}—{% endif %}</td>
                 <td class="px-3 py-2 text-center text-gray-600 dark:text-gray-400">{{ ig.time_out_1 or '—' }}</td>
                 <td class="px-3 py-2 text-center text-gray-600 dark:text-gray-400">{{ ig.time_out_2 or '—' }}</td>
+                <td class="px-3 py-2 text-center {% if ig.sedam_m_dato %}text-purple-600 dark:text-purple-400 font-bold{% else %}text-gray-400{% endif %}">{{ ig.sedam_m_dato or '—' }}</td>
+                <td class="px-3 py-2 text-center {% if ig.sedam_m_promj %}text-red-600 dark:text-red-400 font-bold{% else %}text-gray-400{% endif %}">{{ ig.sedam_m_promj or '—' }}</td>
                 <td class="px-3 py-2 text-right whitespace-nowrap">
-                  <button onclick="openIgracModal('B', {{ ig.id }}, '{{ ig.tip }}', '{{ ig.pozicija or '' }}', {{ ig.br_dresa or 'null' }}, '{{ ig.ime_prezime|replace("'", "\\'") }}', '{{ ig.br_registracije or '' }}', {{ ig.golovi }}, {{ ig.opomene }}, '{{ ig.iskljucenje or '' }}', '{{ ig.iskljucenje_1 or '' }}', '{{ ig.iskljucenje_2 or '' }}', {{ 'true' if ig.crveni_karton else 'false' }}, {{ 'true' if ig.plavi_karton else 'false' }}, {{ ig.time_out_1 }}, {{ ig.time_out_2 }})"
+                  <button onclick="openIgracModal('B', {{ ig.id }}, '{{ ig.tip }}', '{{ ig.pozicija or '' }}', {{ ig.br_dresa or 'null' }}, '{{ ig.ime_prezime|replace("'", "\\'") }}', '{{ ig.br_registracije or '' }}', {{ ig.golovi }}, {{ ig.opomene }}, '{{ ig.iskljucenje or '' }}', '{{ ig.iskljucenje_1 or '' }}', '{{ ig.iskljucenje_2 or '' }}', {{ 'true' if ig.crveni_karton else 'false' }}, {{ 'true' if ig.plavi_karton else 'false' }}, {{ ig.time_out_1 }}, {{ ig.time_out_2 }}, {{ ig.sedam_m_dato or 0 }}, {{ ig.sedam_m_promj or 0 }})"
                     class="px-2.5 py-1 rounded-lg text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition mr-1">Uredi</button>
                   <form method="POST" action="/admin/zapisnik/{{ z.id }}/igrac/{{ ig.id }}/obrisi" class="inline" onsubmit="return confirm('Obrisati?')">
                     <button type="submit" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 transition">×</button>
@@ -426,6 +432,10 @@
             <input id="fTO1" type="number" name="time_out_1" value="0" min="0" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
           <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Time out 2 (min)</label>
             <input id="fTO2" type="number" name="time_out_2" value="0" min="0" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
+          <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">7m dato</label>
+            <input id="fSedamD" type="number" name="sedam_m_dato" value="0" min="0" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
+          <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">7m promišeno</label>
+            <input id="fSedamP" type="number" name="sedam_m_promj" value="0" min="0" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
         </div>
       </div>
 
@@ -464,7 +474,7 @@ if(urlTab && tabBtns[urlTab]) switchTab(urlTab); else switchTab('zaglavlje');
 
 // Igrač modal
 const ZID = {{ z.id }};
-function openIgracModal(tim, iid, tip, poz, dres, ime, reg, g, o, i, i1, i2, ck, pk, to1, to2) {
+function openIgracModal(tim, iid, tip, poz, dres, ime, reg, g, o, i, i1, i2, ck, pk, to1, to2, sedD, sedP) {
   const f = document.getElementById('igracForm');
   document.getElementById('fTim').value = tim;
   if (iid) {
@@ -493,6 +503,8 @@ function openIgracModal(tim, iid, tip, poz, dres, ime, reg, g, o, i, i1, i2, ck,
   document.getElementById('fPK').value=pk?'da':'ne';
   document.getElementById('fTO1').value=to1||0;
   document.getElementById('fTO2').value=to2||0;
+  document.getElementById('fSedamD').value=sedD||0;
+  document.getElementById('fSedamP').value=sedP||0;
   document.getElementById('modalIgrac').classList.remove('hidden');
 }
 function closeIgracModal(){document.getElementById('modalIgrac').classList.add('hidden');}

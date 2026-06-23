@@ -81,6 +81,29 @@
       </button>
     </div>
 
+    <!-- Filter bar -->
+    <form method="GET" action="/admin/zapisnici" class="flex flex-wrap items-end gap-3">
+      <div class="flex-1 min-w-44">
+        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Pretraga</label>
+        <div class="relative">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/></svg>
+          <input type="text" name="q" value="{{ q or '' }}" placeholder="Ekipa, liga, uzrast, br. utakmice…"
+            class="w-full pl-9 pr-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+        </div>
+      </div>
+      <div class="w-44">
+        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Status</label>
+        <select name="status" class="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+          <option value="">Svi statusi</option>
+          {% for s in statusi %}<option value="{{ s }}" {% if fstat == s %}selected{% endif %}>{{ s }}</option>{% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="px-4 py-2 rounded-xl text-sm font-bold bg-gray-900 dark:bg-gray-700 text-white hover:bg-gray-700 dark:hover:bg-gray-600 transition">Filtriraj</button>
+      {% if q or fstat %}
+      <a href="/admin/zapisnici" class="px-4 py-2 rounded-xl text-sm font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition">× Resetuj</a>
+      {% endif %}
+    </form>
+
     <!-- Tabela zapisnika -->
     {% if zapisnici %}
     <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">

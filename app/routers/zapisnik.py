@@ -6,7 +6,7 @@ from fastapi import APIRouter, Request, Depends, Form, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, delete
+from sqlalchemy import select, func, delete, or_
 
 from ..templates_config import templates
 from ..database import get_db
@@ -45,10 +45,23 @@ async def admin_zapisnici_list(
         return RedirectResponse("/login", status_code=302)
     if user["tip"] not in ("admin", "moderator"):
         raise HTTPException(403)
-    result = await db.execute(
-        select(ZapisnikUtakmica).order_by(ZapisnikUtakmica.kreiran_datum.desc())
-    )
-    zapisnici = result.scalars().all()
+
+    q     = request.query_params.get("q", "").strip()
+    fstat = request.query_params.get("status", "").strip()
+
+    qry = select(ZapisnikUtakmica).order_by(ZapisnikUtakmica.kreiran_datum.desc())
+    if q:
+        qry = qry.where(or_(
+            ZapisnikUtakmica.ekipa_a.ilike(f"%{q}%"),
+            ZapisnikUtakmica.ekipa_b.ilike(f"%{q}%"),
+            ZapisnikUtakmica.liga.ilike(f"%{q}%"),
+            ZapisnikUtakmica.uzrast.ilike(f"%{q}%"),
+            ZapisnikUtakmica.br_utakmice.ilike(f"%{q}%"),
+        ))
+    if fstat:
+        qry = qry.where(ZapisnikUtakmica.status_utakmice == fstat)
+
+    zapisnici = (await db.execute(qry)).scalars().all()
     result_k = await db.execute(
         select(Klub).where(Klub.aktivan == True).order_by(Klub.naziv_kluba)
     )
@@ -56,6 +69,7 @@ async def admin_zapisnici_list(
     return templates.TemplateResponse("admin_zapisnici.html", {
         "request": request, "user": user,
         "zapisnici": zapisnici, "klubovi": klubovi, "statusi": STATUSI,
+        "q": q, "fstat": fstat,
     })
 
 
@@ -368,6 +382,8 @@ async def admin_igrac_dodaj(
     plavi_karton: str = Form("ne"),
     time_out_1: int = Form(0),
     time_out_2: int = Form(0),
+    sedam_m_dato: int = Form(0),
+    sedam_m_promj: int = Form(0),
 ):
     if not user or user["tip"] not in ("admin", "moderator"):
         raise HTTPException(403)
@@ -392,6 +408,8 @@ async def admin_igrac_dodaj(
         plavi_karton=(plavi_karton == "da"),
         time_out_1=time_out_1 or 0,
         time_out_2=time_out_2 or 0,
+        sedam_m_dato=sedam_m_dato or 0,
+        sedam_m_promj=sedam_m_promj or 0,
         zadnje_spasio=user["ime"],
         zadnje_izmijenjeno=_now(),
     )
@@ -422,6 +440,8 @@ async def admin_igrac_uredi(
     plavi_karton: str = Form("ne"),
     time_out_1: int = Form(0),
     time_out_2: int = Form(0),
+    sedam_m_dato: int = Form(0),
+    sedam_m_promj: int = Form(0),
 ):
     if not user or user["tip"] not in ("admin", "moderator"):
         raise HTTPException(403)
@@ -443,6 +463,8 @@ async def admin_igrac_uredi(
     ig.plavi_karton = (plavi_karton == "da")
     ig.time_out_1 = time_out_1 or 0
     ig.time_out_2 = time_out_2 or 0
+    ig.sedam_m_dato = sedam_m_dato or 0
+    ig.sedam_m_promj = sedam_m_promj or 0
     ig.zadnje_spasio = user["ime"]
     ig.zadnje_izmijenjeno = _now()
 
@@ -597,6 +619,8 @@ class _IgracInput(BaseModel):
     plavi_karton: bool = False
     time_out_1: int = 0
     time_out_2: int = 0
+    sedam_m_dato: int = 0
+    sedam_m_promj: int = 0
 
 
 class _KlubSaveRequest(BaseModel):
@@ -654,6 +678,8 @@ async def klub_zapisnik_spasi(
             plavi_karton=ig_data.plavi_karton,
             time_out_1=ig_data.time_out_1,
             time_out_2=ig_data.time_out_2,
+            sedam_m_dato=ig_data.sedam_m_dato,
+            sedam_m_promj=ig_data.sedam_m_promj,
             zadnje_spasio=user["ime"],
             zadnje_izmijenjeno=now,
         ))
