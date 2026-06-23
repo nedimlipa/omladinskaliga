@@ -254,7 +254,7 @@ class MiniRukometPrijava(Base):
 
     id           = Column(Integer, primary_key=True)
     turnir_id    = Column(Integer, ForeignKey("mini_rukomet_turnir.id"), nullable=False)
-    klub_id      = Column(Integer, ForeignKey("klub.id"), nullable=False)
+    klub_id      = Column(Integer, ForeignKey("klubovi.id"), nullable=False)
     naziv_ekipe  = Column(String(200), nullable=False)  # Naziv ekipe u turniru
     status       = Column(String(20), nullable=False, default="na_cekanju")  # na_cekanju / odobren
     kreiran_datum = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
