@@ -172,11 +172,11 @@
   {% macro players_table(igraci, side) %}
   {% set players = igraci | selectattr('tip', 'equalto', 'igrac') | list %}
   <table style="font-size:7pt;">
-    <tr><td colspan="11" class="tbl-hdr-{{ side }}">{{ z.ekipa_a if side == 'a' else z.ekipa_b }}</td></tr>
+    <tr><td colspan="10" class="tbl-hdr-{{ side }}">{{ z.ekipa_a if side == 'a' else z.ekipa_b }}</td></tr>
     <tr>
       <th class="col-hdr" style="width:5%">Br</th>
       <th class="col-hdr" style="width:15%">Reg</th>
-      <th class="col-hdr" style="width:28%">Ime i prezime</th>
+      <th class="col-hdr" style="width:36%">Ime i prezime</th>
       <th class="col-hdr" style="width:5%">G</th>
       <th class="col-hdr" style="width:5%">O</th>
       <th class="col-hdr" style="width:8%">2</th>
@@ -184,7 +184,6 @@
       <th class="col-hdr" style="width:8%">2</th>
       <th class="col-hdr" style="width:5%">C</th>
       <th class="col-hdr" style="width:5%">P</th>
-      <th class="col-hdr" style="width:8%">7M</th>
     </tr>
     {% for ig in players %}
     <tr>
@@ -198,11 +197,10 @@
       <td class="center">{{ ig.iskljucenje or '' }}</td>
       <td class="center">{% if ig.crveni_karton %}✗{% endif %}</td>
       <td class="center">{% if ig.plavi_karton %}✗{% endif %}</td>
-      <td class="center">{% if ig.sedam_m_dato or ig.sedam_m_promj %}{{ ig.sedam_m_dato or 0 }}/{{ ig.sedam_m_promj or 0 }}{% endif %}</td>
     </tr>
     {% endfor %}
     {% for i in range([14 - players|length, 0]|max) %}
-    <tr class="empty-row"><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="empty-row"><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
     {% endfor %}
   </table>
   {% endmacro %}
@@ -216,18 +214,18 @@
   {% macro officials_table(igraci, side) %}
   {% set officials = igraci | selectattr('tip', 'equalto', 'sluzbeno_lice') | list %}
   {% set letters = ['A','B','C','D','E'] %}
-  <table style="font-size:7.5pt;">
+  <table style="font-size:7pt;">
     <tr>
-      <th class="col-hdr" style="width:6%">Reg</th>
-      <th class="col-hdr" style="width:40%">Ime i prezime</th>
-      <th class="col-hdr" style="width:6%">O</th>
-      <th class="col-hdr" style="width:9%">2'</th>
-      <th class="col-hdr" style="width:6%">C</th>
-      <th class="col-hdr" style="width:6%">P</th>
+      <th class="col-hdr" style="width:15%">Reg</th>
+      <th class="col-hdr" style="width:50%">Ime i prezime</th>
+      <th class="col-hdr" style="width:8%">O</th>
+      <th class="col-hdr" style="width:13%">2'</th>
+      <th class="col-hdr" style="width:7%">C</th>
+      <th class="col-hdr" style="width:7%">P</th>
     </tr>
     {% for ig in officials %}
     <tr>
-      <td class="center">{{ ig.br_registracije or '' }}</td>
+      <td class="center" style="word-break:break-all;">{{ ig.br_registracije or '' }}</td>
       <td>({{ letters[loop.index0] if loop.index0 < 5 else '?' }}) {{ ig.ime_prezime }}</td>
       <td class="center">{{ ig.opomene if ig.opomene else '' }}</td>
       <td class="center">{{ ig.iskljucenje_1 or '' }}</td>
