@@ -46,10 +46,18 @@ async def admin_zapisnici_list(
     if user["tip"] not in ("admin", "moderator"):
         raise HTTPException(403)
 
-    q     = request.query_params.get("q", "").strip()
-    fstat = request.query_params.get("status", "").strip()
+    q        = request.query_params.get("q",       "").strip()
+    fstat    = request.query_params.get("status",  "").strip()
+    fuzrast  = request.query_params.get("uzrast",  "").strip()
+    fliga    = request.query_params.get("liga",    "").strip()
+    fkolo    = request.query_params.get("kolo",    "").strip()
+    fdat_od  = request.query_params.get("dat_od",  "").strip()
+    fdat_do  = request.query_params.get("dat_do",  "").strip()
+    fsezona  = request.query_params.get("sezona",  "").strip()
 
-    qry = select(ZapisnikUtakmica).order_by(ZapisnikUtakmica.kreiran_datum.desc())
+    qry = select(ZapisnikUtakmica).order_by(
+        ZapisnikUtakmica.datum.desc().nulls_last(), ZapisnikUtakmica.kreiran_datum.desc()
+    )
     if q:
         qry = qry.where(or_(
             ZapisnikUtakmica.ekipa_a.ilike(f"%{q}%"),
@@ -60,8 +68,46 @@ async def admin_zapisnici_list(
         ))
     if fstat:
         qry = qry.where(ZapisnikUtakmica.status_utakmice == fstat)
+    if fuzrast:
+        qry = qry.where(ZapisnikUtakmica.uzrast == fuzrast)
+    if fliga:
+        qry = qry.where(ZapisnikUtakmica.liga.ilike(f"%{fliga}%"))
+    if fkolo:
+        try:
+            qry = qry.where(ZapisnikUtakmica.kolo == int(fkolo))
+        except ValueError:
+            pass
+    if fdat_od:
+        try:
+            import datetime as _dt
+            qry = qry.where(ZapisnikUtakmica.datum >= _dt.date.fromisoformat(fdat_od))
+        except ValueError:
+            pass
+    if fdat_do:
+        try:
+            import datetime as _dt
+            qry = qry.where(ZapisnikUtakmica.datum <= _dt.date.fromisoformat(fdat_do))
+        except ValueError:
+            pass
+    if fsezona:
+        qry = qry.where(ZapisnikUtakmica.sezona == fsezona)
 
     zapisnici = (await db.execute(qry)).scalars().all()
+
+    # Distinct values for filter dropdowns
+    dist_uzrast = (await db.execute(
+        select(ZapisnikUtakmica.uzrast).where(ZapisnikUtakmica.uzrast.isnot(None))
+        .distinct().order_by(ZapisnikUtakmica.uzrast)
+    )).scalars().all()
+    dist_liga = (await db.execute(
+        select(ZapisnikUtakmica.liga).where(ZapisnikUtakmica.liga.isnot(None))
+        .distinct().order_by(ZapisnikUtakmica.liga)
+    )).scalars().all()
+    dist_sezona = (await db.execute(
+        select(ZapisnikUtakmica.sezona).where(ZapisnikUtakmica.sezona.isnot(None))
+        .distinct().order_by(ZapisnikUtakmica.sezona.desc())
+    )).scalars().all()
+
     result_k = await db.execute(
         select(Klub).where(Klub.aktivan == True).order_by(Klub.naziv_kluba)
     )
@@ -70,6 +116,9 @@ async def admin_zapisnici_list(
         "request": request, "user": user,
         "zapisnici": zapisnici, "klubovi": klubovi, "statusi": STATUSI,
         "q": q, "fstat": fstat,
+        "fuzrast": fuzrast, "fliga": fliga, "fkolo": fkolo,
+        "fdat_od": fdat_od, "fdat_do": fdat_do, "fsezona": fsezona,
+        "dist_uzrast": dist_uzrast, "dist_liga": dist_liga, "dist_sezona": dist_sezona,
     })
 
 

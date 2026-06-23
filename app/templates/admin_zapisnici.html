@@ -82,25 +82,90 @@
     </div>
 
     <!-- Filter bar -->
-    <form method="GET" action="/admin/zapisnici" class="flex flex-wrap items-end gap-3">
-      <div class="flex-1 min-w-44">
-        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Pretraga</label>
-        <div class="relative">
-          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/></svg>
-          <input type="text" name="q" value="{{ q or '' }}" placeholder="Ekipa, liga, uzrast, br. utakmice…"
-            class="w-full pl-9 pr-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+    <form method="GET" action="/admin/zapisnici" class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-4 space-y-3">
+      <!-- Row 1: text search + status -->
+      <div class="flex flex-wrap items-end gap-3">
+        <div class="flex-1 min-w-44">
+          <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Pretraga</label>
+          <div class="relative">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/></svg>
+            <input type="text" name="q" value="{{ q or '' }}" placeholder="Ekipa, liga, uzrast, br. utakmice…"
+              class="w-full pl-9 pr-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+          </div>
+        </div>
+        <div class="w-40">
+          <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Status</label>
+          <select name="status" class="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+            <option value="">Svi statusi</option>
+            {% for s in statusi %}<option value="{{ s }}" {% if fstat == s %}selected{% endif %}>{{ s }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="w-20">
+          <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Kolo</label>
+          <input type="number" name="kolo" value="{{ fkolo or '' }}" min="1" placeholder="1"
+            class="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
         </div>
       </div>
-      <div class="w-44">
-        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Status</label>
-        <select name="status" class="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
-          <option value="">Svi statusi</option>
-          {% for s in statusi %}<option value="{{ s }}" {% if fstat == s %}selected{% endif %}>{{ s }}</option>{% endfor %}
-        </select>
+      <!-- Row 2: sezona, uzrast, liga, datum -->
+      <div class="flex flex-wrap items-end gap-3">
+        {% if dist_sezona %}
+        <div class="w-36">
+          <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Sezona</label>
+          <select name="sezona" class="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+            <option value="">Sve sezone</option>
+            {% for s in dist_sezona %}<option value="{{ s }}" {% if fsezona == s %}selected{% endif %}>{{ s }}</option>{% endfor %}
+          </select>
+        </div>
+        {% endif %}
+        {% if dist_uzrast %}
+        <div class="w-40">
+          <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Uzrast</label>
+          <select name="uzrast" class="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+            <option value="">Svi uzrasti</option>
+            {% for u in dist_uzrast %}<option value="{{ u }}" {% if fuzrast == u %}selected{% endif %}>{{ u }}</option>{% endfor %}
+          </select>
+        </div>
+        {% endif %}
+        {% if dist_liga %}
+        <div class="flex-1 min-w-44">
+          <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Liga</label>
+          <select name="liga" class="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+            <option value="">Sve lige</option>
+            {% for l in dist_liga %}<option value="{{ l }}" {% if fliga == l %}selected{% endif %}>{{ l }}</option>{% endfor %}
+          </select>
+        </div>
+        {% endif %}
+        <div class="w-36">
+          <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Datum od</label>
+          <input type="date" name="dat_od" value="{{ fdat_od or '' }}"
+            class="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+        </div>
+        <div class="w-36">
+          <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Datum do</label>
+          <input type="date" name="dat_do" value="{{ fdat_do or '' }}"
+            class="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+        </div>
+        <div class="flex items-end gap-2">
+          <button type="submit" class="px-4 py-2 rounded-xl text-sm font-bold bg-gray-900 dark:bg-gray-700 text-white hover:bg-gray-700 dark:hover:bg-gray-600 transition">Filtriraj</button>
+          {% if q or fstat or fuzrast or fliga or fkolo or fdat_od or fdat_do or fsezona %}
+          <a href="/admin/zapisnici" class="px-4 py-2 rounded-xl text-sm font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition">× Resetuj</a>
+          {% endif %}
+        </div>
       </div>
-      <button type="submit" class="px-4 py-2 rounded-xl text-sm font-bold bg-gray-900 dark:bg-gray-700 text-white hover:bg-gray-700 dark:hover:bg-gray-600 transition">Filtriraj</button>
-      {% if q or fstat %}
-      <a href="/admin/zapisnici" class="px-4 py-2 rounded-xl text-sm font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition">× Resetuj</a>
+      <!-- Active filter badges -->
+      {% if q or fstat or fuzrast or fliga or fkolo or fdat_od or fdat_do or fsezona %}
+      <div class="flex flex-wrap gap-1.5 pt-1 border-t border-gray-100 dark:border-gray-800">
+        <span class="text-xs text-gray-400 self-center">Aktivni filteri:</span>
+        {% if q %}<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">Pretraga: {{ q }}</span>{% endif %}
+        {% if fstat %}<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">Status: {{ fstat }}</span>{% endif %}
+        {% if fsezona %}<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300">Sezona: {{ fsezona }}</span>{% endif %}
+        {% if fuzrast %}<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300">Uzrast: {{ fuzrast }}</span>{% endif %}
+        {% if fliga %}<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">Liga: {{ fliga }}</span>{% endif %}
+        {% if fkolo %}<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300">Kolo: {{ fkolo }}</span>{% endif %}
+        {% if fdat_od %}<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300">Od: {{ fdat_od }}</span>{% endif %}
+        {% if fdat_do %}<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300">Do: {{ fdat_do }}</span>{% endif %}
+        <span class="text-xs text-gray-400 self-center">&mdash; {{ zapisnici | length }} rezultat(a)</span>
+      </div>
       {% endif %}
     </form>
 
