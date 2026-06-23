@@ -145,7 +145,7 @@
               <thead>
                 <tr class="bg-gray-50 dark:bg-gray-800/60 text-gray-400 dark:text-gray-500 uppercase tracking-wide font-bold">
                   <th class="px-3 py-1.5 text-left">Ime i prezime</th>
-                  <th class="px-3 py-1.5 text-left w-24">Reg#</th>
+                  <th class="px-3 py-1.5 text-left min-w-[120px]">Reg#</th>
                   <th class="px-3 py-1.5 text-center w-16">God.</th>
                   <th class="px-3 py-1.5 text-center w-28">Status</th>
                   <th class="px-3 py-1.5 w-16"></th>
@@ -158,8 +158,8 @@
                   <td class="px-3 py-1.5 font-semibold {% if not aktivan %}line-through text-gray-400 dark:text-gray-600{% else %}text-gray-800 dark:text-gray-200{% endif %}">
                     {{ ri.ime_prezime }}
                   </td>
-                  <td class="px-3 py-1.5 text-gray-500 dark:text-gray-400 font-mono">{{ ri.br_reg or '—' }}</td>
-                  <td class="px-3 py-1.5 text-center text-gray-500 dark:text-gray-400">{{ ri.god or '—' }}</td>
+                  <td class="px-3 py-1.5 text-gray-500 dark:text-gray-400 font-mono whitespace-nowrap">{{ ri.br_reg or '—' }}</td>
+                  <td class="px-3 py-1.5 text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">{{ ri.god or '—' }}</td>
                   <td class="px-3 py-1.5 text-center">
                     {% if ri.status == 'aktivan' %}
                       <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">Aktivan</span>
@@ -195,7 +195,7 @@
             <tr class="text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wide">
               <th class="px-2 py-2 text-center w-12">Br.</th>
               <th class="px-2 py-2 text-left min-w-36">Ime i prezime</th>
-              <th class="px-2 py-2 text-left w-20">Reg#</th>
+              <th class="px-2 py-2 text-left min-w-[110px]">Reg#</th>
               <th class="px-2 py-2 text-center w-14">Poz.</th>
               <th class="px-2 py-2 text-center w-10">G</th>
               <th class="px-2 py-2 text-center w-10">O</th>
@@ -261,7 +261,7 @@
               <thead>
                 <tr class="bg-gray-50 dark:bg-gray-800/60 text-gray-400 dark:text-gray-500 uppercase tracking-wide font-bold">
                   <th class="px-3 py-1.5 text-left">Ime i prezime</th>
-                  <th class="px-3 py-1.5 text-left w-24">Reg#</th>
+                  <th class="px-3 py-1.5 text-left min-w-[120px]">Reg#</th>
                   <th class="px-3 py-1.5 text-center w-28">Status</th>
                   <th class="px-3 py-1.5 w-16"></th>
                 </tr>
@@ -273,7 +273,7 @@
                   <td class="px-3 py-1.5 font-semibold {% if not aktivan %}line-through text-gray-400 dark:text-gray-600{% else %}text-gray-800 dark:text-gray-200{% endif %}">
                     {{ sl.ime_prezime }}
                   </td>
-                  <td class="px-3 py-1.5 text-gray-500 dark:text-gray-400 font-mono">{{ sl.br_reg or '—' }}</td>
+                  <td class="px-3 py-1.5 text-gray-500 dark:text-gray-400 font-mono whitespace-nowrap">{{ sl.br_reg or '—' }}</td>
                   <td class="px-3 py-1.5 text-center">
                     {% if sl.status == 'aktivan' %}
                       <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">Aktivan</span>
@@ -309,7 +309,7 @@
             <tr class="text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wide">
               <th class="px-3 py-2 text-center w-10">Ozn.</th>
               <th class="px-2 py-2 text-left min-w-36">Ime i prezime</th>
-              <th class="px-2 py-2 text-left w-20">Reg#</th>
+              <th class="px-2 py-2 text-left min-w-[110px]">Reg#</th>
               <th class="px-2 py-2 text-center w-10">O</th>
               <th class="px-2 py-2 text-center w-16">2'</th>
               <th class="px-2 py-2 text-center w-10">CK</th>
