@@ -207,11 +207,61 @@
   </section>
   {% endif %}
 
-  {% if not zadnji and not nadolazece and not ligas_info %}
+  {% if not zadnji and not nadolazece and not ligas_info and not mr_moje %}
   <div class="text-center py-16">
     <div class="text-5xl mb-4">&#127950;</div>
     <p class="text-gray-400 dark:text-gray-500 font-semibold">Nema podataka za ovaj klub.</p>
   </div>
+  {% endif %}
+
+  <!-- MINI RUKOMET -->
+  {% if mr_moje %}
+  <section>
+    <h2 class="text-xs font-extrabold text-gray-400 dark:text-gray-600 uppercase tracking-widest mb-3">Mini Rukomet</h2>
+    <div class="space-y-3">
+      {% for item in mr_moje %}
+      <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+        <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+          <div>
+            <p class="text-[10px] font-extrabold text-red-500 dark:text-red-400 uppercase tracking-widest">Mini Rukomet</p>
+            <p class="text-sm font-extrabold text-gray-900 dark:text-white mt-0.5">{{ item.turnir.naziv }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Ekipa: <span class="font-bold">{{ item.prijava.naziv_ekipe }}</span></p>
+          </div>
+          <a href="/mini-rukomet/{{ item.turnir.id }}"
+            class="text-xs font-bold text-red-600 dark:text-red-400 hover:underline flex items-center gap-1">
+            Turnir
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+        {% if item.utakmice %}
+        <div class="divide-y divide-gray-100 dark:divide-gray-800/60">
+          {% for u in item.utakmice %}
+          <div class="px-4 py-3">
+            <p class="text-[10px] font-extrabold text-gray-400 dark:text-gray-600 uppercase tracking-widest mb-2">
+              {% if u.kolo %}Kolo {{ u.kolo }} &middot; {% endif %}
+              {% if u.datum_utakmice %}{{ u.datum_utakmice.strftime('%d.%m.%Y') }}{% else %}Datum TBD{% endif %}
+            </p>
+            <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+              <p class="text-sm font-bold text-right truncate {% if u.ekipa_a == item.prijava.naziv_ekipe %}text-red-600 dark:text-red-400{% else %}text-gray-900 dark:text-white{% endif %}">{{ u.ekipa_a }}</p>
+              {% if u.gol_a is not none and u.gol_b is not none %}
+              <span class="px-3 py-1 rounded-xl text-sm font-extrabold bg-gray-900 dark:bg-gray-950 text-white border border-gray-700 tracking-wide tabular-nums shadow min-w-[64px] text-center">{{ u.gol_a }} : {{ u.gol_b }}</span>
+              {% else %}
+              <span class="px-3 py-1 rounded-xl text-xs font-bold text-gray-400 dark:text-gray-600 border border-gray-200 dark:border-gray-700 min-w-[64px] text-center">vs</span>
+              {% endif %}
+              <p class="text-sm font-bold text-left truncate {% if u.ekipa_b == item.prijava.naziv_ekipe %}text-red-600 dark:text-red-400{% else %}text-gray-900 dark:text-white{% endif %}">{{ u.ekipa_b }}</p>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="px-4 py-4 text-center">
+          <p class="text-xs text-gray-400 dark:text-gray-500 italic">Nema utakmica za ovu ekipu.</p>
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </section>
   {% endif %}
 
 </div>

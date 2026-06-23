@@ -683,6 +683,79 @@
       {% endif %}
     </div>
 
+  <!-- ── Mini Rukomet ── -->
+  {% if mr_moje or mr_available_turniri %}
+  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+    <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="text-lg">🤾</span>
+        <h2 class="font-extrabold text-gray-900 dark:text-white text-base">Mini Rukomet</h2>
+      </div>
+      {% if mr_available_turniri %}
+      <button onclick="document.getElementById('modalMR').classList.remove('hidden')"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl transition shadow-sm">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+        Prijavi ekipu
+      </button>
+      {% endif %}
+    </div>
+
+    {% if mr_moje %}
+    <div class="divide-y divide-gray-100 dark:divide-gray-800/60">
+      {% for item in mr_moje %}
+      <div class="px-5 py-4">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <p class="text-xs font-extrabold text-red-500 dark:text-red-400 uppercase tracking-widest">{{ item.turnir.naziv }}</p>
+            <p class="text-sm font-bold text-gray-900 dark:text-white mt-0.5">{{ item.prijava.naziv_ekipe }}</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold
+              {% if item.prijava.status == 'odobren' %}bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400
+              {% else %}bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400{% endif %}">
+              {{ 'Odobren' if item.prijava.status == 'odobren' else 'Na čekanju' }}
+            </span>
+            {% if item.prijava.status == 'na_cekanju' %}
+            <form method="post" action="/klub/mini-rukomet/prijava/{{ item.prijava.id }}/obrisi" onsubmit="return confirm('Obrisati prijavu?')">
+              <button type="submit" class="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+              </button>
+            </form>
+            {% endif %}
+          </div>
+        </div>
+        {% if item.utakmice %}
+        <div class="space-y-2">
+          {% for u in item.utakmice %}
+          <div class="flex items-center gap-3 p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800/50">
+            {% if u.kolo %}<span class="text-[10px] font-extrabold text-gray-400 dark:text-gray-500 w-8 text-center">K{{ u.kolo }}</span>{% endif %}
+            <span class="flex-1 text-xs font-bold text-right truncate {% if u.ekipa_a == item.prijava.naziv_ekipe %}text-red-600 dark:text-red-400{% else %}text-gray-700 dark:text-gray-300{% endif %}">{{ u.ekipa_a }}</span>
+            {% if u.gol_a is not none and u.gol_b is not none %}
+            <span class="px-2.5 py-1 rounded-lg text-xs font-extrabold tabular-nums bg-gray-900 dark:bg-gray-950 text-white border border-gray-700 flex-shrink-0">{{ u.gol_a }} : {{ u.gol_b }}</span>
+            {% else %}
+            <span class="px-2.5 py-1 rounded-lg text-xs font-extrabold text-gray-400 dark:text-gray-600 border border-gray-200 dark:border-gray-700 flex-shrink-0">vs</span>
+            {% endif %}
+            <span class="flex-1 text-xs font-bold text-left truncate {% if u.ekipa_b == item.prijava.naziv_ekipe %}text-red-600 dark:text-red-400{% else %}text-gray-700 dark:text-gray-300{% endif %}">{{ u.ekipa_b }}</span>
+          </div>
+          {% endfor %}
+        </div>
+        <div class="mt-2">
+          <a href="/mini-rukomet/{{ item.turnir.id }}" class="text-xs font-bold text-red-600 dark:text-red-400 hover:underline">Cijeli turnir →</a>
+        </div>
+        {% elif item.prijava.status == 'odobren' %}
+        <p class="text-xs text-gray-400 dark:text-gray-500 italic">Nema utakmica za vašu ekipu u ovom turniru.</p>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="px-5 py-6 text-center">
+      <p class="text-sm text-gray-400 dark:text-gray-500">Niste prijavljeni ni na jedan Mini Rukomet turnir.</p>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
   {% endif %}
   </div>
 </main>
@@ -711,6 +784,41 @@
         <button type="button" onclick="document.getElementById('modalPrijava').classList.add('hidden')"
           class="px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition">Odustani</button>
         <button type="submit" class="flex-1 py-2.5 text-sm font-bold text-white bg-red-600 rounded-xl hover:bg-red-700 transition">Prijavi se</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ════ MODAL: Prijava na Mini Rukomet turnir ════ -->
+<div id="modalMR" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-2xl w-full max-w-md">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+      <h3 class="font-extrabold text-gray-900 dark:text-white">Prijava na Mini Rukomet turnir</h3>
+      <button onclick="document.getElementById('modalMR').classList.add('hidden')" class="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <form method="post" action="/klub/mini-rukomet/prijava" class="p-6 space-y-4">
+      <div>
+        <label class="block mb-1.5 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Izaberi turnir</label>
+        <select name="turnir_id" required
+          class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 transition">
+          <option value="">-- Odaberi turnir --</option>
+          {% for t in mr_available_turniri %}
+          <option value="{{ t.id }}">{{ t.naziv }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="block mb-1.5 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Naziv ekipe u turniru</label>
+        <input type="text" name="naziv_ekipe" required placeholder="npr. FK Krajišnik U10"
+          class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white text-sm rounded-xl px-4 py-2.5 placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-red-500 transition"/>
+        <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-1.5">Naziv mora biti identičan onom koji se koristi u rasporedu utakmica.</p>
+      </div>
+      <div class="flex gap-3 pt-1">
+        <button type="button" onclick="document.getElementById('modalMR').classList.add('hidden')"
+          class="px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition">Odustani</button>
+        <button type="submit" class="flex-1 py-2.5 text-sm font-bold text-white bg-red-600 rounded-xl hover:bg-red-700 transition">Prijavi ekipu</button>
       </div>
     </form>
   </div>

@@ -2,11 +2,12 @@
 from ..templates_config import templates
 from fastapi.responses import HTMLResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, or_
 from ..database import get_db
 from ..models import (
     Tabela, TabelaEkipa, Utakmica, TabelaSortPravilo,
     Uzrast, Takmicenje, PrijavaKluba, Klub,
+    MiniRukometPrijava, MiniRukometUtakmica, MiniRukometTurnir,
 )
 from .tabele import _izracunaj, _enrich_tabela
 from collections import OrderedDict
@@ -393,11 +394,38 @@ async def public_klub_profil(
             gost = prijava_map.get(u.gost_id) if u.gost_id else None
             nadolazece.append({"u": u, "dom": dom, "gost": gost, "uzrast": uzr, "takm": tk})
 
+    # Mini Rukomet — odobrene prijave i utakmice ovog kluba
+    mr_prijave_rows = (await db.execute(
+        select(MiniRukometPrijava, MiniRukometTurnir)
+        .join(MiniRukometTurnir, MiniRukometPrijava.turnir_id == MiniRukometTurnir.id)
+        .where(
+            MiniRukometPrijava.klub_id == klub_id,
+            MiniRukometPrijava.status == "odobren",
+        )
+        .order_by(MiniRukometTurnir.naziv)
+    )).all()
+
+    mr_moje = []
+    for prijava, turnir in mr_prijave_rows:
+        utakmice_mr = (await db.execute(
+            select(MiniRukometUtakmica)
+            .where(
+                MiniRukometUtakmica.turnir_id == prijava.turnir_id,
+                or_(
+                    MiniRukometUtakmica.ekipa_a == prijava.naziv_ekipe,
+                    MiniRukometUtakmica.ekipa_b == prijava.naziv_ekipe,
+                )
+            )
+            .order_by(MiniRukometUtakmica.datum_utakmice.asc().nullslast(), MiniRukometUtakmica.id.asc())
+        )).scalars().all()
+        mr_moje.append({"prijava": prijava, "turnir": turnir, "utakmice": utakmice_mr})
+
     return templates.TemplateResponse("public_klub.html", {
         "request":    request,
         "klub":       klub,
         "ligas_info": ligas_info,
         "zadnji":     zadnji,
         "nadolazece": nadolazece,
+        "mr_moje":    mr_moje,
     })
 

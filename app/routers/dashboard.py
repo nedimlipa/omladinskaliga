@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, or_
 from typing import Optional
 from ..database import get_db
-from ..models import Klub, Admin, Uzrast, Sezona, Takmicenje, PrijavaKluba, Igrac, Registracija, SluzbenoLice, RegistracijaSL, PozicijaSL, Tabela, TabelaEkipa, Utakmica, TabelaSortPravilo
+from ..models import Klub, Admin, Uzrast, Sezona, Takmicenje, PrijavaKluba, Igrac, Registracija, SluzbenoLice, RegistracijaSL, PozicijaSL, Tabela, TabelaEkipa, Utakmica, TabelaSortPravilo, MiniRukometTurnir, MiniRukometUtakmica, MiniRukometPrijava
 from .tabele import _izracunaj
 from ..security import hash_password
 from .auth import get_current_user
@@ -337,6 +337,41 @@ async def klub_dashboard(request: Request, db: AsyncSession = Depends(get_db)):
                 })
         kalendar_matches = {str(k): v for k, v in _km.items()}
 
+    # ── Mini Rukomet ─────────────────────────────────────────
+    mr_turniri_all = (await db.execute(
+        select(MiniRukometTurnir)
+        .where(MiniRukometTurnir.aktivan == True)
+        .order_by(MiniRukometTurnir.kreiran_datum.desc())
+    )).scalars().all()
+
+    mr_prijave_rows = (await db.execute(
+        select(MiniRukometPrijava, MiniRukometTurnir)
+        .join(MiniRukometTurnir, MiniRukometPrijava.turnir_id == MiniRukometTurnir.id)
+        .where(MiniRukometPrijava.klub_id == klub_id)
+        .order_by(MiniRukometPrijava.kreiran_datum.desc())
+    )).all()
+
+    mr_registered_ids = {p.turnir_id for p, _ in mr_prijave_rows}
+    mr_available_turniri = [t for t in mr_turniri_all if t.id not in mr_registered_ids]
+
+    mr_moje = []
+    for prijava, turnir in mr_prijave_rows:
+        if prijava.status == "odobren":
+            utakmice_mr = (await db.execute(
+                select(MiniRukometUtakmica)
+                .where(
+                    MiniRukometUtakmica.turnir_id == prijava.turnir_id,
+                    or_(
+                        MiniRukometUtakmica.ekipa_a == prijava.naziv_ekipe,
+                        MiniRukometUtakmica.ekipa_b == prijava.naziv_ekipe,
+                    )
+                )
+                .order_by(MiniRukometUtakmica.datum_utakmice.asc().nullslast(), MiniRukometUtakmica.id.asc())
+            )).scalars().all()
+        else:
+            utakmice_mr = []
+        mr_moje.append({"prijava": prijava, "turnir": turnir, "utakmice": utakmice_mr})
+
     return templates.TemplateResponse("dashboard_klub.html", {
         "request":          request,
         "user":             user,
@@ -354,6 +389,8 @@ async def klub_dashboard(request: Request, db: AsyncSession = Depends(get_db)):
         "today_month":       __import__('datetime').date.today().month,
         "today_year":        __import__('datetime').date.today().year,
         "today_day":         __import__('datetime').date.today().day,
+        "mr_available_turniri": mr_available_turniri,
+        "mr_moje":           mr_moje,
     })
 
 

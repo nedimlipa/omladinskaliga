@@ -4,11 +4,11 @@ import io
 from fastapi import APIRouter, Request, Depends, Form, UploadFile, File
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, or_
 
 from ..templates_config import templates, local_dt_str
 from ..database import get_db
-from ..models import MiniRukometTurnir, MiniRukometUtakmica
+from ..models import MiniRukometTurnir, MiniRukometUtakmica, MiniRukometPrijava, Klub
 from .auth import get_current_user
 
 router = APIRouter()
@@ -238,6 +238,15 @@ async def admin_mr_detalji(
         ekipe_set.add(u.ekipa_a)
         ekipe_set.add(u.ekipa_b)
 
+    # Prijave klubova na ovaj turnir
+    prijave_rows = (await db.execute(
+        select(MiniRukometPrijava, Klub)
+        .join(Klub, MiniRukometPrijava.klub_id == Klub.id)
+        .where(MiniRukometPrijava.turnir_id == tid)
+        .order_by(MiniRukometPrijava.kreiran_datum.desc())
+    )).all()
+    prijave = [{"p": p, "klub": k} for p, k in prijave_rows]
+
     return templates.TemplateResponse("admin_mini_rukomet_detalji.html", {
         "request":  request,
         "user":     user,
@@ -246,6 +255,7 @@ async def admin_mr_detalji(
         "tabela":   tabela,
         "ekipe":    sorted(ekipe_set),
         "sort_opcije": SORT_OPCIJE,
+        "prijave":  prijave,
         "ok":    request.query_params.get("ok"),
         "error": request.query_params.get("error"),
     })
@@ -463,3 +473,92 @@ async def admin_mr_upload_excel(
 
     except Exception as e:
         return RedirectResponse(f"/admin/mini-rukomet/{tid}?error=parse", status_code=302)
+
+
+# ─────────────────────────────────────────────────────────────
+#  ADMIN — upravljanje prijavama klubova
+# ─────────────────────────────────────────────────────────────
+
+@router.post("/admin/mini-rukomet/{tid}/prijava/{pid}/odobri")
+async def admin_mr_prijava_odobri(
+    tid: int, pid: int, request: Request, db: AsyncSession = Depends(get_db)
+):
+    user = get_current_user(request)
+    if not user or user.get("tip") not in ("admin", "moderator"):
+        return RedirectResponse("/login", status_code=302)
+    prijava = await db.get(MiniRukometPrijava, pid)
+    if prijava and prijava.turnir_id == tid:
+        prijava.status = "odobren"
+        await db.commit()
+    return RedirectResponse(f"/admin/mini-rukomet/{tid}?ok=odobreno", status_code=302)
+
+
+@router.post("/admin/mini-rukomet/{tid}/prijava/{pid}/odbij")
+async def admin_mr_prijava_odbij(
+    tid: int, pid: int, request: Request, db: AsyncSession = Depends(get_db)
+):
+    user = get_current_user(request)
+    if not user or user.get("tip") not in ("admin", "moderator"):
+        return RedirectResponse("/login", status_code=302)
+    prijava = await db.get(MiniRukometPrijava, pid)
+    if prijava and prijava.turnir_id == tid:
+        await db.delete(prijava)
+        await db.commit()
+    return RedirectResponse(f"/admin/mini-rukomet/{tid}?ok=odbijeno", status_code=302)
+
+
+# ─────────────────────────────────────────────────────────────
+#  KLUB — prijava na mini rukomet turnir
+# ─────────────────────────────────────────────────────────────
+
+@router.post("/klub/mini-rukomet/prijava")
+async def klub_mr_prijava(
+    request: Request,
+    turnir_id:   int = Form(...),
+    naziv_ekipe: str = Form(...),
+    db: AsyncSession = Depends(get_db),
+):
+    user = get_current_user(request)
+    if not user or user.get("tip") != "klub":
+        return RedirectResponse("/login", status_code=302)
+    klub_id = int(user["sub"])
+
+    naziv_ekipe = naziv_ekipe.strip()
+    if not naziv_ekipe:
+        return RedirectResponse("/klub/dashboard?error=mr_naziv", status_code=302)
+
+    # Provjeri da li već postoji prijava za ovaj turnir
+    existing = (await db.execute(
+        select(MiniRukometPrijava).where(
+            MiniRukometPrijava.turnir_id == turnir_id,
+            MiniRukometPrijava.klub_id == klub_id,
+        )
+    )).scalar_one_or_none()
+
+    if not existing:
+        turnir = await db.get(MiniRukometTurnir, turnir_id)
+        if turnir and turnir.aktivan:
+            db.add(MiniRukometPrijava(
+                turnir_id=turnir_id,
+                klub_id=klub_id,
+                naziv_ekipe=naziv_ekipe,
+            ))
+            await db.commit()
+
+    return RedirectResponse("/klub/dashboard?ok=mr_prijava", status_code=302)
+
+
+@router.post("/klub/mini-rukomet/prijava/{pid}/obrisi")
+async def klub_mr_prijava_obrisi(
+    pid: int, request: Request, db: AsyncSession = Depends(get_db)
+):
+    user = get_current_user(request)
+    if not user or user.get("tip") != "klub":
+        return RedirectResponse("/login", status_code=302)
+    klub_id = int(user["sub"])
+    prijava = await db.get(MiniRukometPrijava, pid)
+    if prijava and prijava.klub_id == klub_id and prijava.status == "na_cekanju":
+        await db.delete(prijava)
+        await db.commit()
+    return RedirectResponse("/klub/dashboard", status_code=302)
+
