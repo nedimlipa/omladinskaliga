@@ -427,8 +427,8 @@ async def admin_igrac_dodaj(
     iskljucenje: str = Form(None),
     iskljucenje_1: str = Form(None),
     iskljucenje_2: str = Form(None),
-    crveni_karton: str = Form("ne"),
-    plavi_karton: str = Form("ne"),
+    crveni_karton: str = Form(None),
+    plavi_karton: str = Form(None),
     time_out_1: int = Form(0),
     time_out_2: int = Form(0),
     sedam_m_dato: int = Form(0),
@@ -453,8 +453,8 @@ async def admin_igrac_dodaj(
         iskljucenje=iskljucenje or None,
         iskljucenje_1=iskljucenje_1 or None,
         iskljucenje_2=iskljucenje_2 or None,
-        crveni_karton=(crveni_karton == "da"),
-        plavi_karton=(plavi_karton == "da"),
+        crveni_karton=crveni_karton or None,
+        plavi_karton=plavi_karton or None,
         time_out_1=time_out_1 or 0,
         time_out_2=time_out_2 or 0,
         sedam_m_dato=sedam_m_dato or 0,
@@ -485,8 +485,8 @@ async def admin_igrac_uredi(
     iskljucenje: str = Form(None),
     iskljucenje_1: str = Form(None),
     iskljucenje_2: str = Form(None),
-    crveni_karton: str = Form("ne"),
-    plavi_karton: str = Form("ne"),
+    crveni_karton: str = Form(None),
+    plavi_karton: str = Form(None),
     time_out_1: int = Form(0),
     time_out_2: int = Form(0),
     sedam_m_dato: int = Form(0),
@@ -508,8 +508,8 @@ async def admin_igrac_uredi(
     ig.iskljucenje = iskljucenje or None
     ig.iskljucenje_1 = iskljucenje_1 or None
     ig.iskljucenje_2 = iskljucenje_2 or None
-    ig.crveni_karton = (crveni_karton == "da")
-    ig.plavi_karton = (plavi_karton == "da")
+    ig.crveni_karton = crveni_karton or None
+    ig.plavi_karton = plavi_karton or None
     ig.time_out_1 = time_out_1 or 0
     ig.time_out_2 = time_out_2 or 0
     ig.sedam_m_dato = sedam_m_dato or 0
@@ -673,8 +673,8 @@ class _IgracInput(BaseModel):
     iskljucenje: Optional[str] = None    # MM:SS of 3rd 2-min exclusion
     iskljucenje_1: Optional[str] = None  # MM:SS of 1st 2-min exclusion
     iskljucenje_2: Optional[str] = None  # MM:SS of 2nd 2-min exclusion
-    crveni_karton: bool = False
-    plavi_karton: bool = False
+    crveni_karton: Optional[str] = None
+    plavi_karton: Optional[str] = None
     time_out_1: int = 0
     time_out_2: int = 0
     sedam_m_dato: int = 0
@@ -738,8 +738,8 @@ async def klub_zapisnik_spasi(
             iskljucenje=ig_data.iskljucenje or None,
             iskljucenje_1=ig_data.iskljucenje_1 or None,
             iskljucenje_2=ig_data.iskljucenje_2 or None,
-            crveni_karton=ig_data.crveni_karton,
-            plavi_karton=ig_data.plavi_karton,
+            crveni_karton=ig_data.crveni_karton or None,
+            plavi_karton=ig_data.plavi_karton or None,
             time_out_1=ig_data.time_out_1,
             time_out_2=ig_data.time_out_2,
             sedam_m_dato=ig_data.sedam_m_dato,

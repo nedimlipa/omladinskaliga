@@ -225,8 +225,8 @@
               <th class="px-2 py-2 text-center w-16">2</th>
               <th class="px-2 py-2 text-center w-16">2</th>
               <th class="px-2 py-2 text-center w-16">2</th>
-              <th class="px-2 py-2 text-center w-10">CK</th>
-              <th class="px-2 py-2 text-center w-10">PK</th>
+              <th class="px-2 py-2 text-center w-16">CK</th>
+              <th class="px-2 py-2 text-center w-16">PK</th>
               <th class="px-2 py-2 text-center w-20">7M<br><span class="font-normal text-[9px] normal-case">dato/prom.</span></th>
               <th class="px-2 py-2 w-8"></th>
             </tr>
@@ -243,8 +243,8 @@
               <td class="px-2 py-1.5"><input name="iskljucenje_1" type="text" value="{{ ig.iskljucenje_1 or '' }}" placeholder="31:52" maxlength="5" class="w-16 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-1 py-1 text-xs focus:ring-1 focus:ring-red-500 focus:outline-none text-center"></td>
               <td class="px-2 py-1.5"><input name="iskljucenje_2" type="text" value="{{ ig.iskljucenje_2 or '' }}" placeholder="42:10" maxlength="5" class="w-16 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-1 py-1 text-xs focus:ring-1 focus:ring-red-500 focus:outline-none text-center"></td>
               <td class="px-2 py-1.5"><input name="iskljucenje" type="text" value="{{ ig.iskljucenje or '' }}" placeholder="55:00" maxlength="5" class="w-16 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-1 py-1 text-xs focus:ring-1 focus:ring-red-500 focus:outline-none text-center"></td>
-              <td class="px-2 py-1.5 text-center"><input name="crveni_karton" type="checkbox" class="w-4 h-4 rounded accent-red-600" {% if ig.crveni_karton %}checked{% endif %}></td>
-              <td class="px-2 py-1.5 text-center"><input name="plavi_karton" type="checkbox" class="w-4 h-4 rounded accent-blue-600" {% if ig.plavi_karton %}checked{% endif %}></td>
+              <td class="px-2 py-1.5"><input name="crveni_karton" type="text" value="{{ ig.crveni_karton or '' }}" placeholder="31:52" maxlength="5" class="w-16 rounded-lg border border-red-200 dark:border-red-800 bg-gray-50 dark:bg-gray-800 px-1 py-1 text-xs focus:ring-1 focus:ring-red-500 focus:outline-none text-center"></td>
+              <td class="px-2 py-1.5"><input name="plavi_karton" type="text" value="{{ ig.plavi_karton or '' }}" placeholder="31:52" maxlength="5" class="w-16 rounded-lg border border-blue-200 dark:border-blue-800 bg-gray-50 dark:bg-gray-800 px-1 py-1 text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none text-center"></td>
               <td class="px-1 py-1.5">
                 <div class="flex items-center gap-0.5">
                   <input name="sedam_m_dato" type="number" value="{{ ig.sedam_m_dato or 0 }}" min="0" title="Dato" class="w-8 rounded border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-1 py-1 text-xs focus:ring-1 focus:ring-red-500 focus:outline-none text-center">
@@ -339,8 +339,8 @@
               <th class="px-2 py-2 text-left min-w-[110px]">Reg#</th>
               <th class="px-2 py-2 text-center w-10">O</th>
               <th class="px-2 py-2 text-center w-16">2'</th>
-              <th class="px-2 py-2 text-center w-10">CK</th>
-              <th class="px-2 py-2 text-center w-10">PK</th>
+              <th class="px-2 py-2 text-center w-16">CK</th>
+              <th class="px-2 py-2 text-center w-16">PK</th>
               <th class="px-2 py-2 w-8"></th>
             </tr>
           </thead>
@@ -356,8 +356,8 @@
               <td class="px-2 py-1.5"><input name="br_registracije" type="text" value="{{ ig.br_registracije or '' }}" class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-2 py-1 text-xs focus:ring-1 focus:ring-red-500 focus:outline-none"></td>
               <td class="px-2 py-1.5"><input name="opomene" type="number" value="{{ ig.opomene }}" min="0" class="w-10 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-1 py-1 text-xs focus:ring-1 focus:ring-red-500 focus:outline-none text-center"></td>
               <td class="px-2 py-1.5"><input name="iskljucenje_1" type="text" value="{{ ig.iskljucenje_1 or '' }}" placeholder="31:52" maxlength="5" class="w-16 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-1 py-1 text-xs focus:ring-1 focus:ring-red-500 focus:outline-none text-center"></td>
-              <td class="px-2 py-1.5 text-center"><input name="crveni_karton" type="checkbox" class="w-4 h-4 rounded accent-red-600" {% if ig.crveni_karton %}checked{% endif %}></td>
-              <td class="px-2 py-1.5 text-center"><input name="plavi_karton" type="checkbox" class="w-4 h-4 rounded accent-blue-600" {% if ig.plavi_karton %}checked{% endif %}></td>
+              <td class="px-2 py-1.5"><input name="crveni_karton" type="text" value="{{ ig.crveni_karton or '' }}" placeholder="31:52" maxlength="5" class="w-16 rounded-lg border border-red-200 dark:border-red-800 bg-gray-50 dark:bg-gray-800 px-1 py-1 text-xs focus:ring-1 focus:ring-red-500 focus:outline-none text-center"></td>
+              <td class="px-2 py-1.5"><input name="plavi_karton" type="text" value="{{ ig.plavi_karton or '' }}" placeholder="31:52" maxlength="5" class="w-16 rounded-lg border border-blue-200 dark:border-blue-800 bg-gray-50 dark:bg-gray-800 px-1 py-1 text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none text-center"></td>
               <td class="px-2 py-1.5 text-center"><input type="hidden" name="tip" value="sluzbeno_lice"><button type="button" onclick="this.closest('tr').remove();slLettersUpdate()" class="w-6 h-6 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 font-bold text-xs transition">×</button></td>
             </tr>
             {% endfor %}
@@ -416,8 +416,8 @@ function slRowHtml(letter) {
     <td class="px-2 py-1.5"><input name="br_registracije" type="text" class="w-full ${INP}"></td>
     <td class="px-2 py-1.5"><input name="opomene" type="number" value="0" min="0" class="w-10 text-center ${INP}"></td>
     <td class="px-2 py-1.5"><input name="iskljucenje_1" type="text" placeholder="31:52" maxlength="5" class="w-16 text-center ${INP}"></td>
-    <td class="px-2 py-1.5 text-center"><input name="crveni_karton" type="checkbox" class="w-4 h-4 rounded accent-red-600"></td>
-    <td class="px-2 py-1.5 text-center"><input name="plavi_karton" type="checkbox" class="w-4 h-4 rounded accent-blue-600"></td>
+    <td class="px-2 py-1.5"><input name="crveni_karton" type="text" placeholder="31:52" maxlength="5" class="w-16 text-center rounded-lg border border-red-200 dark:border-red-800 bg-gray-50 dark:bg-gray-800 px-1 py-1 text-xs focus:ring-1 focus:ring-red-500 focus:outline-none"></td>
+    <td class="px-2 py-1.5"><input name="plavi_karton" type="text" placeholder="31:52" maxlength="5" class="w-16 text-center rounded-lg border border-blue-200 dark:border-blue-800 bg-gray-50 dark:bg-gray-800 px-1 py-1 text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none"></td>
     <td class="px-2 py-1.5 text-center"><input type="hidden" name="tip" value="sluzbeno_lice"><button type="button" onclick="this.closest('tr').remove();slLettersUpdate()" class="w-6 h-6 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 font-bold text-xs transition">×</button></td>
   </tr>`;
 }
@@ -544,8 +544,8 @@ async function saveAll() {
       iskljucenje: g('iskljucenje')||null,
       iskljucenje_1: g('iskljucenje_1')||null,
       iskljucenje_2: g('iskljucenje_2')||null,
-      crveni_karton: gb('crveni_karton'),
-      plavi_karton: gb('plavi_karton'),
+      crveni_karton: g('crveni_karton')||null,
+      plavi_karton: g('plavi_karton')||null,
       sedam_m_dato: gi('sedam_m_dato'),
       sedam_m_promj: gi('sedam_m_promj'),
       time_out_1: 0, time_out_2: 0,
@@ -558,7 +558,6 @@ async function saveAll() {
     if (!ime || !ime.value.trim()) return;
     const g = n => { const el=tr.querySelector(`[name=${n}]`); return el?el.value:''; };
     const gi = n => parseInt(g(n))||0;
-    const gb = n => { const el=tr.querySelector(`[name=${n}]`); return el?el.checked:false; };
     rows.push({
       br_dresa: null,
       ime_prezime: ime.value.trim(),
@@ -570,8 +569,8 @@ async function saveAll() {
       iskljucenje: null,
       iskljucenje_1: g('iskljucenje_1')||null,
       iskljucenje_2: null,
-      crveni_karton: gb('crveni_karton'),
-      plavi_karton: gb('plavi_karton'),
+      crveni_karton: g('crveni_karton')||null,
+      plavi_karton: g('plavi_karton')||null,
       time_out_1: 0, time_out_2: 0,
     });
   });

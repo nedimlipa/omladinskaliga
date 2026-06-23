@@ -337,8 +337,8 @@ class ZapisnikIgrac(Base):
     iskljucenje        = Column(String(8), nullable=True)               # MM:SS of 3rd 2-min
     iskljucenje_1      = Column(String(8), nullable=True)               # MM:SS of 1st 2-min
     iskljucenje_2      = Column(String(8), nullable=True)               # MM:SS of 2nd 2-min
-    crveni_karton      = Column(Boolean, nullable=False, default=False)
-    plavi_karton       = Column(Boolean, nullable=False, default=False)
+    crveni_karton      = Column(String(8), nullable=True)
+    plavi_karton       = Column(String(8), nullable=True)
     time_out_1         = Column(SmallInteger, nullable=False, default=0)
     time_out_2         = Column(SmallInteger, nullable=False, default=0)
     sedam_m_dato       = Column(SmallInteger, nullable=True)

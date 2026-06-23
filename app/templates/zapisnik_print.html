@@ -195,8 +195,8 @@
       <td class="center">{{ ig.iskljucenje_1 or '' }}</td>
       <td class="center">{{ ig.iskljucenje_2 or '' }}</td>
       <td class="center">{{ ig.iskljucenje or '' }}</td>
-      <td class="center">{% if ig.crveni_karton %}✗{% endif %}</td>
-      <td class="center">{% if ig.plavi_karton %}✗{% endif %}</td>
+      <td class="center">{{ ig.crveni_karton or '' }}</td>
+      <td class="center">{{ ig.plavi_karton or '' }}</td>
     </tr>
     {% endfor %}
     {% for i in range([16 - players|length, 0]|max) %}
@@ -229,8 +229,8 @@
       <td>({{ letters[loop.index0] if loop.index0 < 5 else '?' }}) {{ ig.ime_prezime }}</td>
       <td class="center">{{ ig.opomene if ig.opomene else '' }}</td>
       <td class="center">{{ ig.iskljucenje_1 or '' }}</td>
-      <td class="center">{% if ig.crveni_karton %}✗{% endif %}</td>
-      <td class="center">{% if ig.plavi_karton %}✗{% endif %}</td>
+      <td class="center">{{ ig.crveni_karton or '' }}</td>
+      <td class="center">{{ ig.plavi_karton or '' }}</td>
     </tr>
     {% endfor %}
     {% for i in range([5 - officials|length, 0]|max) %}

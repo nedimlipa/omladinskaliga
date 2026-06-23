@@ -273,7 +273,7 @@
                 <td class="px-3 py-2 text-center {% if ig.sedam_m_dato %}text-purple-600 dark:text-purple-400 font-bold{% else %}text-gray-400{% endif %}">{{ ig.sedam_m_dato or '—' }}</td>
                 <td class="px-3 py-2 text-center {% if ig.sedam_m_promj %}text-red-600 dark:text-red-400 font-bold{% else %}text-gray-400{% endif %}">{{ ig.sedam_m_promj or '—' }}</td>
                 <td class="px-3 py-2 text-right whitespace-nowrap">
-                  <button onclick="openIgracModal('A', {{ ig.id }}, '{{ ig.tip }}', '{{ ig.pozicija or '' }}', {{ ig.br_dresa or 'null' }}, '{{ ig.ime_prezime|replace("'", "\\'") }}', '{{ ig.br_registracije or '' }}', {{ ig.golovi }}, {{ ig.opomene }}, '{{ ig.iskljucenje or '' }}', '{{ ig.iskljucenje_1 or '' }}', '{{ ig.iskljucenje_2 or '' }}', {{ 'true' if ig.crveni_karton else 'false' }}, {{ 'true' if ig.plavi_karton else 'false' }}, {{ ig.time_out_1 }}, {{ ig.time_out_2 }}, {{ ig.sedam_m_dato or 0 }}, {{ ig.sedam_m_promj or 0 }})"
+                  <button onclick="openIgracModal('A', {{ ig.id }}, '{{ ig.tip }}', '{{ ig.pozicija or '' }}', {{ ig.br_dresa or 'null' }}, '{{ ig.ime_prezime|replace("'", "\\'") }}', '{{ ig.br_registracije or '' }}', {{ ig.golovi }}, {{ ig.opomene }}, '{{ ig.iskljucenje or '' }}', '{{ ig.iskljucenje_1 or '' }}', '{{ ig.iskljucenje_2 or '' }}', '{{ ig.crveni_karton or '' }}', '{{ ig.plavi_karton or '' }}', {{ ig.time_out_1 }}, {{ ig.time_out_2 }}, {{ ig.sedam_m_dato or 0 }}, {{ ig.sedam_m_promj or 0 }})"
                     class="px-2.5 py-1 rounded-lg text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition mr-1">Uredi</button>
                   <form method="POST" action="/admin/zapisnik/{{ z.id }}/igrac/{{ ig.id }}/obrisi" class="inline" onsubmit="return confirm('Obrisati?')">
                     <button type="submit" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 transition">×</button>
@@ -335,7 +335,7 @@
                 <td class="px-3 py-2 text-center {% if ig.sedam_m_dato %}text-purple-600 dark:text-purple-400 font-bold{% else %}text-gray-400{% endif %}">{{ ig.sedam_m_dato or '—' }}</td>
                 <td class="px-3 py-2 text-center {% if ig.sedam_m_promj %}text-red-600 dark:text-red-400 font-bold{% else %}text-gray-400{% endif %}">{{ ig.sedam_m_promj or '—' }}</td>
                 <td class="px-3 py-2 text-right whitespace-nowrap">
-                  <button onclick="openIgracModal('B', {{ ig.id }}, '{{ ig.tip }}', '{{ ig.pozicija or '' }}', {{ ig.br_dresa or 'null' }}, '{{ ig.ime_prezime|replace("'", "\\'") }}', '{{ ig.br_registracije or '' }}', {{ ig.golovi }}, {{ ig.opomene }}, '{{ ig.iskljucenje or '' }}', '{{ ig.iskljucenje_1 or '' }}', '{{ ig.iskljucenje_2 or '' }}', {{ 'true' if ig.crveni_karton else 'false' }}, {{ 'true' if ig.plavi_karton else 'false' }}, {{ ig.time_out_1 }}, {{ ig.time_out_2 }}, {{ ig.sedam_m_dato or 0 }}, {{ ig.sedam_m_promj or 0 }})"
+                  <button onclick="openIgracModal('B', {{ ig.id }}, '{{ ig.tip }}', '{{ ig.pozicija or '' }}', {{ ig.br_dresa or 'null' }}, '{{ ig.ime_prezime|replace("'", "\\'") }}', '{{ ig.br_registracije or '' }}', {{ ig.golovi }}, {{ ig.opomene }}, '{{ ig.iskljucenje or '' }}', '{{ ig.iskljucenje_1 or '' }}', '{{ ig.iskljucenje_2 or '' }}', '{{ ig.crveni_karton or '' }}', '{{ ig.plavi_karton or '' }}', {{ ig.time_out_1 }}, {{ ig.time_out_2 }}, {{ ig.sedam_m_dato or 0 }}, {{ ig.sedam_m_promj or 0 }})"
                     class="px-2.5 py-1 rounded-lg text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition mr-1">Uredi</button>
                   <form method="POST" action="/admin/zapisnik/{{ z.id }}/igrac/{{ ig.id }}/obrisi" class="inline" onsubmit="return confirm('Obrisati?')">
                     <button type="submit" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 transition">×</button>
@@ -420,14 +420,10 @@
             <input id="fI1" type="text" name="iskljucenje_1" placeholder="31:52" maxlength="5" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none text-center"></div>
           <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">2 isklj. 2. (MM:SS)</label>
             <input id="fI2" type="text" name="iskljucenje_2" placeholder="42:10" maxlength="5" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none text-center"></div>
-          <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Crveni karton</label>
-            <select id="fCK" name="crveni_karton" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
-              <option value="ne">Ne</option><option value="da">Da</option>
-            </select></div>
-          <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Plavi karton</label>
-            <select id="fPK" name="plavi_karton" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
-              <option value="ne">Ne</option><option value="da">Da</option>
-            </select></div>
+          <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Crveni karton (MM:SS)</label>
+            <input id="fCK" type="text" name="crveni_karton" placeholder="31:52" maxlength="5" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none text-center"></div>
+          <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Plavi karton (MM:SS)</label>
+            <input id="fPK" type="text" name="plavi_karton" placeholder="31:52" maxlength="5" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none text-center"></div>
           <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Time out 1 (min)</label>
             <input id="fTO1" type="number" name="time_out_1" value="0" min="0" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
           <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Time out 2 (min)</label>
@@ -486,7 +482,7 @@ function openIgracModal(tim, iid, tip, poz, dres, ime, reg, g, o, i, i1, i2, ck,
     // Reset
     ['fTip','fPozicija','fBrDresa','fIme','fBrReg','fGolovi','fOpomene','fI','fI1','fI2','fTO1','fTO2'].forEach(id=>{
       const el=document.getElementById(id);if(el){if(el.tagName==='SELECT'){el.value=id==='fTip'?'igrac':'ne';}else{el.value=id.startsWith('f')&&id!=='fTip'&&id!=='fIme'&&id!=='fPozicija'&&id!=='fBrReg'?'0':''}}});
-    document.getElementById('fCK').value='ne';document.getElementById('fPK').value='ne';
+    document.getElementById('fCK').value='';document.getElementById('fPK').value='';
     document.getElementById('modalIgrac').classList.remove('hidden');return;
   }
   document.getElementById('fTip').value=tip||'igrac';
@@ -499,8 +495,8 @@ function openIgracModal(tim, iid, tip, poz, dres, ime, reg, g, o, i, i1, i2, ck,
   document.getElementById('fI').value=i||'';
   document.getElementById('fI1').value=i1||'';
   document.getElementById('fI2').value=i2||0;
-  document.getElementById('fCK').value=ck?'da':'ne';
-  document.getElementById('fPK').value=pk?'da':'ne';
+  document.getElementById('fCK').value=ck||'';
+  document.getElementById('fPK').value=pk||'';
   document.getElementById('fTO1').value=to1||0;
   document.getElementById('fTO2').value=to2||0;
   document.getElementById('fSedamD').value=sedD||0;
