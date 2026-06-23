@@ -387,6 +387,47 @@
       {% endif %}
     </div>
 
+    <!-- ── Zapisnici utakmica ── -->
+    {% if moji_zapisnici %}
+    <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+      <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2">
+        <span class="text-lg">📋</span>
+        <h2 class="font-extrabold text-gray-900 dark:text-white text-base">Zapisnici utakmica</h2>
+        <span class="ml-auto text-xs text-gray-400">Unesite igrače i statistiku za vaš tim</span>
+      </div>
+      <div class="divide-y divide-gray-100 dark:divide-gray-800/60">
+        {% for z in moji_zapisnici %}
+        <div class="px-5 py-3 flex items-center justify-between gap-3 hover:bg-gray-50 dark:hover:bg-gray-800/40 transition">
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              {% if z.br_utakmice %}<span class="text-xs font-bold text-red-600 dark:text-red-400">{{ z.br_utakmice }}</span>{% endif %}
+              <span class="font-semibold text-sm text-gray-900 dark:text-white truncate">{{ z.ekipa_a or '?' }} <span class="text-gray-400 font-normal">vs</span> {{ z.ekipa_b or '?' }}</span>
+              {% if z.ekipa_a_id == klub.id %}<span class="px-1.5 py-0.5 rounded text-xs font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">Tim A</span>
+              {% else %}<span class="px-1.5 py-0.5 rounded text-xs font-bold bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400">Tim B</span>{% endif %}
+            </div>
+            <p class="text-xs text-gray-400 mt-0.5">
+              {% if z.datum %}{{ z.datum.strftime('%d.%m.%Y') }}{% if z.vrijeme %} · {{ z.vrijeme }}{% endif %}{% endif %}
+              {% if z.liga %} · {{ z.liga }}{% endif %}
+              {% if z.uzrast %} · {{ z.uzrast }}{% endif %}
+            </p>
+          </div>
+          <div class="flex items-center gap-2 flex-shrink-0">
+            {% set s = z.status_utakmice %}
+            {% if s == 'Odigrana' %}<span class="hidden sm:inline-flex px-2 py-0.5 rounded-full text-xs font-bold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">{{ s }}</span>
+            {% elif s == 'Zakazana' %}<span class="hidden sm:inline-flex px-2 py-0.5 rounded-full text-xs font-bold bg-gray-100 dark:bg-gray-700 text-gray-500">{{ s }}</span>
+            {% else %}<span class="hidden sm:inline-flex px-2 py-0.5 rounded-full text-xs font-bold bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400">{{ s }}</span>
+            {% endif %}
+            <a href="/klub/zapisnik/{{ z.id }}"
+              class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-700 text-white transition shadow-sm">
+              Unesi igrače →
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
     <!-- ── Mini Rukomet ── -->
     {% if mr_moje or mr_available_turniri %}
     <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">

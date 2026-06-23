@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, or_
 from typing import Optional
 from ..database import get_db
-from ..models import Klub, Admin, Uzrast, Sezona, Takmicenje, PrijavaKluba, Igrac, Registracija, SluzbenoLice, RegistracijaSL, PozicijaSL, Tabela, TabelaEkipa, Utakmica, TabelaSortPravilo, MiniRukometTurnir, MiniRukometUtakmica, MiniRukometPrijava
+from ..models import Klub, Admin, Uzrast, Sezona, Takmicenje, PrijavaKluba, Igrac, Registracija, SluzbenoLice, RegistracijaSL, PozicijaSL, Tabela, TabelaEkipa, Utakmica, TabelaSortPravilo, MiniRukometTurnir, MiniRukometUtakmica, MiniRukometPrijava, ZapisnikUtakmica
 from .tabele import _izracunaj
 from ..security import hash_password
 from .auth import get_current_user
@@ -372,6 +372,18 @@ async def klub_dashboard(request: Request, db: AsyncSession = Depends(get_db)):
             utakmice_mr = []
         mr_moje.append({"prijava": prijava, "turnir": turnir, "utakmice": utakmice_mr})
 
+    # ── Zapisnici ─────────────────────────────────────────
+    moji_zapisnici = (await db.execute(
+        select(ZapisnikUtakmica)
+        .where(
+            or_(
+                ZapisnikUtakmica.ekipa_a_id == klub_id,
+                ZapisnikUtakmica.ekipa_b_id == klub_id,
+            )
+        )
+        .order_by(ZapisnikUtakmica.datum.desc().nullslast(), ZapisnikUtakmica.kreiran_datum.desc())
+    )).scalars().all()
+
     return templates.TemplateResponse("dashboard_klub.html", {
         "request":          request,
         "user":             user,
@@ -391,6 +403,7 @@ async def klub_dashboard(request: Request, db: AsyncSession = Depends(get_db)):
         "today_day":         __import__('datetime').date.today().day,
         "mr_available_turniri": mr_available_turniri,
         "mr_moje":           mr_moje,
+        "moji_zapisnici":    moji_zapisnici,
     })
 
 
