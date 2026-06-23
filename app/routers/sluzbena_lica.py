@@ -96,14 +96,15 @@ async def klub_sl_page(request: Request, db: AsyncSession = Depends(get_db)):
 
 @router.post("/klub/sl/zahtjev")
 async def klub_sl_zahtjev(
-    request:        Request,
-    ime:            str = Form(...),
-    prezime:        str = Form(...),
-    datum_rodjenja: str = Form(""),
-    mjesto:         str = Form(""),
-    pozicija_id:    int = Form(...),
-    sezona_id:      int = Form(...),
-    db: AsyncSession   = Depends(get_db),
+    request:         Request,
+    ime:             str = Form(...),
+    prezime:         str = Form(...),
+    datum_rodjenja:  str = Form(""),
+    mjesto:          str = Form(""),
+    pozicija_id:     int = Form(...),
+    sezona_id:       int = Form(...),
+    br_registracije: str = Form(""),
+    db: AsyncSession    = Depends(get_db),
 ):
     user = get_current_user(request)
     if not user or user.get("tip") != "klub":
@@ -153,6 +154,7 @@ async def klub_sl_zahtjev(
         sluzbeno_lice_id=sl.id,
         klub_id=klub_id,
         sezona_id=sezona_id,
+        br_registracije=br_registracije.strip() or None,
         status="na_cekanju",
     ))
     await db.commit()
@@ -210,6 +212,7 @@ async def admin_sl_page(request: Request, db: AsyncSession = Depends(get_db)):
             "mjesto":        sl.mjesto or "—",
             "pozicija":      poz.naziv if poz else "—",
             "pozicija_id":   sl.pozicija_id,
+            "br":            r.br_registracije or "",
             "klub":          k.naziv_kluba,
             "klub_id":       k.id,
             "sezona":        s.naziv,
@@ -429,10 +432,10 @@ async def admin_sl_odobri(reg_id: int, request: Request, db: AsyncSession = Depe
 
     reg = await db.get(RegistracijaSL, reg_id)
     if reg and reg.status == "na_cekanju":
-        br = await _gen_br_sl(db, reg.klub_id, reg.sezona_id)
-        reg.br_registracije = br
-        reg.status          = "aktivna"
-        reg.odobren_datum   = datetime.datetime.now(datetime.timezone.utc)
+        if not reg.br_registracije:
+            reg.br_registracije = await _gen_br_sl(db, reg.klub_id, reg.sezona_id)
+        reg.status        = "aktivna"
+        reg.odobren_datum = datetime.datetime.now(datetime.timezone.utc)
         await _azuriraj_klub_sl(db, reg.sluzbeno_lice_id, reg.klub_id)
         await db.commit()
     return RedirectResponse("/admin/sluzbena-lica?tab=zahtjevi&ok=1", status_code=302)
@@ -451,6 +454,36 @@ async def admin_sl_odbij(reg_id: int, request: Request, db: AsyncSession = Depen
         await db.commit()
     return RedirectResponse("/admin/sluzbena-lica?tab=zahtjevi&ok=1", status_code=302)
 
+# ── Admin: Bulk odobravanje zahtjeva SL ────────────────────
+@router.post("/admin/reg-sl/odobri-bulk")
+async def admin_sl_odobri_bulk(
+    request:  Request,
+    reg_ids:  str = Form(...),
+    db: AsyncSession = Depends(get_db),
+):
+    user = get_current_user(request)
+    if not user or user.get("tip") not in ("admin", "moderator"):
+        return RedirectResponse("/login", status_code=302)
+    try:
+        ids = [int(x.strip()) for x in reg_ids.split(",") if x.strip()]
+    except ValueError:
+        return RedirectResponse("/admin/sluzbena-lica?tab=zahtjevi&error=ids", status_code=302)
+    if ids:
+        regs = (await db.execute(
+            select(RegistracijaSL).where(
+                RegistracijaSL.id.in_(ids),
+                RegistracijaSL.status == "na_cekanju",
+            )
+        )).scalars().all()
+        now = datetime.datetime.now(datetime.timezone.utc)
+        for reg in regs:
+            if not reg.br_registracije:
+                reg.br_registracije = await _gen_br_sl(db, reg.klub_id, reg.sezona_id)
+            reg.status        = "aktivna"
+            reg.odobren_datum = now
+            await _azuriraj_klub_sl(db, reg.sluzbeno_lice_id, reg.klub_id)
+        await db.commit()
+    return RedirectResponse("/admin/sluzbena-lica?tab=zahtjevi&ok=1", status_code=302)
 
 # ── Admin: Nevažeća registracija SL (NEPOVRATNO) ─────────────
 @router.post("/admin/reg-sl/{reg_id}/nevazeca")
