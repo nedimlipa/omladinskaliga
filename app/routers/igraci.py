@@ -1,7 +1,7 @@
-import datetime
+﻿import datetime
 from fastapi import APIRouter, Request, Depends, Form
+from ..templates_config import templates, local_dt_str
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
-from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from ..database import get_db
@@ -9,7 +9,6 @@ from ..models import Igrac, Registracija, Klub, Sezona, SluzbenoLice, Registraci
 from .auth import get_current_user
 
 router    = APIRouter()
-templates = Jinja2Templates(directory="app/templates")
 
 
 # ── Helper: generiraj broj registracije ──────────────────────
@@ -208,7 +207,7 @@ async def admin_igraci_page(request: Request, db: AsyncSession = Depends(get_db)
             "klub_id":       k.id,
             "sezona":        s.naziv,
             "sezona_id":     r.sezona_id,
-            "kreiran":       r.kreiran_datum.strftime("%d.%m.%Y %H:%M") if r.kreiran_datum else "—",
+            "kreiran":       local_dt_str(r.kreiran_datum),
         }
         for r, i, k, s in pending_rows
     ]

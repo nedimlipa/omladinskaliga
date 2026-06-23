@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Request, Depends, Form, HTTPException, UploadFile, File
+﻿from fastapi import APIRouter, Request, Depends, Form, HTTPException, UploadFile, File
+from ..templates_config import templates
 from fastapi.responses import HTMLResponse, RedirectResponse
-from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, or_
 from typing import Optional
@@ -13,7 +13,6 @@ import os, io, time
 from PIL import Image
 
 router = APIRouter()
-templates = Jinja2Templates(directory="app/templates")
 
 
 def require_admin(request: Request):

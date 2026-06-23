@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Request, Depends, Form, HTTPException
+﻿from fastapi import APIRouter, Request, Depends, Form, HTTPException
+from ..templates_config import templates
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
-from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete, or_
 from ..database import get_db
@@ -13,7 +13,6 @@ from typing import Optional
 import datetime
 
 router = APIRouter()
-templates = Jinja2Templates(directory="app/templates")
 
 KRITERIJI = [
     ("bodovi",           "Bodovi"),

@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Request, Form, Depends, Response
+﻿from fastapi import APIRouter, Request, Form, Depends, Response
+from ..templates_config import templates
 from fastapi.responses import HTMLResponse, RedirectResponse
-from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from ..database import get_db
@@ -8,7 +8,6 @@ from ..models import Klub, Admin
 from ..security import verify_password, create_token, decode_token
 
 router = APIRouter()
-templates = Jinja2Templates(directory="app/templates")
 
 
 def get_current_user(request: Request) -> dict | None:

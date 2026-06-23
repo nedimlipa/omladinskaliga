@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Request, Depends
+﻿from fastapi import APIRouter, Request, Depends
+from ..templates_config import templates
 from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from ..database import get_db
@@ -13,7 +13,6 @@ from collections import OrderedDict
 import datetime
 
 router = APIRouter()
-templates = Jinja2Templates(directory="app/templates")
 
 
 @router.get("/", response_class=HTMLResponse)
@@ -288,6 +287,7 @@ async def public_klub_profil(
     db:      AsyncSession = Depends(get_db),
 ):
     from fastapi import HTTPException
+from ..templates_config import templates
     from sqlalchemy import or_
 
     now = datetime.datetime.now(datetime.timezone.utc)

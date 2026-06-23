@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Request, Depends, Form
+﻿from fastapi import APIRouter, Request, Depends, Form
+from ..templates_config import templates
 from fastapi.responses import HTMLResponse, RedirectResponse
-from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from ..database import get_db
@@ -9,7 +9,6 @@ from .auth import get_current_user
 import datetime
 
 router = APIRouter()
-templates = Jinja2Templates(directory="app/templates")
 
 
 # ═══════════════════════════════════════════════════════════════
