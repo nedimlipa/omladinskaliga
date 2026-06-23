@@ -622,7 +622,7 @@ async def klub_zapisnik_view(
             .where(
                 Registracija.klub_id == klub_id,
                 Registracija.sezona_id == sezona_id,
-                Registracija.status == "odobren",
+                Registracija.status == "aktivna",
             )
             .order_by(Igrac.prezime, Igrac.ime)
         )).all()
@@ -642,7 +642,7 @@ async def klub_zapisnik_view(
             .where(
                 RegistracijaSL.klub_id == klub_id,
                 RegistracijaSL.sezona_id == sezona_id,
-                RegistracijaSL.status == "odobren",
+                RegistracijaSL.status == "aktivna",
             )
             .order_by(SluzbenoLice.prezime, SluzbenoLice.ime)
         )).all()
