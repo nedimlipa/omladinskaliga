@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="bs" id="html-root">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Zapisnik {{ z.br_utakmice or z.id }} | ORL Sjever</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23dc2626'/%3E%3Ccircle cx='16' cy='16' r='9' fill='white'/%3E%3Cpath d='M8 14q8-4 16 0M8 18q8 4 16 0M12 7q-4 9 0 18M20 7q4 9 0 18' stroke='%23dc2626' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"/>
+  <script>(function(){const t=localStorage.getItem('theme')||'dark';document.documentElement.classList.toggle('dark',t==='dark');})();</script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{sans:['Plus Jakarta Sans','system-ui','sans-serif']}}}}</script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;}.sidebar-transition{transition:transform 0.25s ease;}.tab-btn.active{border-bottom-color:rgb(220 38 38);color:rgb(220 38 38);}</style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased">
+
+<!-- NAVBAR -->
+<nav class="fixed top-0 z-50 w-full bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm">
+  <div class="px-4 py-3 lg:px-6">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <button id="sidebarToggle" type="button" class="inline-flex items-center p-2 text-gray-500 dark:text-gray-400 rounded-lg md:hidden hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <a href="/admin/dashboard" class="flex items-center gap-2.5">
+          <div class="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center text-base shadow shadow-red-900/40 flex-shrink-0">&#127942;</div>
+          <span class="text-base font-extrabold tracking-tight text-gray-900 dark:text-white hidden sm:block">ORL Sjever</span>
+        </a>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="themeToggle" type="button" class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+          <svg id="iconSun" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m8.66-9h-1M4.34 12h-1m15.07-6.07-.71.71M5.64 18.36l-.71.71M18.36 18.36l-.71-.71M5.64 5.64l-.71-.71M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
+          <svg id="iconMoon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        </button>
+        <span class="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-700/50">{{ user.tip }}</span>
+        <div class="relative">
+          <button id="userMenuBtn" type="button" class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition">
+            <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">{{ (user.ime[0]|upper) if user.ime else 'A' }}</div>
+            <span class="hidden sm:block font-semibold">{{ user.ime }}</span>
+          </button>
+          <div id="userMenu" class="hidden absolute right-0 top-10 z-50 w-44 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700">
+            <ul class="py-1"><li><a href="/logout" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-red-600 dark:hover:text-red-400 transition">Odjava</a></li></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- SIDEBAR -->
+<aside id="sidebar" class="sidebar-transition fixed top-0 left-0 z-40 w-64 h-screen pt-16 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 -translate-x-full md:translate-x-0">
+  <div class="h-full px-3 py-5 overflow-y-auto">
+    <ul class="space-y-1">
+      <li><a href="/admin/dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>Dashboard</a></li>
+      <li><a href="/admin/takmicenja" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>Takmičenja</a></li>
+      <li><a href="/admin/tabele" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 6h18M3 14h18M3 18h18"/></svg>Tabele</a></li>
+      <li><a href="/admin/igraci" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Igrači</a></li>
+      <li><a href="/admin/utakmice" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Utakmice</a></li>
+      <li><a href="/admin/sluzbena-lica" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/></svg>Službena lica</a></li>
+      <li><a href="/admin/mini-rukomet" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Mini Rukomet</a></li>
+      <li><a href="/admin/zapisnici" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Zapisnici</a></li>
+    </ul>
+  </div>
+</aside>
+<div id="sidebarOverlay" class="hidden fixed inset-0 z-30 bg-black/50 md:hidden"></div>
+
+<!-- MAIN -->
+<main class="md:ml-64 pt-16 min-h-screen">
+  <div class="px-4 sm:px-6 py-6 space-y-6">
+
+    <!-- Header -->
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-3 flex-wrap">
+          <a href="/admin/zapisnici" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition">← Zapisnici</a>
+          <h1 class="text-xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+            Zapisnik {% if z.br_utakmice %}<span class="text-red-600">{{ z.br_utakmice }}</span>{% else %}#{{ z.id }}{% endif %}
+          </h1>
+        </div>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          {% if z.ekipa_a or z.ekipa_b %}{{ z.ekipa_a or '?' }} vs {{ z.ekipa_b or '?' }}{% endif %}
+          {% if z.datum %} · {{ z.datum.strftime('%d.%m.%Y') }}{% if z.vrijeme %} {{ z.vrijeme }}{% endif %}{% endif %}
+          {% if z.liga %} · {{ z.liga }}{% endif %}
+        </p>
+      </div>
+      {% if z.zadnje_izmijenjeno %}
+      <div class="text-right text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">
+        <p>Zadnje spas.</p>
+        <p class="font-semibold text-gray-600 dark:text-gray-300">{{ z.zadnje_izmijenjeno | local_dt }}</p>
+        <p>{{ z.zadnje_spasio or '' }}</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Tabs -->
+    <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
+      <!-- Tab nav -->
+      <div class="flex border-b border-gray-200 dark:border-gray-800 overflow-x-auto">
+        <button class="tab-btn active px-5 py-3.5 text-sm font-bold border-b-2 border-transparent whitespace-nowrap transition" data-tab="zaglavlje">Zaglavlje</button>
+        <button class="tab-btn px-5 py-3.5 text-sm font-bold border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 whitespace-nowrap transition" data-tab="ekipa_a">Ekipa A <span class="ml-1 px-1.5 py-0.5 rounded-full text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">{{ igraci_a|length }}</span></button>
+        <button class="tab-btn px-5 py-3.5 text-sm font-bold border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 whitespace-nowrap transition" data-tab="ekipa_b">Ekipa B <span class="ml-1 px-1.5 py-0.5 rounded-full text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">{{ igraci_b|length }}</span></button>
+        <button class="tab-btn px-5 py-3.5 text-sm font-bold border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 whitespace-nowrap transition" data-tab="verifikacija">Verifikacija</button>
+      </div>
+
+      <!-- ═══ TAB: ZAGLAVLJE ═══ -->
+      <div id="panel-zaglavlje" class="tab-panel p-6">
+        <form method="POST" action="/admin/zapisnik/{{ z.id }}/uredi" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div><label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Datum</label>
+              <input type="date" name="datum" value="{{ z.datum.isoformat() if z.datum else '' }}" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
+            <div><label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Vrijeme</label>
+              <input type="time" name="vrijeme" value="{{ z.vrijeme or '' }}" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
+            <div><label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Kolo</label>
+              <input type="number" name="kolo" value="{{ z.kolo or '' }}" min="1" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div><label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Uzrast</label>
+              <input type="text" name="uzrast" value="{{ z.uzrast or '' }}" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
+            <div><label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Liga</label>
+              <input type="text" name="liga" value="{{ z.liga or '' }}" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
+          </div>
+          <!-- Br. utakmice (readonly) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div><label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Br. utakmice (auto)</label>
+              <input type="text" value="{{ z.br_utakmice or '—' }}" disabled class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800/50 px-3 py-2 text-sm text-gray-500 cursor-not-allowed"></div>
+            <div><label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Status utakmice</label>
+              <select name="status_utakmice" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+                {% for s in statusi %}<option value="{{ s }}" {% if z.status_utakmice == s %}selected{% endif %}>{{ s }}</option>{% endfor %}
+              </select></div>
+          </div>
+          <!-- Ekipe -->
+          <div class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 space-y-3">
+            <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Ekipe</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Ekipa A (naziv)</label>
+                <input type="text" name="ekipa_a" value="{{ z.ekipa_a or '' }}" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
+              <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Ekipa A (klub)</label>
+                <select name="ekipa_a_id" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+                  <option value="">— nije vezan —</option>
+                  {% for k in klubovi %}<option value="{{ k.id }}" {% if z.ekipa_a_id == k.id %}selected{% endif %}>{{ k.naziv_kluba }}</option>{% endfor %}
+                </select></div>
+              <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Ekipa B (naziv)</label>
+                <input type="text" name="ekipa_b" value="{{ z.ekipa_b or '' }}" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
+              <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Ekipa B (klub)</label>
+                <select name="ekipa_b_id" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+                  <option value="">— nije vezan —</option>
+                  {% for k in klubovi %}<option value="{{ k.id }}" {% if z.ekipa_b_id == k.id %}selected{% endif %}>{{ k.naziv_kluba }}</option>{% endfor %}
+                </select></div>
+            </div>
+          </div>
+          <!-- Funkcioneri -->
+          <div class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 space-y-3">
+            <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Funkcioneri</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {% set fields = [('sudija_a','Sudija A',z.sudija_a),('sudija_b','Sudija B',z.sudija_b),('delegat','Delegat',z.delegat),('zapisnicar','Zapisničar',z.zapisnicar),('mjerilac_vremena','Mjerilac vremena',z.mjerilac_vremena),('glavni_sluzbeni','Glavni službeni',z.glavni_sluzbeni),('ljekar','Ljekar',z.ljekar)] %}
+              {% for fname, flabel, fval in fields %}
+              <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">{{ flabel }}</label>
+                <input type="text" name="{{ fname }}" value="{{ fval or '' }}" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="flex justify-end pt-2">
+            <button type="submit" class="px-6 py-2.5 rounded-xl text-sm font-bold bg-red-600 hover:bg-red-700 text-white transition">Spasi zaglavlje</button>
+          </div>
+        </form>
+      </div><!-- /panel-zaglavlje -->
+
+      <!-- ═══ TAB: EKIPA A ═══ -->
+      <div id="panel-ekipa_a" class="tab-panel hidden p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="font-extrabold text-gray-900 dark:text-white">{{ z.ekipa_a or 'Ekipa A' }}</h3>
+            {% if z.ekipa_a_id %}<p class="text-xs text-gray-400">Klub može direktno unositi igrače na <a href="/klub/zapisnik/{{ z.id }}" class="text-red-500 hover:underline">/klub/zapisnik/{{ z.id }}</a></p>{% endif %}
+          </div>
+          <button onclick="openIgracModal('A', null)" class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-xl shadow-sm transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>Dodaj
+          </button>
+        </div>
+        {% include "admin_zapisnik_igrac_table.html" ignore missing %}
+        {% if igraci_a %}
+        <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
+          {% include "admin_zapisnik_igrac_table_a.html" ignore missing %}
+          <table class="w-full text-xs">
+            <thead class="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+              <tr class="text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wide">
+                <th class="px-3 py-2 text-left">#</th><th class="px-3 py-2 text-left">Tip</th><th class="px-3 py-2 text-left">Poz.</th>
+                <th class="px-3 py-2 text-left">Ime i prezime</th><th class="px-3 py-2 text-left">Reg#</th>
+                <th class="px-3 py-2 text-center">G</th><th class="px-3 py-2 text-center">O</th>
+                <th class="px-3 py-2 text-center">I</th><th class="px-3 py-2 text-center">I1</th><th class="px-3 py-2 text-center">I2</th>
+                <th class="px-3 py-2 text-center">CK</th><th class="px-3 py-2 text-center">PK</th>
+                <th class="px-3 py-2 text-center">TO1</th><th class="px-3 py-2 text-center">TO2</th>
+                <th class="px-3 py-2"></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+              {% for ig in igraci_a %}
+              <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
+                <td class="px-3 py-2 font-bold text-gray-900 dark:text-white">{{ ig.br_dresa or '—' }}</td>
+                <td class="px-3 py-2"><span class="px-1.5 py-0.5 rounded text-xs font-semibold {% if ig.tip == 'igrac' %}bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400{% else %}bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400{% endif %}">{{ 'Igrač' if ig.tip == 'igrac' else 'SL' }}</span></td>
+                <td class="px-3 py-2 text-gray-500 dark:text-gray-400">{{ ig.pozicija or '—' }}</td>
+                <td class="px-3 py-2 font-semibold text-gray-900 dark:text-white">{{ ig.ime_prezime }}</td>
+                <td class="px-3 py-2 text-gray-500 dark:text-gray-400">{{ ig.br_registracije or '—' }}</td>
+                <td class="px-3 py-2 text-center font-bold {% if ig.golovi > 0 %}text-green-600 dark:text-green-400{% else %}text-gray-400{% endif %}">{{ ig.golovi }}</td>
+                <td class="px-3 py-2 text-center {% if ig.opomene > 0 %}text-yellow-600 dark:text-yellow-400 font-bold{% else %}text-gray-400{% endif %}">{{ ig.opomene }}</td>
+                <td class="px-3 py-2 text-center {% if ig.iskljucenje > 0 %}text-orange-600 dark:text-orange-400 font-bold{% else %}text-gray-400{% endif %}">{{ ig.iskljucenje }}</td>
+                <td class="px-3 py-2 text-center {% if ig.iskljucenje_1 > 0 %}text-orange-600 dark:text-orange-400 font-bold{% else %}text-gray-400{% endif %}">{{ ig.iskljucenje_1 }}</td>
+                <td class="px-3 py-2 text-center {% if ig.iskljucenje_2 > 0 %}text-orange-600 dark:text-orange-400 font-bold{% else %}text-gray-400{% endif %}">{{ ig.iskljucenje_2 }}</td>
+                <td class="px-3 py-2 text-center">{% if ig.crveni_karton %}<span class="inline-block w-4 h-5 bg-red-600 rounded-sm"></span>{% else %}—{% endif %}</td>
+                <td class="px-3 py-2 text-center">{% if ig.plavi_karton %}<span class="inline-block w-4 h-5 bg-blue-600 rounded-sm"></span>{% else %}—{% endif %}</td>
+                <td class="px-3 py-2 text-center text-gray-600 dark:text-gray-400">{{ ig.time_out_1 or '—' }}</td>
+                <td class="px-3 py-2 text-center text-gray-600 dark:text-gray-400">{{ ig.time_out_2 or '—' }}</td>
+                <td class="px-3 py-2 text-right whitespace-nowrap">
+                  <button onclick="openIgracModal('A', {{ ig.id }}, '{{ ig.tip }}', '{{ ig.pozicija or '' }}', {{ ig.br_dresa or 'null' }}, '{{ ig.ime_prezime|replace("'", "\\'") }}', '{{ ig.br_registracije or '' }}', {{ ig.golovi }}, {{ ig.opomene }}, {{ ig.iskljucenje }}, {{ ig.iskljucenje_1 }}, {{ ig.iskljucenje_2 }}, {{ 'true' if ig.crveni_karton else 'false' }}, {{ 'true' if ig.plavi_karton else 'false' }}, {{ ig.time_out_1 }}, {{ ig.time_out_2 }})"
+                    class="px-2.5 py-1 rounded-lg text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition mr-1">Uredi</button>
+                  <form method="POST" action="/admin/zapisnik/{{ z.id }}/igrac/{{ ig.id }}/obrisi" class="inline" onsubmit="return confirm('Obrisati?')">
+                    <button type="submit" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 transition">×</button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="text-center py-8 text-gray-400 dark:text-gray-500 text-sm">Nema unesenih igrača za Ekipu A.</div>
+        {% endif %}
+      </div><!-- /panel-ekipa_a -->
+
+      <!-- ═══ TAB: EKIPA B ═══ -->
+      <div id="panel-ekipa_b" class="tab-panel hidden p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="font-extrabold text-gray-900 dark:text-white">{{ z.ekipa_b or 'Ekipa B' }}</h3>
+            {% if z.ekipa_b_id %}<p class="text-xs text-gray-400">Klub može direktno unositi igrače na <a href="/klub/zapisnik/{{ z.id }}" class="text-red-500 hover:underline">/klub/zapisnik/{{ z.id }}</a></p>{% endif %}
+          </div>
+          <button onclick="openIgracModal('B', null)" class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-xl shadow-sm transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>Dodaj
+          </button>
+        </div>
+        {% if igraci_b %}
+        <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
+          <table class="w-full text-xs">
+            <thead class="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+              <tr class="text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wide">
+                <th class="px-3 py-2 text-left">#</th><th class="px-3 py-2 text-left">Tip</th><th class="px-3 py-2 text-left">Poz.</th>
+                <th class="px-3 py-2 text-left">Ime i prezime</th><th class="px-3 py-2 text-left">Reg#</th>
+                <th class="px-3 py-2 text-center">G</th><th class="px-3 py-2 text-center">O</th>
+                <th class="px-3 py-2 text-center">I</th><th class="px-3 py-2 text-center">I1</th><th class="px-3 py-2 text-center">I2</th>
+                <th class="px-3 py-2 text-center">CK</th><th class="px-3 py-2 text-center">PK</th>
+                <th class="px-3 py-2 text-center">TO1</th><th class="px-3 py-2 text-center">TO2</th>
+                <th class="px-3 py-2"></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+              {% for ig in igraci_b %}
+              <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
+                <td class="px-3 py-2 font-bold text-gray-900 dark:text-white">{{ ig.br_dresa or '—' }}</td>
+                <td class="px-3 py-2"><span class="px-1.5 py-0.5 rounded text-xs font-semibold {% if ig.tip == 'igrac' %}bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400{% else %}bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400{% endif %}">{{ 'Igrač' if ig.tip == 'igrac' else 'SL' }}</span></td>
+                <td class="px-3 py-2 text-gray-500 dark:text-gray-400">{{ ig.pozicija or '—' }}</td>
+                <td class="px-3 py-2 font-semibold text-gray-900 dark:text-white">{{ ig.ime_prezime }}</td>
+                <td class="px-3 py-2 text-gray-500 dark:text-gray-400">{{ ig.br_registracije or '—' }}</td>
+                <td class="px-3 py-2 text-center font-bold {% if ig.golovi > 0 %}text-green-600 dark:text-green-400{% else %}text-gray-400{% endif %}">{{ ig.golovi }}</td>
+                <td class="px-3 py-2 text-center {% if ig.opomene > 0 %}text-yellow-600 dark:text-yellow-400 font-bold{% else %}text-gray-400{% endif %}">{{ ig.opomene }}</td>
+                <td class="px-3 py-2 text-center {% if ig.iskljucenje > 0 %}text-orange-600 dark:text-orange-400 font-bold{% else %}text-gray-400{% endif %}">{{ ig.iskljucenje }}</td>
+                <td class="px-3 py-2 text-center {% if ig.iskljucenje_1 > 0 %}text-orange-600 dark:text-orange-400 font-bold{% else %}text-gray-400{% endif %}">{{ ig.iskljucenje_1 }}</td>
+                <td class="px-3 py-2 text-center {% if ig.iskljucenje_2 > 0 %}text-orange-600 dark:text-orange-400 font-bold{% else %}text-gray-400{% endif %}">{{ ig.iskljucenje_2 }}</td>
+                <td class="px-3 py-2 text-center">{% if ig.crveni_karton %}<span class="inline-block w-4 h-5 bg-red-600 rounded-sm"></span>{% else %}—{% endif %}</td>
+                <td class="px-3 py-2 text-center">{% if ig.plavi_karton %}<span class="inline-block w-4 h-5 bg-blue-600 rounded-sm"></span>{% else %}—{% endif %}</td>
+                <td class="px-3 py-2 text-center text-gray-600 dark:text-gray-400">{{ ig.time_out_1 or '—' }}</td>
+                <td class="px-3 py-2 text-center text-gray-600 dark:text-gray-400">{{ ig.time_out_2 or '—' }}</td>
+                <td class="px-3 py-2 text-right whitespace-nowrap">
+                  <button onclick="openIgracModal('B', {{ ig.id }}, '{{ ig.tip }}', '{{ ig.pozicija or '' }}', {{ ig.br_dresa or 'null' }}, '{{ ig.ime_prezime|replace("'", "\\'") }}', '{{ ig.br_registracije or '' }}', {{ ig.golovi }}, {{ ig.opomene }}, {{ ig.iskljucenje }}, {{ ig.iskljucenje_1 }}, {{ ig.iskljucenje_2 }}, {{ 'true' if ig.crveni_karton else 'false' }}, {{ 'true' if ig.plavi_karton else 'false' }}, {{ ig.time_out_1 }}, {{ ig.time_out_2 }})"
+                    class="px-2.5 py-1 rounded-lg text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition mr-1">Uredi</button>
+                  <form method="POST" action="/admin/zapisnik/{{ z.id }}/igrac/{{ ig.id }}/obrisi" class="inline" onsubmit="return confirm('Obrisati?')">
+                    <button type="submit" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 transition">×</button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="text-center py-8 text-gray-400 dark:text-gray-500 text-sm">Nema unesenih igrača za Ekipu B.</div>
+        {% endif %}
+      </div><!-- /panel-ekipa_b -->
+
+      <!-- ═══ TAB: VERIFIKACIJA ═══ -->
+      <div id="panel-verifikacija" class="tab-panel hidden p-6">
+        <form method="POST" action="/admin/zapisnik/{{ z.id }}/verifikacija" class="space-y-4 max-w-md">
+          {% macro ver_row(label, field, val) %}
+          <div class="flex items-center justify-between p-4 rounded-xl border border-gray-200 dark:border-gray-700">
+            <span class="font-semibold text-sm text-gray-700 dark:text-gray-300">{{ label }}</span>
+            <div class="flex items-center gap-3">
+              {% if val %}<span class="px-2 py-0.5 rounded-full text-xs font-bold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">✓ Verificirano</span>
+              {% else %}<span class="px-2 py-0.5 rounded-full text-xs font-bold bg-gray-100 dark:bg-gray-700 text-gray-500">Na čekanju</span>{% endif %}
+              <select name="{{ field }}" class="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-2 py-1 text-xs font-bold focus:ring-2 focus:ring-red-500 focus:outline-none">
+                <option value="da" {% if val %}selected{% endif %}>Da</option>
+                <option value="ne" {% if not val %}selected{% endif %}>Ne</option>
+              </select>
+            </div>
+          </div>
+          {% endmacro %}
+          {{ ver_row('Verifikacija Sudija A', 'verifikacija_sudija_a', z.verifikacija_sudija_a) }}
+          {{ ver_row('Verifikacija Sudija B', 'verifikacija_sudija_b', z.verifikacija_sudija_b) }}
+          {{ ver_row('Verifikacija Delegat', 'verifikacija_delegat', z.verifikacija_delegat) }}
+          <button type="submit" class="px-6 py-2.5 rounded-xl text-sm font-bold bg-red-600 hover:bg-red-700 text-white transition">Spasi verifikacije</button>
+        </form>
+      </div><!-- /panel-verifikacija -->
+
+    </div><!-- /card -->
+  </div>
+</main>
+
+<!-- ═══════════ MODAL: IGRAČ ═══════════ -->
+<div id="modalIgrac" class="hidden fixed inset-0 z-50 flex items-start justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+  <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 w-full max-w-2xl my-8">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+      <h2 id="modalIgracTitle" class="text-base font-extrabold text-gray-900 dark:text-white">Dodaj igrača</h2>
+      <button onclick="closeIgracModal()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <form id="igracForm" method="POST" class="p-6 space-y-4">
+      <input type="hidden" id="fTim" name="tim" value="A">
+      <div class="grid grid-cols-2 gap-4">
+        <div><label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Tip</label>
+          <select id="fTip" name="tip" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+            <option value="igrac">Igrač</option>
+            <option value="sluzbeno_lice">Službeno lice</option>
+          </select></div>
+        <div><label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Pozicija</label>
+          <input id="fPozicija" type="text" name="pozicija" placeholder="GK, LK, Trener…" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
+        <div><label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Br. dresa</label>
+          <input id="fBrDresa" type="number" name="br_dresa" min="1" max="99" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
+        <div><label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Br. registracije</label>
+          <input id="fBrReg" type="text" name="br_registracije" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
+      </div>
+      <div><label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Ime i prezime <span class="text-red-500">*</span></label>
+        <input id="fIme" type="text" name="ime_prezime" required class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
+
+      <!-- Statistika -->
+      <div class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 space-y-3">
+        <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Statistika</p>
+        <div class="grid grid-cols-3 gap-3">
+          <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Golovi</label>
+            <input id="fGolovi" type="number" name="golovi" value="0" min="0" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
+          <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Opomene</label>
+            <input id="fOpomene" type="number" name="opomene" value="0" min="0" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
+          <div><!-- spacer --></div>
+          <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Isključenje</label>
+            <input id="fI" type="number" name="iskljucenje" value="0" min="0" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
+          <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Isključenje 1</label>
+            <input id="fI1" type="number" name="iskljucenje_1" value="0" min="0" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
+          <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Isključenje 2</label>
+            <input id="fI2" type="number" name="iskljucenje_2" value="0" min="0" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
+          <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Crveni karton</label>
+            <select id="fCK" name="crveni_karton" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+              <option value="ne">Ne</option><option value="da">Da</option>
+            </select></div>
+          <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Plavi karton</label>
+            <select id="fPK" name="plavi_karton" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+              <option value="ne">Ne</option><option value="da">Da</option>
+            </select></div>
+          <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Time out 1 (min)</label>
+            <input id="fTO1" type="number" name="time_out_1" value="0" min="0" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
+          <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Time out 2 (min)</label>
+            <input id="fTO2" type="number" name="time_out_2" value="0" min="0" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3 pt-2">
+        <button type="button" onclick="closeIgracModal()" class="px-5 py-2.5 rounded-xl text-sm font-bold bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition">Odustani</button>
+        <button type="submit" class="px-5 py-2.5 rounded-xl text-sm font-bold bg-red-600 hover:bg-red-700 text-white transition">Spasi</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// Theme
+const html=document.documentElement,btn=document.getElementById('themeToggle'),sun=document.getElementById('iconSun'),moon=document.getElementById('iconMoon');
+function applyTheme(t){html.classList.toggle('dark',t==='dark');sun.classList.toggle('hidden',t!=='dark');moon.classList.toggle('hidden',t==='dark');localStorage.setItem('theme',t);}
+applyTheme(localStorage.getItem('theme')||'dark');
+btn.addEventListener('click',()=>applyTheme(html.classList.contains('dark')?'light':'dark'));
+document.getElementById('userMenuBtn').addEventListener('click',function(e){e.stopPropagation();document.getElementById('userMenu').classList.toggle('hidden');});
+document.addEventListener('click',()=>document.getElementById('userMenu').classList.add('hidden'));
+const sb=document.getElementById('sidebar'),ov=document.getElementById('sidebarOverlay'),tg=document.getElementById('sidebarToggle');
+tg.addEventListener('click',()=>{sb.classList.toggle('-translate-x-full');ov.classList.toggle('hidden');});
+ov.addEventListener('click',()=>{sb.classList.add('-translate-x-full');ov.classList.add('hidden');});
+
+// Tabs
+const tabBtns={};document.querySelectorAll('.tab-btn').forEach(b=>{tabBtns[b.dataset.tab]=b;});
+function switchTab(t){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.add('hidden'));
+  document.querySelectorAll('.tab-btn').forEach(b=>{b.classList.remove('active');b.classList.add('text-gray-500','dark:text-gray-400');});
+  document.getElementById('panel-'+t).classList.remove('hidden');
+  tabBtns[t].classList.add('active');tabBtns[t].classList.remove('text-gray-500','dark:text-gray-400');
+}
+document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+// Active tab from URL param
+const urlTab=new URLSearchParams(location.search).get('tab');
+if(urlTab && tabBtns[urlTab]) switchTab(urlTab); else switchTab('zaglavlje');
+
+// Igrač modal
+const ZID = {{ z.id }};
+function openIgracModal(tim, iid, tip, poz, dres, ime, reg, g, o, i, i1, i2, ck, pk, to1, to2) {
+  const f = document.getElementById('igracForm');
+  document.getElementById('fTim').value = tim;
+  if (iid) {
+    f.action = `/admin/zapisnik/${ZID}/igrac/${iid}/uredi`;
+    document.getElementById('modalIgracTitle').textContent = 'Uredi igrača';
+  } else {
+    f.action = `/admin/zapisnik/${ZID}/igrac/dodaj`;
+    document.getElementById('modalIgracTitle').textContent = 'Dodaj igrača';
+    // Reset
+    ['fTip','fPozicija','fBrDresa','fIme','fBrReg','fGolovi','fOpomene','fI','fI1','fI2','fTO1','fTO2'].forEach(id=>{
+      const el=document.getElementById(id);if(el){if(el.tagName==='SELECT'){el.value=id==='fTip'?'igrac':'ne';}else{el.value=id.startsWith('f')&&id!=='fTip'&&id!=='fIme'&&id!=='fPozicija'&&id!=='fBrReg'?'0':''}}});
+    document.getElementById('fCK').value='ne';document.getElementById('fPK').value='ne';
+    document.getElementById('modalIgrac').classList.remove('hidden');return;
+  }
+  document.getElementById('fTip').value=tip||'igrac';
+  document.getElementById('fPozicija').value=poz||'';
+  if(dres){document.getElementById('fBrDresa').value=dres;}else{document.getElementById('fBrDresa').value='';}
+  document.getElementById('fIme').value=ime||'';
+  document.getElementById('fBrReg').value=reg||'';
+  document.getElementById('fGolovi').value=g||0;
+  document.getElementById('fOpomene').value=o||0;
+  document.getElementById('fI').value=i||0;
+  document.getElementById('fI1').value=i1||0;
+  document.getElementById('fI2').value=i2||0;
+  document.getElementById('fCK').value=ck?'da':'ne';
+  document.getElementById('fPK').value=pk?'da':'ne';
+  document.getElementById('fTO1').value=to1||0;
+  document.getElementById('fTO2').value=to2||0;
+  document.getElementById('modalIgrac').classList.remove('hidden');
+}
+function closeIgracModal(){document.getElementById('modalIgrac').classList.add('hidden');}
+document.getElementById('modalIgrac').addEventListener('click',function(e){if(e.target===this)closeIgracModal();});
+</script>
+</body>
+</html>

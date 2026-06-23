@@ -259,3 +259,63 @@ class MiniRukometPrijava(Base):
     status       = Column(String(20), nullable=False, default="na_cekanju")  # na_cekanju / odobren
     kreiran_datum = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
+
+# ─────────────────────────────────────────────────────────────
+#  ZAPISNIK UTAKMICE
+# ─────────────────────────────────────────────────────────────
+
+class ZapisnikUtakmica(Base):
+    """Zvanični zapisnik rukomet utakmice."""
+    __tablename__ = "zapisnik_utakmica"
+
+    id                     = Column(Integer, primary_key=True)
+    br_utakmice            = Column(String(30), unique=True, nullable=True)
+    datum                  = Column(Date, nullable=True)
+    vrijeme                = Column(String(10), nullable=True)          # HH:MM
+    kolo                   = Column(SmallInteger, nullable=True)
+    uzrast                 = Column(String(50), nullable=True)
+    liga                   = Column(String(200), nullable=True)
+    ekipa_a                = Column(String(200), nullable=True)
+    ekipa_b                = Column(String(200), nullable=True)
+    ekipa_a_id             = Column(Integer, ForeignKey("klubovi.id"), nullable=True)
+    ekipa_b_id             = Column(Integer, ForeignKey("klubovi.id"), nullable=True)
+    sudija_a               = Column(String(200), nullable=True)
+    sudija_b               = Column(String(200), nullable=True)
+    delegat                = Column(String(200), nullable=True)
+    zapisnicar             = Column(String(200), nullable=True)
+    mjerilac_vremena       = Column(String(200), nullable=True)
+    glavni_sluzbeni        = Column(String(200), nullable=True)
+    ljekar                 = Column(String(200), nullable=True)
+    status_utakmice        = Column(String(50), nullable=False, default="Zakazana")
+    verifikacija_sudija_a  = Column(Boolean, nullable=False, default=False)
+    verifikacija_sudija_b  = Column(Boolean, nullable=False, default=False)
+    verifikacija_delegat   = Column(Boolean, nullable=False, default=False)
+    zadnje_spasio          = Column(String(200), nullable=True)
+    zadnje_izmijenjeno     = Column(DateTime(timezone=True), nullable=True)
+    kreiran_datum          = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+
+class ZapisnikIgrac(Base):
+    """Igrač ili službeno lice u zapisniku utakmice."""
+    __tablename__ = "zapisnik_igrac"
+
+    id                 = Column(Integer, primary_key=True)
+    zapisnik_id        = Column(Integer, ForeignKey("zapisnik_utakmica.id"), nullable=False)
+    tim                = Column(String(1), nullable=False)              # A | B
+    tip                = Column(String(20), nullable=False, default="igrac")  # igrac | sluzbeno_lice
+    pozicija           = Column(String(50), nullable=True)
+    br_dresa           = Column(SmallInteger, nullable=True)
+    ime_prezime        = Column(String(200), nullable=False)
+    br_registracije    = Column(String(50), nullable=True)
+    golovi             = Column(SmallInteger, nullable=False, default=0)
+    opomene            = Column(SmallInteger, nullable=False, default=0)
+    iskljucenje        = Column(SmallInteger, nullable=False, default=0)
+    iskljucenje_1      = Column(SmallInteger, nullable=False, default=0)
+    iskljucenje_2      = Column(SmallInteger, nullable=False, default=0)
+    crveni_karton      = Column(Boolean, nullable=False, default=False)
+    plavi_karton       = Column(Boolean, nullable=False, default=False)
+    time_out_1         = Column(SmallInteger, nullable=False, default=0)
+    time_out_2         = Column(SmallInteger, nullable=False, default=0)
+    zadnje_spasio      = Column(String(200), nullable=True)
+    zadnje_izmijenjeno = Column(DateTime(timezone=True), nullable=True)
+
