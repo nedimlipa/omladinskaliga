@@ -7,44 +7,45 @@
   <style>
     *{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:Arial,Helvetica,sans-serif;font-size:9pt;color:#000;background:#fff;}
-    .page{width:210mm;min-height:297mm;margin:0 auto;padding:8mm 10mm;}
+    .page{width:210mm;min-height:297mm;margin:0 auto;padding:6mm 8mm;}
 
     table{border-collapse:collapse;width:100%;}
-    td,th{border:1px solid #000;padding:2px 4px;vertical-align:middle;}
+    td,th{border:1px solid #000;padding:1px 3px;vertical-align:middle;}
     .nb{border:none!important;}
 
-    .title{text-align:center;font-size:15pt;font-weight:bold;letter-spacing:1px;margin-bottom:6px;}
-    .section-hdr{background:#000;color:#fff;text-align:center;font-weight:bold;padding:3px;}
-    .team-a{background:#1565C0;color:#fff;text-align:center;font-weight:bold;font-size:11pt;padding:6px;}
-    .team-b{background:#C62828;color:#fff;text-align:center;font-weight:bold;font-size:11pt;padding:6px;}
-    .score-cell{text-align:center;font-size:20pt;font-weight:bold;padding:6px;}
-    .half{text-align:center;font-size:9pt;color:#555;}
-    .verified{background:#2E7D32;color:#fff;text-align:center;font-weight:bold;font-size:12pt;padding:4px;margin:5px 0;letter-spacing:2px;}
-    .not-verified{background:#B71C1C;color:#fff;text-align:center;font-weight:bold;font-size:10pt;padding:3px;margin:5px 0;}
+    .title{text-align:center;font-size:14pt;font-weight:bold;letter-spacing:1px;margin-bottom:5px;}
+    .section-hdr{background:#000;color:#fff;text-align:center;font-weight:bold;padding:2px;}
+    .team-a{background:#1565C0;color:#fff;text-align:center;font-weight:bold;font-size:10pt;padding:4px;}
+    .team-b{background:#C62828;color:#fff;text-align:center;font-weight:bold;font-size:10pt;padding:4px;}
+    .score-cell{text-align:center;font-size:18pt;font-weight:bold;padding:4px;}
+    .half{text-align:center;font-size:8pt;color:#555;}
+    .verified{background:#2E7D32;color:#fff;text-align:center;font-weight:bold;font-size:11pt;padding:3px;margin:4px 0;letter-spacing:2px;}
+    .not-verified{background:#B71C1C;color:#fff;text-align:center;font-weight:bold;font-size:9pt;padding:2px;margin:4px 0;}
 
-    .tbl-hdr-a{background:#1565C0;color:#fff;text-align:center;font-weight:bold;font-size:8pt;padding:2px;}
-    .tbl-hdr-b{background:#C62828;color:#fff;text-align:center;font-weight:bold;font-size:8pt;padding:2px;}
-    .col-hdr{background:#d0d0d0;font-weight:bold;text-align:center;font-size:7.5pt;}
-    .sl-hdr{background:#333;color:#fff;text-align:center;font-weight:bold;font-size:8pt;padding:2px;}
-    .sl-hdr-a{background:#1565C0;color:#fff;font-weight:bold;font-size:8pt;padding:2px;}
-    .sl-hdr-b{background:#C62828;color:#fff;font-weight:bold;font-size:8pt;padding:2px;}
+    .tbl-hdr-a{background:#1565C0;color:#fff;text-align:center;font-weight:bold;font-size:7.5pt;padding:2px;}
+    .tbl-hdr-b{background:#C62828;color:#fff;text-align:center;font-weight:bold;font-size:7.5pt;padding:2px;}
+    .col-hdr{background:#d0d0d0;font-weight:bold;text-align:center;font-size:7pt;}
+    .sl-hdr{background:#333;color:#fff;text-align:center;font-weight:bold;font-size:7.5pt;padding:2px;}
+    .sl-hdr-a{background:#1565C0;color:#fff;font-weight:bold;font-size:7.5pt;padding:2px;}
+    .sl-hdr-b{background:#C62828;color:#fff;font-weight:bold;font-size:7.5pt;padding:2px;}
 
     .no-print{background:#f0f0f0;padding:6px 10px;margin-bottom:8px;display:flex;gap:10px;align-items:center;border-bottom:1px solid #ccc;}
     .no-print a,.no-print button{font-size:10pt;padding:4px 12px;border:1px solid #666;border-radius:3px;cursor:pointer;background:#fff;text-decoration:none;color:#000;}
     .no-print button:hover{background:#e0e0e0;}
 
-    .mt{margin-top:5px;}
-    .empty-row td{height:14px;}
+    .mt{margin-top:4px;}
+    .empty-row td{height:12px;}
     td.center{text-align:center;}
     td.bold{font-weight:bold;}
     .label{font-weight:bold;}
-    .sign{margin-top:20px;}
+    .sign{margin-top:16px;}
     .sign table td{border:none;padding:4px 2px;}
 
+    @page{size:A4 portrait;margin:8mm 8mm;}
     @media print{
       .no-print{display:none!important;}
       body{margin:0;}
-      .page{padding:5mm 8mm;}
+      .page{padding:0;width:100%;}
     }
   </style>
 </head>
@@ -170,12 +171,12 @@
   <!-- IGRAČI TABELA -->
   {% macro players_table(igraci, side) %}
   {% set players = igraci | selectattr('tip', 'equalto', 'igrac') | list %}
-  <table style="font-size:7.5pt;">
-    <tr><td colspan="12" class="tbl-hdr-{{ side }}">{{ z.ekipa_a if side == 'a' else z.ekipa_b }}</td></tr>
+  <table style="font-size:7pt;">
+    <tr><td colspan="11" class="tbl-hdr-{{ side }}">{{ z.ekipa_a if side == 'a' else z.ekipa_b }}</td></tr>
     <tr>
       <th class="col-hdr" style="width:5%">Br</th>
-      <th class="col-hdr" style="width:10%">Reg</th>
-      <th class="col-hdr" style="width:29%">Ime i prezime</th>
+      <th class="col-hdr" style="width:15%">Reg</th>
+      <th class="col-hdr" style="width:28%">Ime i prezime</th>
       <th class="col-hdr" style="width:5%">G</th>
       <th class="col-hdr" style="width:5%">O</th>
       <th class="col-hdr" style="width:8%">2+1</th>
@@ -183,13 +184,12 @@
       <th class="col-hdr" style="width:8%">2+3</th>
       <th class="col-hdr" style="width:5%">C</th>
       <th class="col-hdr" style="width:5%">P</th>
-      <th class="col-hdr" style="width:6%">7mD</th>
-      <th class="col-hdr" style="width:6%">7mP</th>
+      <th class="col-hdr" style="width:8%">7M</th>
     </tr>
     {% for ig in players %}
     <tr>
       <td class="center">{{ ig.br_dresa or '' }}</td>
-      <td class="center">{{ ig.br_registracije or '' }}</td>
+      <td class="center" style="word-break:break-all;">{{ ig.br_registracije or '' }}</td>
       <td>{{ ig.ime_prezime }}</td>
       <td class="center">{{ ig.golovi if ig.golovi else '' }}</td>
       <td class="center">{{ ig.opomene if ig.opomene else '' }}</td>
@@ -198,12 +198,11 @@
       <td class="center">{{ ig.iskljucenje or '' }}</td>
       <td class="center">{% if ig.crveni_karton %}✗{% endif %}</td>
       <td class="center">{% if ig.plavi_karton %}✗{% endif %}</td>
-      <td class="center">{{ ig.sedam_m_dato if ig.sedam_m_dato else '' }}</td>
-      <td class="center">{{ ig.sedam_m_promj if ig.sedam_m_promj else '' }}</td>
+      <td class="center">{% if ig.sedam_m_dato or ig.sedam_m_promj %}{{ ig.sedam_m_dato or 0 }}/{{ ig.sedam_m_promj or 0 }}{% endif %}</td>
     </tr>
     {% endfor %}
-    {% for i in range([16 - players|length, 0]|max) %}
-    <tr class="empty-row"><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    {% for i in range([14 - players|length, 0]|max) %}
+    <tr class="empty-row"><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
     {% endfor %}
   </table>
   {% endmacro %}
