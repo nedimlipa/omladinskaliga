@@ -10,7 +10,8 @@ from sqlalchemy import select, func, delete
 
 from ..templates_config import templates
 from ..database import get_db
-from ..models import ZapisnikUtakmica, ZapisnikIgrac, Klub, Utakmica, Tabela, Uzrast, Takmicenje, PrijavaKluba
+from ..models import (ZapisnikUtakmica, ZapisnikIgrac, Klub, Utakmica, Tabela, Uzrast, Takmicenje,
+                      PrijavaKluba, Igrac, Registracija, SluzbenoLice, RegistracijaSL)
 from .auth import get_current_user
 
 try:
@@ -529,9 +530,55 @@ async def klub_zapisnik_view(
     )
     igraci = res.scalars().all()
 
+    # Determine season via: zapisnik → utakmica → tabela → uzrast → sezona
+    sezona_id = None
+    if z.utakmica_id:
+        u = await db.get(Utakmica, z.utakmica_id)
+        if u:
+            t = await db.get(Tabela, u.tabela_id)
+            if t:
+                uz = await db.get(Uzrast, t.uzrast_id)
+                if uz:
+                    sezona_id = uz.sezona_id
+
+    reg_igraci: list = []
+    reg_sl: list = []
+
+    if sezona_id:
+        rows_ig = (await db.execute(
+            select(Igrac.ime, Igrac.prezime, Registracija.br_registracije)
+            .join(Registracija, Registracija.igrac_id == Igrac.id)
+            .where(
+                Registracija.klub_id == klub_id,
+                Registracija.sezona_id == sezona_id,
+                Registracija.status == "odobren",
+            )
+            .order_by(Igrac.prezime, Igrac.ime)
+        )).all()
+        reg_igraci = [
+            {"ime_prezime": f"{r.ime} {r.prezime}", "br_reg": r.br_registracije or ""}
+            for r in rows_ig
+        ]
+
+        rows_sl = (await db.execute(
+            select(SluzbenoLice.ime, SluzbenoLice.prezime, RegistracijaSL.br_registracije)
+            .join(RegistracijaSL, RegistracijaSL.sluzbeno_lice_id == SluzbenoLice.id)
+            .where(
+                RegistracijaSL.klub_id == klub_id,
+                RegistracijaSL.sezona_id == sezona_id,
+                RegistracijaSL.status == "odobren",
+            )
+            .order_by(SluzbenoLice.prezime, SluzbenoLice.ime)
+        )).all()
+        reg_sl = [
+            {"ime_prezime": f"{r.ime} {r.prezime}", "br_reg": r.br_registracije or ""}
+            for r in rows_sl
+        ]
+
     return templates.TemplateResponse("klub_zapisnik.html", {
         "request": request, "user": user, "z": z,
         "moj_tim": moj_tim, "igraci": igraci,
+        "reg_igraci": reg_igraci, "reg_sl": reg_sl,
     })
 
 
