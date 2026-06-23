@@ -287,7 +287,6 @@ async def public_klub_profil(
     db:      AsyncSession = Depends(get_db),
 ):
     from fastapi import HTTPException
-from ..templates_config import templates
     from sqlalchemy import or_
 
     now = datetime.datetime.now(datetime.timezone.utc)
