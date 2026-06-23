@@ -358,6 +358,9 @@ async def admin_odobri(reg_id: int, request: Request, db: AsyncSession = Depends
             reg.br_registracije = await _gen_br(db, reg.klub_id, reg.sezona_id)
         reg.status        = "aktivna"
         reg.odobren_datum = datetime.datetime.now(datetime.timezone.utc)
+        igrac = await db.get(Igrac, reg.igrac_id)
+        if igrac and igrac.status == "neaktivan":
+            igrac.status = "aktivan"
         await _azuriraj_klub(db, reg.igrac_id, reg.klub_id)
         await db.commit()
     return RedirectResponse("/admin/igraci?tab=zahtjevi&ok=1", status_code=302)
@@ -419,6 +422,9 @@ async def admin_odobri_bulk(
                 reg.br_registracije = await _gen_br(db, reg.klub_id, reg.sezona_id)
             reg.status        = "aktivna"
             reg.odobren_datum = now
+            igrac = await db.get(Igrac, reg.igrac_id)
+            if igrac and igrac.status == "neaktivan":
+                igrac.status = "aktivan"
             await _azuriraj_klub(db, reg.igrac_id, reg.klub_id)
         await db.commit()
     return RedirectResponse("/admin/igraci?tab=zahtjevi&ok=1", status_code=302)
@@ -579,6 +585,22 @@ async def print_igraci_kluba(klub_id: int, request: Request, db: AsyncSession = 
         "sezona_naziv": None,
     })
 
+
+
+# ── API: Broj zahtjeva na čekanju (za sidebar badge) ────────
+@router.get("/admin/api/zahtjevi-count")
+async def admin_zahtjevi_count(request: Request, db: AsyncSession = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    user = get_current_user(request)
+    if not user or user.get("tip") not in ("admin", "moderator"):
+        return JSONResponse({"igraci": 0, "sl": 0, "total": 0})
+    igraci_n = (await db.execute(
+        select(func.count(Registracija.id)).where(Registracija.status == "na_cekanju")
+    )).scalar() or 0
+    sl_n = (await db.execute(
+        select(func.count(RegistracijaSL.id)).where(RegistracijaSL.status == "na_cekanju")
+    )).scalar() or 0
+    return JSONResponse({"igraci": int(igraci_n), "sl": int(sl_n), "total": int(igraci_n + sl_n)})
 
 
 # ═══════════════════════════════════════════════════════════════

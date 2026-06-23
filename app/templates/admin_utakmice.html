@@ -232,5 +232,11 @@ document.getElementById('themeToggle')?.addEventListener('click', () => {
   localStorage.setItem('theme', t); applyTheme(t);
 });
 </script>
-</body>
+<script>
+// Sidebar pending badges
+fetch('/admin/api/zahtjevi-count').then(r=>r.json()).then(d=>{
+  if(d.igraci>0){const el=document.querySelector('a[href="/admin/igraci"]');if(el)el.insertAdjacentHTML('beforeend','<span class="ml-auto bg-red-500 text-white text-[10px] font-extrabold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none">'+d.igraci+'</span>');}
+  if(d.sl>0){const el=document.querySelector('a[href="/admin/sluzbena-lica"]');if(el)el.insertAdjacentHTML('beforeend','<span class="ml-auto bg-red-500 text-white text-[10px] font-extrabold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none">'+d.sl+'</span>');}
+}).catch(()=>{});
+</script></body>
 </html>

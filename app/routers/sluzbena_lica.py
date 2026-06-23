@@ -436,6 +436,9 @@ async def admin_sl_odobri(reg_id: int, request: Request, db: AsyncSession = Depe
             reg.br_registracije = await _gen_br_sl(db, reg.klub_id, reg.sezona_id)
         reg.status        = "aktivna"
         reg.odobren_datum = datetime.datetime.now(datetime.timezone.utc)
+        sl = await db.get(SluzbenoLice, reg.sluzbeno_lice_id)
+        if sl and sl.status == "neaktivan":
+            sl.status = "aktivan"
         await _azuriraj_klub_sl(db, reg.sluzbeno_lice_id, reg.klub_id)
         await db.commit()
     return RedirectResponse("/admin/sluzbena-lica?tab=zahtjevi&ok=1", status_code=302)
@@ -481,6 +484,9 @@ async def admin_sl_odobri_bulk(
                 reg.br_registracije = await _gen_br_sl(db, reg.klub_id, reg.sezona_id)
             reg.status        = "aktivna"
             reg.odobren_datum = now
+            sl = await db.get(SluzbenoLice, reg.sluzbeno_lice_id)
+            if sl and sl.status == "neaktivan":
+                sl.status = "aktivan"
             await _azuriraj_klub_sl(db, reg.sluzbeno_lice_id, reg.klub_id)
         await db.commit()
     return RedirectResponse("/admin/sluzbena-lica?tab=zahtjevi&ok=1", status_code=302)
