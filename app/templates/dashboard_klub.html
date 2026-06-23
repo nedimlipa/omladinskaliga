@@ -701,15 +701,15 @@
     </div>
 
     {% if mr_moje %}
-    <div class="divide-y divide-gray-100 dark:divide-gray-800/60">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
       {% for item in mr_moje %}
-      <div class="px-5 py-4">
-        <div class="flex items-center justify-between mb-3">
-          <div>
-            <p class="text-xs font-extrabold text-red-500 dark:text-red-400 uppercase tracking-widest">{{ item.turnir.naziv }}</p>
-            <p class="text-sm font-bold text-gray-900 dark:text-white mt-0.5">{{ item.prijava.naziv_ekipe }}</p>
+      <div class="border border-gray-100 dark:border-gray-800 rounded-xl overflow-hidden">
+        <div class="flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800">
+          <div class="min-w-0">
+            <p class="text-[10px] font-extrabold text-red-500 dark:text-red-400 uppercase tracking-widest truncate">{{ item.turnir.naziv }}</p>
+            <p class="text-sm font-bold text-gray-900 dark:text-white mt-0.5 truncate">{{ item.prijava.naziv_ekipe }}</p>
           </div>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 flex-shrink-0 ml-2">
             <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold
               {% if item.prijava.status == 'odobren' %}bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400
               {% else %}bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400{% endif %}">
@@ -725,25 +725,31 @@
           </div>
         </div>
         {% if item.utakmice %}
-        <div class="space-y-2">
+        <div class="px-4 py-3 space-y-2">
           {% for u in item.utakmice %}
-          <div class="flex items-center gap-3 p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800/50">
-            {% if u.kolo %}<span class="text-[10px] font-extrabold text-gray-400 dark:text-gray-500 w-8 text-center">K{{ u.kolo }}</span>{% endif %}
-            <span class="flex-1 text-xs font-bold text-right truncate {% if u.ekipa_a == item.prijava.naziv_ekipe %}text-red-600 dark:text-red-400{% else %}text-gray-700 dark:text-gray-300{% endif %}">{{ u.ekipa_a }}</span>
+          <div class="flex items-center gap-2 py-1.5 px-2 rounded-lg bg-gray-50 dark:bg-gray-800/50 text-xs">
+            {% if u.kolo %}<span class="text-[10px] font-extrabold text-gray-400 dark:text-gray-500 w-7 text-center flex-shrink-0">K{{ u.kolo }}</span>{% endif %}
+            <span class="flex-1 font-bold text-right truncate {% if u.ekipa_a == item.prijava.naziv_ekipe %}text-red-600 dark:text-red-400{% else %}text-gray-700 dark:text-gray-300{% endif %}">{{ u.ekipa_a }}</span>
             {% if u.gol_a is not none and u.gol_b is not none %}
-            <span class="px-2.5 py-1 rounded-lg text-xs font-extrabold tabular-nums bg-gray-900 dark:bg-gray-950 text-white border border-gray-700 flex-shrink-0">{{ u.gol_a }} : {{ u.gol_b }}</span>
+            <span class="px-2 py-0.5 rounded-lg font-extrabold tabular-nums bg-gray-900 dark:bg-gray-950 text-white border border-gray-700 flex-shrink-0 text-[11px]">{{ u.gol_a }}:{{ u.gol_b }}</span>
             {% else %}
-            <span class="px-2.5 py-1 rounded-lg text-xs font-extrabold text-gray-400 dark:text-gray-600 border border-gray-200 dark:border-gray-700 flex-shrink-0">vs</span>
+            <span class="px-2 py-0.5 rounded-lg font-bold text-gray-400 dark:text-gray-600 border border-gray-200 dark:border-gray-700 flex-shrink-0 text-[11px]">vs</span>
             {% endif %}
-            <span class="flex-1 text-xs font-bold text-left truncate {% if u.ekipa_b == item.prijava.naziv_ekipe %}text-red-600 dark:text-red-400{% else %}text-gray-700 dark:text-gray-300{% endif %}">{{ u.ekipa_b }}</span>
+            <span class="flex-1 font-bold text-left truncate {% if u.ekipa_b == item.prijava.naziv_ekipe %}text-red-600 dark:text-red-400{% else %}text-gray-700 dark:text-gray-300{% endif %}">{{ u.ekipa_b }}</span>
           </div>
           {% endfor %}
-        </div>
-        <div class="mt-2">
-          <a href="/mini-rukomet/{{ item.turnir.id }}" class="text-xs font-bold text-red-600 dark:text-red-400 hover:underline">Cijeli turnir →</a>
+          <div class="pt-1">
+            <a href="/mini-rukomet/{{ item.turnir.id }}" class="text-xs font-bold text-red-600 dark:text-red-400 hover:underline">Cijeli turnir →</a>
+          </div>
         </div>
         {% elif item.prijava.status == 'odobren' %}
-        <p class="text-xs text-gray-400 dark:text-gray-500 italic">Nema utakmica za vašu ekipu u ovom turniru.</p>
+        <div class="px-4 py-4 text-center">
+          <p class="text-xs text-gray-400 dark:text-gray-500 italic">Nema utakmica za vašu ekipu.</p>
+        </div>
+        {% else %}
+        <div class="px-4 py-4 text-center">
+          <p class="text-xs text-gray-400 dark:text-gray-500">Čeka se odobrenje administratora.</p>
+        </div>
         {% endif %}
       </div>
       {% endfor %}
