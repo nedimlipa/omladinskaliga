@@ -164,7 +164,7 @@
 
       <div class="divide-y divide-gray-100 dark:divide-gray-800/60">
         {% for item in utakmice %}
-        <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-3 py-3">
+        <div class="grid grid-cols-[1fr_auto_1fr_auto] items-center gap-2 px-3 py-3">
           <!-- Domaćin -->
           <div class="flex items-center justify-end gap-2 min-w-0">
             <p class="text-sm font-bold text-gray-900 dark:text-white text-right truncate">{{ item.dom.naziv if item.dom else '—' }}</p>
@@ -185,15 +185,6 @@
             {% else %}
               <span class="text-xs font-bold text-gray-400 dark:text-gray-600">vs</span>
             {% endif %}
-            {% if not item.u.je_bye %}
-              {% if zapisnici_map.get(item.u.id) %}
-              <a href="/admin/zapisnik/{{ zapisnici_map[item.u.id] }}" class="mt-0.5 text-[10px] font-bold text-violet-600 dark:text-violet-400 hover:underline whitespace-nowrap">📋 Zapisnik</a>
-              {% else %}
-              <form method="POST" action="/admin/zapisnici/iz-utakmice/{{ item.u.id }}" class="mt-0.5">
-                <button type="submit" class="text-[10px] font-semibold text-gray-400 dark:text-gray-600 hover:text-violet-600 dark:hover:text-violet-400 transition whitespace-nowrap">+ Zapisnik</button>
-              </form>
-              {% endif %}
-            {% endif %}
           </div>
           <!-- Gost -->
           <div class="flex items-center gap-2 min-w-0">
@@ -206,6 +197,28 @@
               <div class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0 text-gray-400 dark:text-gray-600 text-[10px] font-black">{{ (item.gost.naziv[:2] if item.gost else '?').upper() }}</div>
               {% endif %}
               <p class="text-sm font-bold text-gray-900 dark:text-white text-left truncate">{{ item.gost.naziv if item.gost else '—' }}</p>
+            {% endif %}
+          </div>
+          <!-- Akcije: Zapisnik -->
+          <div class="flex items-center justify-end pl-1">
+            {% if not item.u.je_bye %}
+              {% if zapisnici_map.get(item.u.id) %}
+              <a href="/admin/zapisnik/{{ zapisnici_map[item.u.id] }}"
+                 class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400 hover:bg-violet-200 dark:hover:bg-violet-900/50 transition whitespace-nowrap">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                Zapisnik
+              </a>
+              {% else %}
+              <form method="POST" action="/admin/zapisnici/iz-utakmice/{{ item.u.id }}">
+                <button type="submit"
+                  class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-violet-100 dark:hover:bg-violet-900/30 hover:text-violet-700 dark:hover:text-violet-400 border border-dashed border-gray-300 dark:border-gray-700 hover:border-violet-300 dark:hover:border-violet-700 transition whitespace-nowrap">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                  Zapisnik
+                </button>
+              </form>
+              {% endif %}
+            {% else %}
+              <div class="w-20"></div>
             {% endif %}
           </div>
         </div>
