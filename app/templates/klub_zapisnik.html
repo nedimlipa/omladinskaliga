@@ -129,20 +129,62 @@
           </button>
         </div>
         {% if reg_igraci %}
-        <div class="bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800/50 rounded-xl p-3 mb-3">
-          <p class="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-2 flex items-center gap-1">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-            Registrovani igrači — klikni da dodaš red:
-          </p>
-          <div class="flex flex-wrap gap-1.5">
-            {% for ri in reg_igraci %}
-            <button type="button"
-              onclick="addIgracFromReg('{{ ri.ime_prezime | replace("'", "\\'") }}', '{{ ri.br_reg }}')"
-              class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 hover:border-emerald-400 transition">
-              <svg class="w-2.5 h-2.5 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-              {{ ri.ime_prezime }}{% if ri.br_reg %}&nbsp;<span class="text-gray-400">#{{ ri.br_reg }}</span>{% endif %}
-            </button>
-            {% endfor %}
+        <div class="border border-emerald-200 dark:border-emerald-800/50 rounded-xl mb-3 overflow-hidden">
+          <div class="flex items-center justify-between px-3 py-2 bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-200 dark:border-emerald-800/50 cursor-pointer select-none" onclick="this.nextElementSibling.classList.toggle('hidden')">
+            <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+              Registrovani igrači — klikni da dodaš u listu
+            </span>
+            <span class="text-xs text-emerald-600 dark:text-emerald-500">
+              {{ reg_igraci | selectattr('status', 'equalto', 'aktivan') | list | length }} aktivan /
+              {{ reg_igraci | length }} ukupno
+            </span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs">
+              <thead>
+                <tr class="bg-gray-50 dark:bg-gray-800/60 text-gray-400 dark:text-gray-500 uppercase tracking-wide font-bold">
+                  <th class="px-3 py-1.5 text-left">Ime i prezime</th>
+                  <th class="px-3 py-1.5 text-left w-24">Reg#</th>
+                  <th class="px-3 py-1.5 text-center w-16">God.</th>
+                  <th class="px-3 py-1.5 text-center w-28">Status</th>
+                  <th class="px-3 py-1.5 w-16"></th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                {% for ri in reg_igraci %}
+                {% set aktivan = ri.status == 'aktivan' %}
+                <tr class="{% if aktivan %}hover:bg-emerald-50 dark:hover:bg-emerald-900/10{% else %}opacity-50{% endif %} transition">
+                  <td class="px-3 py-1.5 font-semibold {% if not aktivan %}line-through text-gray-400 dark:text-gray-600{% else %}text-gray-800 dark:text-gray-200{% endif %}">
+                    {{ ri.ime_prezime }}
+                  </td>
+                  <td class="px-3 py-1.5 text-gray-500 dark:text-gray-400 font-mono">{{ ri.br_reg or '—' }}</td>
+                  <td class="px-3 py-1.5 text-center text-gray-500 dark:text-gray-400">{{ ri.god or '—' }}</td>
+                  <td class="px-3 py-1.5 text-center">
+                    {% if ri.status == 'aktivan' %}
+                      <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">Aktivan</span>
+                    {% elif ri.status == 'suspendovan' %}
+                      <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400">Suspendovan</span>
+                    {% else %}
+                      <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">{{ ri.status | capitalize }}</span>
+                    {% endif %}
+                  </td>
+                  <td class="px-3 py-1.5 text-right">
+                    {% if aktivan %}
+                    <button type="button"
+                      onclick="addIgracFromReg('{{ ri.ime_prezime | replace("'", "\\'") }}', '{{ ri.br_reg }}')"
+                      class="inline-flex items-center gap-0.5 px-2 py-1 rounded-lg text-[10px] font-bold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-900/50 transition">
+                      <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                      Dodaj
+                    </button>
+                    {% else %}
+                    <span class="text-[10px] text-gray-300 dark:text-gray-600 italic">ne može</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
           </div>
         </div>
         {% endif %}
@@ -203,20 +245,60 @@
           </button>
         </div>
         {% if reg_sl %}
-        <div class="bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800/50 rounded-xl p-3 mb-3">
-          <p class="text-xs font-bold text-blue-700 dark:text-blue-400 mb-2 flex items-center gap-1">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>
-            Registrovana sl. lica — klikni da dodaš:
-          </p>
-          <div class="flex flex-wrap gap-1.5">
-            {% for sl in reg_sl %}
-            <button type="button"
-              onclick="addSlFromReg('{{ sl.ime_prezime | replace("'", "\\'") }}', '{{ sl.br_reg }}')"
-              class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:border-blue-400 transition">
-              <svg class="w-2.5 h-2.5 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-              {{ sl.ime_prezime }}{% if sl.br_reg %}&nbsp;<span class="text-gray-400">#{{ sl.br_reg }}</span>{% endif %}
-            </button>
-            {% endfor %}
+        <div class="border border-blue-200 dark:border-blue-800/50 rounded-xl mb-3 overflow-hidden">
+          <div class="flex items-center justify-between px-3 py-2 bg-blue-50 dark:bg-blue-900/20 border-b border-blue-200 dark:border-blue-800/50 cursor-pointer select-none" onclick="this.nextElementSibling.classList.toggle('hidden')">
+            <span class="text-xs font-bold text-blue-700 dark:text-blue-400 flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>
+              Registrovana sl. lica — klikni da dodaš
+            </span>
+            <span class="text-xs text-blue-600 dark:text-blue-500">
+              {{ reg_sl | selectattr('status', 'equalto', 'aktivan') | list | length }} aktivan /
+              {{ reg_sl | length }} ukupno
+            </span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs">
+              <thead>
+                <tr class="bg-gray-50 dark:bg-gray-800/60 text-gray-400 dark:text-gray-500 uppercase tracking-wide font-bold">
+                  <th class="px-3 py-1.5 text-left">Ime i prezime</th>
+                  <th class="px-3 py-1.5 text-left w-24">Reg#</th>
+                  <th class="px-3 py-1.5 text-center w-28">Status</th>
+                  <th class="px-3 py-1.5 w-16"></th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                {% for sl in reg_sl %}
+                {% set aktivan = sl.status == 'aktivan' %}
+                <tr class="{% if aktivan %}hover:bg-blue-50 dark:hover:bg-blue-900/10{% else %}opacity-50{% endif %} transition">
+                  <td class="px-3 py-1.5 font-semibold {% if not aktivan %}line-through text-gray-400 dark:text-gray-600{% else %}text-gray-800 dark:text-gray-200{% endif %}">
+                    {{ sl.ime_prezime }}
+                  </td>
+                  <td class="px-3 py-1.5 text-gray-500 dark:text-gray-400 font-mono">{{ sl.br_reg or '—' }}</td>
+                  <td class="px-3 py-1.5 text-center">
+                    {% if sl.status == 'aktivan' %}
+                      <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">Aktivan</span>
+                    {% elif sl.status == 'suspendovan' %}
+                      <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400">Suspendovan</span>
+                    {% else %}
+                      <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">{{ sl.status | capitalize }}</span>
+                    {% endif %}
+                  </td>
+                  <td class="px-3 py-1.5 text-right">
+                    {% if aktivan %}
+                    <button type="button"
+                      onclick="addSlFromReg('{{ sl.ime_prezime | replace("'", "\\'") }}', '{{ sl.br_reg }}')"
+                      class="inline-flex items-center gap-0.5 px-2 py-1 rounded-lg text-[10px] font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50 transition">
+                      <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                      Dodaj
+                    </button>
+                    {% else %}
+                    <span class="text-[10px] text-gray-300 dark:text-gray-600 italic">ne može</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
           </div>
         </div>
         {% endif %}

@@ -617,7 +617,7 @@ async def klub_zapisnik_view(
 
     if sezona_id:
         rows_ig = (await db.execute(
-            select(Igrac.ime, Igrac.prezime, Registracija.br_registracije)
+            select(Igrac.ime, Igrac.prezime, Igrac.datum_rodjenja, Igrac.status, Registracija.br_registracije)
             .join(Registracija, Registracija.igrac_id == Igrac.id)
             .where(
                 Registracija.klub_id == klub_id,
@@ -627,12 +627,17 @@ async def klub_zapisnik_view(
             .order_by(Igrac.prezime, Igrac.ime)
         )).all()
         reg_igraci = [
-            {"ime_prezime": f"{r.ime} {r.prezime}", "br_reg": r.br_registracije or ""}
+            {
+                "ime_prezime": f"{r.ime} {r.prezime}",
+                "br_reg": r.br_registracije or "",
+                "status": r.status or "aktivan",
+                "god": r.datum_rodjenja.year if r.datum_rodjenja else "",
+            }
             for r in rows_ig
         ]
 
         rows_sl = (await db.execute(
-            select(SluzbenoLice.ime, SluzbenoLice.prezime, RegistracijaSL.br_registracije)
+            select(SluzbenoLice.ime, SluzbenoLice.prezime, SluzbenoLice.status, RegistracijaSL.br_registracije)
             .join(RegistracijaSL, RegistracijaSL.sluzbeno_lice_id == SluzbenoLice.id)
             .where(
                 RegistracijaSL.klub_id == klub_id,
@@ -642,7 +647,11 @@ async def klub_zapisnik_view(
             .order_by(SluzbenoLice.prezime, SluzbenoLice.ime)
         )).all()
         reg_sl = [
-            {"ime_prezime": f"{r.ime} {r.prezime}", "br_reg": r.br_registracije or ""}
+            {
+                "ime_prezime": f"{r.ime} {r.prezime}",
+                "br_reg": r.br_registracije or "",
+                "status": r.status or "aktivan",
+            }
             for r in rows_sl
         ]
 
