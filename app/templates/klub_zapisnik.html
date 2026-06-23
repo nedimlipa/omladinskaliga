@@ -76,6 +76,7 @@
     </div>
 
     <!-- Player entry card -->
+    {% set zakljucan = z.zakljucan_a if moj_tim == 'A' else z.zakljucan_b %}
     <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
       <!-- Card header -->
       <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-800">
@@ -94,7 +95,8 @@
           </a>
           <span id="saveMsg" class="hidden text-xs text-green-600 dark:text-green-400 font-semibold"></span>
           <span id="errMsg" class="hidden text-xs text-red-600 dark:text-red-400 font-semibold"></span>
-          <button type="button" onclick="addRow()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+          {% if not zakljucan %}
+          <button type="button" onclick="addIgracRow()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
             Dodaj red
           </button>
@@ -102,6 +104,16 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
             Spasi sve
           </button>
+          <button type="button" onclick="potvrdiZaklj()" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-600 text-white shadow-sm transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            Zaključaj
+          </button>
+          {% else %}
+          <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            Zaključano
+          </span>
+          {% endif %}
         </div>
       </div>
 
@@ -109,6 +121,14 @@
       {% if z.zadnje_izmijenjeno %}
       <div class="px-5 py-2 bg-gray-50 dark:bg-gray-800/50 text-xs text-gray-400 border-b border-gray-100 dark:border-gray-800">
         Zadnje spasavanje: <span class="font-semibold text-gray-600 dark:text-gray-300">{{ z.zadnje_izmijenjeno | local_dt }}</span> · {{ z.zadnje_spasio or '' }}
+      </div>
+      {% endif %}
+
+      <!-- Locked banner -->
+      {% if zakljucan %}
+      <div class="mx-5 mt-3 mb-0 px-4 py-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 flex items-center gap-2 text-amber-700 dark:text-amber-400 text-xs font-semibold">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        Zapisnik je zaključan. Podaci vašeg tima više nisu dostupni za izmjenu. Za izmjenu kontaktirajte administratora.
       </div>
       {% endif %}
 
@@ -124,10 +144,12 @@
       <div class="px-5 pt-4 pb-2">
         <div class="flex items-center justify-between mb-2">
           <h3 class="text-sm font-extrabold text-gray-700 dark:text-gray-200">Igrači</h3>
+          {% if not zakljucan %}
           <button type="button" onclick="addIgracRow()" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition">
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
             Dodaj igrača
           </button>
+          {% endif %}
         </div>
         {% if reg_igraci %}
         <div class="border border-emerald-200 dark:border-emerald-800/50 rounded-xl mb-3 overflow-hidden">
@@ -244,7 +266,7 @@
             <h3 class="text-sm font-extrabold text-gray-700 dark:text-gray-200">Službena lica</h3>
             <p class="text-xs text-gray-400 mt-0.5">Oznake A, B, C, D, E dodjeljuju se automatski prema redoslijedu unosa</p>
           </div>
-          <button type="button" onclick="addSlRow()" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+          <button type="button" onclick="addSlRow()" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition{% if zakljucan %} hidden{% endif %}">
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
             Dodaj SL
           </button>
@@ -346,8 +368,10 @@
       <!-- Bottom bar -->
       <div class="px-5 py-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-3">
         <div class="flex items-center gap-2">
+          {% if not zakljucan %}
           <button type="button" onclick="addIgracRow()" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition">+ Igrač</button>
           <button type="button" onclick="addSlRow()" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition">+ Sl. lice</button>
+          {% endif %}
         </div>
     </div>
 
@@ -587,6 +611,19 @@ document.addEventListener('keydown', e => { if ((e.ctrlKey||e.metaKey) && e.key=
 
 // Mark already-saved players on page load
 syncPickerState();
+
+// Lock confirmation
+function potvrdiZaklj() {
+  if (confirm('Jeste li sigurni da želite zaključati unos?\n\nNakon zaključavanja nećete moći mijenjati podatke ekipe bez intervencije administratora.')) {
+    document.getElementById('zakljForm').submit();
+  }
+}
+
+// Disable all inputs if locked
+{% if zakljucan %}
+document.querySelectorAll('#igracTbody input, #igracTbody button, #slTbody input, #slTbody button').forEach(el => el.disabled = true);
+{% endif %}
 </script>
+<form id="zakljForm" method="post" action="/klub/zapisnik/{{ z.id }}/zaklj" style="display:none"></form>
 </body>
 </html>

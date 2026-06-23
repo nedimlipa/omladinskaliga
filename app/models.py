@@ -316,6 +316,8 @@ class ZapisnikUtakmica(Base):
     zadnje_spasio          = Column(String(200), nullable=True)
     zadnje_izmijenjeno     = Column(DateTime(timezone=True), nullable=True)
     kreiran_datum          = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    zakljucan_a            = Column(Boolean, nullable=False, default=False, server_default='false')
+    zakljucan_b            = Column(Boolean, nullable=False, default=False, server_default='false')
 
 
 class ZapisnikIgrac(Base):

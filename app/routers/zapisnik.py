@@ -708,6 +708,12 @@ async def klub_zapisnik_spasi(
     if data.tim == "B" and z.ekipa_b_id != klub_id:
         raise HTTPException(403)
 
+    # Block save if team is locked
+    if data.tim == "A" and z.zakljucan_a:
+        raise HTTPException(403, "Zapisnik ekipe A je zaključan. Izmjene nisu moguće.")
+    if data.tim == "B" and z.zakljucan_b:
+        raise HTTPException(403, "Zapisnik ekipe B je zaključan. Izmjene nisu moguće.")
+
     # Replace all rows for this team
     await db.execute(
         delete(ZapisnikIgrac).where(
@@ -754,6 +760,32 @@ async def klub_zapisnik_spasi(
 
 # ─── PRINT VIEW ────────────────────────────────────────────────────────────
 
+@router.post("/klub/zapisnik/{zid}/zaklj")
+async def klub_zapisnik_zaklj(
+    zid: int,
+    db: AsyncSession = Depends(get_db),
+    user=Depends(get_current_user),
+):
+    """Lock the team's zapisnik — no further edits by the club."""
+    if not user or user["tip"] != "klub":
+        raise HTTPException(403)
+    klub_id = int(user["sub"])
+    z = await db.get(ZapisnikUtakmica, zid)
+    if not z:
+        raise HTTPException(404)
+    if z.ekipa_a_id == klub_id:
+        z.zakljucan_a = True
+    elif z.ekipa_b_id == klub_id:
+        z.zakljucan_b = True
+    else:
+        raise HTTPException(403)
+    z.zadnje_spasio = user["ime"]
+    z.zadnje_izmijenjeno = _now()
+    await db.commit()
+    return RedirectResponse(f"/klub/zapisnik/{zid}", status_code=303)
+
+
+# ─── PRINT VIEW ────────────────────────────────────────────────────────────────
 async def _get_zapisnik_print(zid: int, db: AsyncSession, user: dict, club_access: bool):
     """Shared logic for print view (admin + club)."""
     z = await db.get(ZapisnikUtakmica, zid)
