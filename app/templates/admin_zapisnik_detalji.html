@@ -118,14 +118,23 @@
             <div><label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Liga</label>
               <input type="text" name="liga" value="{{ z.liga or '' }}" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
           </div>
-          <!-- Br. utakmice (readonly) -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Br. utakmice + Sezona + Status -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div><label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Br. utakmice (auto)</label>
               <input type="text" value="{{ z.br_utakmice or '—' }}" disabled class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800/50 px-3 py-2 text-sm text-gray-500 cursor-not-allowed"></div>
+            <div><label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Sezona</label>
+              <input type="text" name="sezona" value="{{ z.sezona or '' }}" placeholder="25-26" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
             <div><label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Status utakmice</label>
               <select name="status_utakmice" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
                 {% for s in statusi %}<option value="{{ s }}" {% if z.status_utakmice == s %}selected{% endif %}>{{ s }}</option>{% endfor %}
               </select></div>
+          </div>
+          <!-- Dvorana + Mjesto -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div><label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Dvorana</label>
+              <input type="text" name="dvorana" value="{{ z.dvorana or '' }}" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
+            <div><label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Mjesto</label>
+              <input type="text" name="mjesto" value="{{ z.mjesto or '' }}" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
           </div>
           <!-- Ekipe -->
           <div class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 space-y-3">
@@ -151,14 +160,66 @@
           <div class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 space-y-3">
             <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Funkcioneri</p>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {% set fields = [('sudija_a','Sudija A',z.sudija_a),('sudija_b','Sudija B',z.sudija_b),('delegat','Delegat',z.delegat),('zapisnicar','Zapisničar',z.zapisnicar),('mjerilac_vremena','Mjerilac vremena',z.mjerilac_vremena),('glavni_sluzbeni','Glavni službeni',z.glavni_sluzbeni),('ljekar','Ljekar',z.ljekar)] %}
+              {% set fields = [('sudija_a','Sudija A',z.sudija_a),('sudija_b','Sudija B',z.sudija_b),('delegat','Delegat',z.delegat),('zapisnicar','Zapisničar',z.zapisnicar),('mjerilac_vremena','Mjerilac vremena',z.mjerilac_vremena),('glavni_sluzbeni','Glavni dežurni',z.glavni_sluzbeni),('ljekar','Ljekar',z.ljekar)] %}
               {% for fname, flabel, fval in fields %}
               <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">{{ flabel }}</label>
                 <input type="text" name="{{ fname }}" value="{{ fval or '' }}" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
               {% endfor %}
+              <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">JMBG Ljekar</label>
+                <input type="text" name="jmbg_ljekar" value="{{ z.jmbg_ljekar or '' }}" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
+              <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">JMBG Gl. dežurni</label>
+                <input type="text" name="jmbg_glavni_dezurni" value="{{ z.jmbg_glavni_dezurni or '' }}" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
             </div>
           </div>
-          <div class="flex justify-end pt-2">
+          <!-- Rezultat -->
+          <div class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 space-y-3">
+            <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Rezultat</p>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Gol A (finale)</label>
+                <input type="number" name="rezultat_a" value="{{ z.rezultat_a if z.rezultat_a is not none else '' }}" min="0" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none text-center"></div>
+              <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Gol B (finale)</label>
+                <input type="number" name="rezultat_b" value="{{ z.rezultat_b if z.rezultat_b is not none else '' }}" min="0" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none text-center"></div>
+              <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Pol. A (1.pol.)</label>
+                <input type="number" name="poluvrijeme_a" value="{{ z.poluvrijeme_a if z.poluvrijeme_a is not none else '' }}" min="0" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none text-center"></div>
+              <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Pol. B (1.pol.)</label>
+                <input type="number" name="poluvrijeme_b" value="{{ z.poluvrijeme_b if z.poluvrijeme_b is not none else '' }}" min="0" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none text-center"></div>
+            </div>
+          </div>
+          <!-- Tajm-auti & 7m -->
+          <div class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 space-y-3">
+            <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Tajm-auti &amp; 7m</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <p class="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-2">{{ z.ekipa_a or 'Ekipa A' }}</p>
+                <div class="grid grid-cols-3 gap-2 mb-2">
+                  <div><label class="block text-[10px] text-gray-400 mb-0.5">TO-1</label><input type="text" name="to_a_1" value="{{ z.to_a_1 or '' }}" placeholder="30:00" maxlength="5" class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2 py-1 text-xs focus:ring-1 focus:ring-red-500 focus:outline-none text-center"></div>
+                  <div><label class="block text-[10px] text-gray-400 mb-0.5">TO-2</label><input type="text" name="to_a_2" value="{{ z.to_a_2 or '' }}" placeholder="42:06" maxlength="5" class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2 py-1 text-xs focus:ring-1 focus:ring-red-500 focus:outline-none text-center"></div>
+                  <div><label class="block text-[10px] text-gray-400 mb-0.5">TO-3</label><input type="text" name="to_a_3" value="{{ z.to_a_3 or '' }}" placeholder="55:00" maxlength="5" class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2 py-1 text-xs focus:ring-1 focus:ring-red-500 focus:outline-none text-center"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <div><label class="block text-[10px] text-gray-400 mb-0.5">7m Dato</label><input type="number" name="sedam_m_a_dato" value="{{ z.sedam_m_a_dato if z.sedam_m_a_dato is not none else '' }}" min="0" class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2 py-1 text-xs focus:ring-1 focus:ring-red-500 focus:outline-none text-center"></div>
+                  <div><label class="block text-[10px] text-gray-400 mb-0.5">7m Prom.</label><input type="number" name="sedam_m_a_promj" value="{{ z.sedam_m_a_promj if z.sedam_m_a_promj is not none else '' }}" min="0" class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2 py-1 text-xs focus:ring-1 focus:ring-red-500 focus:outline-none text-center"></div>
+                </div>
+              </div>
+              <div>
+                <p class="text-xs font-semibold text-red-600 dark:text-red-400 mb-2">{{ z.ekipa_b or 'Ekipa B' }}</p>
+                <div class="grid grid-cols-3 gap-2 mb-2">
+                  <div><label class="block text-[10px] text-gray-400 mb-0.5">TO-1</label><input type="text" name="to_b_1" value="{{ z.to_b_1 or '' }}" placeholder="30:00" maxlength="5" class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2 py-1 text-xs focus:ring-1 focus:ring-red-500 focus:outline-none text-center"></div>
+                  <div><label class="block text-[10px] text-gray-400 mb-0.5">TO-2</label><input type="text" name="to_b_2" value="{{ z.to_b_2 or '' }}" placeholder="42:06" maxlength="5" class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2 py-1 text-xs focus:ring-1 focus:ring-red-500 focus:outline-none text-center"></div>
+                  <div><label class="block text-[10px] text-gray-400 mb-0.5">TO-3</label><input type="text" name="to_b_3" value="{{ z.to_b_3 or '' }}" placeholder="55:00" maxlength="5" class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2 py-1 text-xs focus:ring-1 focus:ring-red-500 focus:outline-none text-center"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <div><label class="block text-[10px] text-gray-400 mb-0.5">7m Dato</label><input type="number" name="sedam_m_b_dato" value="{{ z.sedam_m_b_dato if z.sedam_m_b_dato is not none else '' }}" min="0" class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2 py-1 text-xs focus:ring-1 focus:ring-red-500 focus:outline-none text-center"></div>
+                  <div><label class="block text-[10px] text-gray-400 mb-0.5">7m Prom.</label><input type="number" name="sedam_m_b_promj" value="{{ z.sedam_m_b_promj if z.sedam_m_b_promj is not none else '' }}" min="0" class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2 py-1 text-xs focus:ring-1 focus:ring-red-500 focus:outline-none text-center"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-between pt-2">
+            <a href="/admin/zapisnik/{{ z.id }}/print" target="_blank" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-bold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+              Pregledaj / Štampaj zapisnik
+            </a>
             <button type="submit" class="px-6 py-2.5 rounded-xl text-sm font-bold bg-red-600 hover:bg-red-700 text-white transition">Spasi zaglavlje</button>
           </div>
         </form>
@@ -201,15 +262,15 @@
                 <td class="px-3 py-2 text-gray-500 dark:text-gray-400">{{ ig.br_registracije or '—' }}</td>
                 <td class="px-3 py-2 text-center font-bold {% if ig.golovi > 0 %}text-green-600 dark:text-green-400{% else %}text-gray-400{% endif %}">{{ ig.golovi }}</td>
                 <td class="px-3 py-2 text-center {% if ig.opomene > 0 %}text-yellow-600 dark:text-yellow-400 font-bold{% else %}text-gray-400{% endif %}">{{ ig.opomene }}</td>
-                <td class="px-3 py-2 text-center {% if ig.iskljucenje > 0 %}text-orange-600 dark:text-orange-400 font-bold{% else %}text-gray-400{% endif %}">{{ ig.iskljucenje }}</td>
-                <td class="px-3 py-2 text-center {% if ig.iskljucenje_1 > 0 %}text-orange-600 dark:text-orange-400 font-bold{% else %}text-gray-400{% endif %}">{{ ig.iskljucenje_1 }}</td>
-                <td class="px-3 py-2 text-center {% if ig.iskljucenje_2 > 0 %}text-orange-600 dark:text-orange-400 font-bold{% else %}text-gray-400{% endif %}">{{ ig.iskljucenje_2 }}</td>
+                <td class="px-3 py-2 text-center {% if ig.iskljucenje %}text-orange-600 dark:text-orange-400 font-bold{% else %}text-gray-400{% endif %}">{{ ig.iskljucenje or '—' }}</td>
+                <td class="px-3 py-2 text-center {% if ig.iskljucenje_1 %}text-orange-600 dark:text-orange-400 font-bold{% else %}text-gray-400{% endif %}">{{ ig.iskljucenje_1 or '—' }}</td>
+                <td class="px-3 py-2 text-center {% if ig.iskljucenje_2 %}text-orange-600 dark:text-orange-400 font-bold{% else %}text-gray-400{% endif %}">{{ ig.iskljucenje_2 or '—' }}</td>
                 <td class="px-3 py-2 text-center">{% if ig.crveni_karton %}<span class="inline-block w-4 h-5 bg-red-600 rounded-sm"></span>{% else %}—{% endif %}</td>
                 <td class="px-3 py-2 text-center">{% if ig.plavi_karton %}<span class="inline-block w-4 h-5 bg-blue-600 rounded-sm"></span>{% else %}—{% endif %}</td>
                 <td class="px-3 py-2 text-center text-gray-600 dark:text-gray-400">{{ ig.time_out_1 or '—' }}</td>
                 <td class="px-3 py-2 text-center text-gray-600 dark:text-gray-400">{{ ig.time_out_2 or '—' }}</td>
                 <td class="px-3 py-2 text-right whitespace-nowrap">
-                  <button onclick="openIgracModal('A', {{ ig.id }}, '{{ ig.tip }}', '{{ ig.pozicija or '' }}', {{ ig.br_dresa or 'null' }}, '{{ ig.ime_prezime|replace("'", "\\'") }}', '{{ ig.br_registracije or '' }}', {{ ig.golovi }}, {{ ig.opomene }}, {{ ig.iskljucenje }}, {{ ig.iskljucenje_1 }}, {{ ig.iskljucenje_2 }}, {{ 'true' if ig.crveni_karton else 'false' }}, {{ 'true' if ig.plavi_karton else 'false' }}, {{ ig.time_out_1 }}, {{ ig.time_out_2 }})"
+                  <button onclick="openIgracModal('A', {{ ig.id }}, '{{ ig.tip }}', '{{ ig.pozicija or '' }}', {{ ig.br_dresa or 'null' }}, '{{ ig.ime_prezime|replace("'", "\\'") }}', '{{ ig.br_registracije or '' }}', {{ ig.golovi }}, {{ ig.opomene }}, '{{ ig.iskljucenje or '' }}', '{{ ig.iskljucenje_1 or '' }}', '{{ ig.iskljucenje_2 or '' }}', {{ 'true' if ig.crveni_karton else 'false' }}, {{ 'true' if ig.plavi_karton else 'false' }}, {{ ig.time_out_1 }}, {{ ig.time_out_2 }})"
                     class="px-2.5 py-1 rounded-lg text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition mr-1">Uredi</button>
                   <form method="POST" action="/admin/zapisnik/{{ z.id }}/igrac/{{ ig.id }}/obrisi" class="inline" onsubmit="return confirm('Obrisati?')">
                     <button type="submit" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 transition">×</button>
@@ -260,15 +321,15 @@
                 <td class="px-3 py-2 text-gray-500 dark:text-gray-400">{{ ig.br_registracije or '—' }}</td>
                 <td class="px-3 py-2 text-center font-bold {% if ig.golovi > 0 %}text-green-600 dark:text-green-400{% else %}text-gray-400{% endif %}">{{ ig.golovi }}</td>
                 <td class="px-3 py-2 text-center {% if ig.opomene > 0 %}text-yellow-600 dark:text-yellow-400 font-bold{% else %}text-gray-400{% endif %}">{{ ig.opomene }}</td>
-                <td class="px-3 py-2 text-center {% if ig.iskljucenje > 0 %}text-orange-600 dark:text-orange-400 font-bold{% else %}text-gray-400{% endif %}">{{ ig.iskljucenje }}</td>
-                <td class="px-3 py-2 text-center {% if ig.iskljucenje_1 > 0 %}text-orange-600 dark:text-orange-400 font-bold{% else %}text-gray-400{% endif %}">{{ ig.iskljucenje_1 }}</td>
-                <td class="px-3 py-2 text-center {% if ig.iskljucenje_2 > 0 %}text-orange-600 dark:text-orange-400 font-bold{% else %}text-gray-400{% endif %}">{{ ig.iskljucenje_2 }}</td>
+                <td class="px-3 py-2 text-center {% if ig.iskljucenje %}text-orange-600 dark:text-orange-400 font-bold{% else %}text-gray-400{% endif %}">{{ ig.iskljucenje or '—' }}</td>
+                <td class="px-3 py-2 text-center {% if ig.iskljucenje_1 %}text-orange-600 dark:text-orange-400 font-bold{% else %}text-gray-400{% endif %}">{{ ig.iskljucenje_1 or '—' }}</td>
+                <td class="px-3 py-2 text-center {% if ig.iskljucenje_2 %}text-orange-600 dark:text-orange-400 font-bold{% else %}text-gray-400{% endif %}">{{ ig.iskljucenje_2 or '—' }}</td>
                 <td class="px-3 py-2 text-center">{% if ig.crveni_karton %}<span class="inline-block w-4 h-5 bg-red-600 rounded-sm"></span>{% else %}—{% endif %}</td>
                 <td class="px-3 py-2 text-center">{% if ig.plavi_karton %}<span class="inline-block w-4 h-5 bg-blue-600 rounded-sm"></span>{% else %}—{% endif %}</td>
                 <td class="px-3 py-2 text-center text-gray-600 dark:text-gray-400">{{ ig.time_out_1 or '—' }}</td>
                 <td class="px-3 py-2 text-center text-gray-600 dark:text-gray-400">{{ ig.time_out_2 or '—' }}</td>
                 <td class="px-3 py-2 text-right whitespace-nowrap">
-                  <button onclick="openIgracModal('B', {{ ig.id }}, '{{ ig.tip }}', '{{ ig.pozicija or '' }}', {{ ig.br_dresa or 'null' }}, '{{ ig.ime_prezime|replace("'", "\\'") }}', '{{ ig.br_registracije or '' }}', {{ ig.golovi }}, {{ ig.opomene }}, {{ ig.iskljucenje }}, {{ ig.iskljucenje_1 }}, {{ ig.iskljucenje_2 }}, {{ 'true' if ig.crveni_karton else 'false' }}, {{ 'true' if ig.plavi_karton else 'false' }}, {{ ig.time_out_1 }}, {{ ig.time_out_2 }})"
+                  <button onclick="openIgracModal('B', {{ ig.id }}, '{{ ig.tip }}', '{{ ig.pozicija or '' }}', {{ ig.br_dresa or 'null' }}, '{{ ig.ime_prezime|replace("'", "\\'") }}', '{{ ig.br_registracije or '' }}', {{ ig.golovi }}, {{ ig.opomene }}, '{{ ig.iskljucenje or '' }}', '{{ ig.iskljucenje_1 or '' }}', '{{ ig.iskljucenje_2 or '' }}', {{ 'true' if ig.crveni_karton else 'false' }}, {{ 'true' if ig.plavi_karton else 'false' }}, {{ ig.time_out_1 }}, {{ ig.time_out_2 }})"
                     class="px-2.5 py-1 rounded-lg text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition mr-1">Uredi</button>
                   <form method="POST" action="/admin/zapisnik/{{ z.id }}/igrac/{{ ig.id }}/obrisi" class="inline" onsubmit="return confirm('Obrisati?')">
                     <button type="submit" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 transition">×</button>
@@ -347,12 +408,12 @@
           <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Opomene</label>
             <input id="fOpomene" type="number" name="opomene" value="0" min="0" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
           <div><!-- spacer --></div>
-          <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Isključenje</label>
-            <input id="fI" type="number" name="iskljucenje" value="0" min="0" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
-          <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Isključenje 1</label>
-            <input id="fI1" type="number" name="iskljucenje_1" value="0" min="0" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
-          <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Isključenje 2</label>
-            <input id="fI2" type="number" name="iskljucenje_2" value="0" min="0" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"></div>
+          <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">2+3 (MM:SS)</label>
+            <input id="fI" type="text" name="iskljucenje" placeholder="55:00" maxlength="5" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none text-center"></div>
+          <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">2+1 (MM:SS)</label>
+            <input id="fI1" type="text" name="iskljucenje_1" placeholder="31:52" maxlength="5" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none text-center"></div>
+          <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">2+2 (MM:SS)</label>
+            <input id="fI2" type="text" name="iskljucenje_2" placeholder="42:10" maxlength="5" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none text-center"></div>
           <div><label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Crveni karton</label>
             <select id="fCK" name="crveni_karton" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
               <option value="ne">Ne</option><option value="da">Da</option>
@@ -425,8 +486,8 @@ function openIgracModal(tim, iid, tip, poz, dres, ime, reg, g, o, i, i1, i2, ck,
   document.getElementById('fBrReg').value=reg||'';
   document.getElementById('fGolovi').value=g||0;
   document.getElementById('fOpomene').value=o||0;
-  document.getElementById('fI').value=i||0;
-  document.getElementById('fI1').value=i1||0;
+  document.getElementById('fI').value=i||'';
+  document.getElementById('fI1').value=i1||'';
   document.getElementById('fI2').value=i2||0;
   document.getElementById('fCK').value=ck?'da':'ne';
   document.getElementById('fPK').value=pk?'da':'ne';

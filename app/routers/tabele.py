@@ -6,7 +6,7 @@ from sqlalchemy import select, delete, or_
 from ..database import get_db
 from ..models import (
     Tabela, TabelaEkipa, Utakmica, TabelaSortPravilo,
-    Uzrast, Sezona, Takmicenje, PrijavaKluba, Klub,
+    Uzrast, Sezona, Takmicenje, PrijavaKluba, Klub, ZapisnikUtakmica,
 )
 from .auth import get_current_user
 from typing import Optional
@@ -264,6 +264,14 @@ async def admin_utakmice_pregled(
                      if active_kolo and active_kolo in all_kolos and all_kolos.index(active_kolo) < len(all_kolos) - 1
                      else None)
 
+    # Build map of utakmica_id → zapisnik_id for quick lookup in template
+    utakmica_ids = [item["u"].id for item in all_items]
+    zap_rows = (await db.execute(
+        select(ZapisnikUtakmica.utakmica_id, ZapisnikUtakmica.id)
+        .where(ZapisnikUtakmica.utakmica_id.in_(utakmica_ids))
+    )).all()
+    zapisnici_map = {uid: zid for uid, zid in zap_rows}
+
     return templates.TemplateResponse("admin_utakmice.html", {
         "request":       request,
         "user":          user,
@@ -277,6 +285,7 @@ async def admin_utakmice_pregled(
         "all_kolos":     all_kolos,
         "sve":           bool(sve),
         "total":         len(filtered),
+        "zapisnici_map": zapisnici_map,
     })
 
 
@@ -489,6 +498,11 @@ async def admin_tabela_detalji(tabela_id: int, request: Request, db: AsyncSessio
         "n_active":       n_active,
         "n_seeds_set":    len(seeds_set_list),
         "berger_preview": berger_preview,
+        # Zapisnici map: utakmica_id → zapisnik_id
+        "zapisnici_map":  {uid: zid for uid, zid in (await db.execute(
+            select(ZapisnikUtakmica.utakmica_id, ZapisnikUtakmica.id)
+            .where(ZapisnikUtakmica.utakmica_id.in_([u.id for u in utakmice_rows]))
+        )).all()},
         "n_utakmica":     len(utakmice_rows),
         "n_kola_preview": len(berger_preview) if berger_preview else 0,
     })

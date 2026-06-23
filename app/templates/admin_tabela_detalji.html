@@ -734,6 +734,17 @@
               <!-- Akcije -->
               <div class="flex items-center gap-1 flex-shrink-0">
                 {% if not u.je_bye %}
+                {% if zapisnici_map.get(u.id) %}
+                <a href="/admin/zapisnik/{{ zapisnici_map[u.id] }}" class="p-1.5 rounded-lg text-violet-500 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition" title="Zapisnik">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                </a>
+                {% else %}
+                <form method="POST" action="/admin/zapisnici/iz-utakmice/{{ u.id }}">
+                  <button type="submit" class="p-1.5 rounded-lg text-gray-400 dark:text-gray-600 hover:text-violet-500 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition" title="Generiši zapisnik">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                  </button>
+                </form>
+                {% endif %}
                 <button onclick="openEditModal({{ u.id }}, {{ u.domacin_id }}, {{ u.gost_id if u.gost_id is not none else 'null' }}, {{ u.gol_domacin if u.gol_domacin is not none else 'null' }}, {{ u.gol_gost if u.gol_gost is not none else 'null' }}, {{ u.kolo if u.kolo else 'null' }}, '{{ u.napomena or '' }}', '{{ u.datum_utakmice.strftime("%Y-%m-%dT%H:%M") if u.datum_utakmice else "" }}')"
                   class="p-1.5 rounded-lg text-violet-500 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition" title="Uredi">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

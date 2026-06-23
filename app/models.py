@@ -269,6 +269,7 @@ class ZapisnikUtakmica(Base):
     __tablename__ = "zapisnik_utakmica"
 
     id                     = Column(Integer, primary_key=True)
+    utakmica_id            = Column(Integer, ForeignKey("utakmice.id"), nullable=True, unique=True)
     br_utakmice            = Column(String(30), unique=True, nullable=True)
     datum                  = Column(Date, nullable=True)
     vrijeme                = Column(String(10), nullable=True)          # HH:MM
@@ -290,6 +291,28 @@ class ZapisnikUtakmica(Base):
     verifikacija_sudija_a  = Column(Boolean, nullable=False, default=False)
     verifikacija_sudija_b  = Column(Boolean, nullable=False, default=False)
     verifikacija_delegat   = Column(Boolean, nullable=False, default=False)
+    # Additional header fields
+    dvorana                = Column(String(200), nullable=True)
+    mjesto                 = Column(String(200), nullable=True)
+    sezona                 = Column(String(20), nullable=True)
+    jmbg_ljekar            = Column(String(20), nullable=True)
+    jmbg_glavni_dezurni    = Column(String(20), nullable=True)
+    # Final score
+    rezultat_a             = Column(SmallInteger, nullable=True)
+    rezultat_b             = Column(SmallInteger, nullable=True)
+    poluvrijeme_a          = Column(SmallInteger, nullable=True)
+    poluvrijeme_b          = Column(SmallInteger, nullable=True)
+    # Team-level time-outs (MM:SS game clock) and 7-meter stats
+    to_a_1                 = Column(String(6), nullable=True)
+    to_a_2                 = Column(String(6), nullable=True)
+    to_a_3                 = Column(String(6), nullable=True)
+    to_b_1                 = Column(String(6), nullable=True)
+    to_b_2                 = Column(String(6), nullable=True)
+    to_b_3                 = Column(String(6), nullable=True)
+    sedam_m_a_dato         = Column(SmallInteger, nullable=True)
+    sedam_m_a_promj        = Column(SmallInteger, nullable=True)
+    sedam_m_b_dato         = Column(SmallInteger, nullable=True)
+    sedam_m_b_promj        = Column(SmallInteger, nullable=True)
     zadnje_spasio          = Column(String(200), nullable=True)
     zadnje_izmijenjeno     = Column(DateTime(timezone=True), nullable=True)
     kreiran_datum          = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
@@ -309,9 +332,9 @@ class ZapisnikIgrac(Base):
     br_registracije    = Column(String(50), nullable=True)
     golovi             = Column(SmallInteger, nullable=False, default=0)
     opomene            = Column(SmallInteger, nullable=False, default=0)
-    iskljucenje        = Column(SmallInteger, nullable=False, default=0)
-    iskljucenje_1      = Column(SmallInteger, nullable=False, default=0)
-    iskljucenje_2      = Column(SmallInteger, nullable=False, default=0)
+    iskljucenje        = Column(String(8), nullable=True)               # MM:SS of 3rd 2-min
+    iskljucenje_1      = Column(String(8), nullable=True)               # MM:SS of 1st 2-min
+    iskljucenje_2      = Column(String(8), nullable=True)               # MM:SS of 2nd 2-min
     crveni_karton      = Column(Boolean, nullable=False, default=False)
     plavi_karton       = Column(Boolean, nullable=False, default=False)
     time_out_1         = Column(SmallInteger, nullable=False, default=0)

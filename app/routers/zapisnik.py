@@ -10,7 +10,7 @@ from sqlalchemy import select, func, delete
 
 from ..templates_config import templates
 from ..database import get_db
-from ..models import ZapisnikUtakmica, ZapisnikIgrac, Klub
+from ..models import ZapisnikUtakmica, ZapisnikIgrac, Klub, Utakmica, Tabela, Uzrast, Takmicenje, PrijavaKluba
 from .auth import get_current_user
 
 try:
@@ -56,6 +56,98 @@ async def admin_zapisnici_list(
         "request": request, "user": user,
         "zapisnici": zapisnici, "klubovi": klubovi, "statusi": STATUSI,
     })
+
+
+@router.post("/admin/zapisnici/iz-utakmice/{uid}")
+async def admin_zapisnik_iz_utakmice(
+    uid: int,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    user=Depends(get_current_user),
+):
+    """Create or open a zapisnik linked to an existing Utakmica record."""
+    if not user or user["tip"] not in ("admin", "moderator"):
+        raise HTTPException(403)
+
+    # Return existing if already created
+    existing = (await db.execute(
+        select(ZapisnikUtakmica).where(ZapisnikUtakmica.utakmica_id == uid)
+    )).scalar_one_or_none()
+    if existing:
+        return RedirectResponse(f"/admin/zapisnik/{existing.id}", status_code=303)
+
+    # Load utakmica with all related data
+    row = (await db.execute(
+        select(Utakmica, Tabela, Uzrast, Takmicenje)
+        .join(Tabela, Utakmica.tabela_id == Tabela.id)
+        .join(Uzrast, Tabela.uzrast_id == Uzrast.id)
+        .join(Takmicenje, Uzrast.takmicenje_id == Takmicenje.id)
+        .where(Utakmica.id == uid)
+    )).first()
+    if not row:
+        raise HTTPException(404)
+    u, tabela, uzrast_obj, takm = row
+
+    # Resolve club names via prijave_klubova
+    pk_dom = (await db.execute(
+        select(PrijavaKluba, Klub)
+        .join(Klub, PrijavaKluba.klub_id == Klub.id)
+        .where(PrijavaKluba.id == u.domacin_id)
+    )).first()
+    pk_gost = None
+    if u.gost_id:
+        pk_gost = (await db.execute(
+            select(PrijavaKluba, Klub)
+            .join(Klub, PrijavaKluba.klub_id == Klub.id)
+            .where(PrijavaKluba.id == u.gost_id)
+        )).first()
+
+    dom_naziv   = pk_dom[1].naziv_kluba   if pk_dom  else None
+    dom_klub_id = pk_dom[1].id            if pk_dom  else None
+    gost_naziv  = pk_gost[1].naziv_kluba  if pk_gost else None
+    gost_klub_id = pk_gost[1].id          if pk_gost else None
+
+    # Extract date/time from utakmica (aware → Sarajevo local)
+    datum_val = None
+    vrijeme_val = None
+    if u.datum_utakmice:
+        local_dt = u.datum_utakmice.astimezone(_TZ) if u.datum_utakmice.tzinfo else u.datum_utakmice
+        datum_val  = local_dt.date()
+        vrijeme_val = local_dt.strftime("%H:%M")
+
+    # Auto-generate br_utakmice
+    ustr = uzrast_obj.naziv or ""
+    prefix = ustr.replace(" ", "").replace("-", "")
+    cnt = (await db.execute(
+        select(func.count(ZapisnikUtakmica.id))
+        .where(ZapisnikUtakmica.uzrast == ustr)
+    )).scalar() or 0
+    br_utakmice = f"{prefix}-{cnt + 1}" if ustr else None
+
+    liga_val = takm.naziv
+    if tabela.naziv:
+        liga_val = f"{takm.naziv} — {tabela.naziv}"
+
+    z = ZapisnikUtakmica(
+        utakmica_id=uid,
+        br_utakmice=br_utakmice,
+        datum=datum_val,
+        vrijeme=vrijeme_val,
+        kolo=u.kolo,
+        uzrast=ustr or None,
+        liga=liga_val,
+        ekipa_a=dom_naziv,
+        ekipa_b=gost_naziv,
+        ekipa_a_id=dom_klub_id,
+        ekipa_b_id=gost_klub_id,
+        status_utakmice="Zakazana",
+        zadnje_spasio=user["ime"],
+        zadnje_izmijenjeno=_now(),
+    )
+    db.add(z)
+    await db.commit()
+    await db.refresh(z)
+    return RedirectResponse(f"/admin/zapisnik/{z.id}", status_code=303)
 
 
 @router.post("/admin/zapisnici/novi")
@@ -186,6 +278,25 @@ async def admin_zapisnik_uredi(
     mjerilac_vremena: str = Form(None),
     glavni_sluzbeni: str = Form(None),
     ljekar: str = Form(None),
+    dvorana: str = Form(None),
+    mjesto: str = Form(None),
+    sezona: str = Form(None),
+    jmbg_ljekar: str = Form(None),
+    jmbg_glavni_dezurni: str = Form(None),
+    rezultat_a: Optional[int] = Form(None),
+    rezultat_b: Optional[int] = Form(None),
+    poluvrijeme_a: Optional[int] = Form(None),
+    poluvrijeme_b: Optional[int] = Form(None),
+    to_a_1: str = Form(None),
+    to_a_2: str = Form(None),
+    to_a_3: str = Form(None),
+    to_b_1: str = Form(None),
+    to_b_2: str = Form(None),
+    to_b_3: str = Form(None),
+    sedam_m_a_dato: Optional[int] = Form(None),
+    sedam_m_a_promj: Optional[int] = Form(None),
+    sedam_m_b_dato: Optional[int] = Form(None),
+    sedam_m_b_promj: Optional[int] = Form(None),
     status_utakmice: str = Form("Zakazana"),
 ):
     if not user or user["tip"] not in ("admin", "moderator"):
@@ -210,6 +321,25 @@ async def admin_zapisnik_uredi(
     z.mjerilac_vremena = mjerilac_vremena or None
     z.glavni_sluzbeni = glavni_sluzbeni or None
     z.ljekar = ljekar or None
+    z.dvorana = dvorana or None
+    z.mjesto = mjesto or None
+    z.sezona = sezona or None
+    z.jmbg_ljekar = jmbg_ljekar or None
+    z.jmbg_glavni_dezurni = jmbg_glavni_dezurni or None
+    z.rezultat_a = rezultat_a
+    z.rezultat_b = rezultat_b
+    z.poluvrijeme_a = poluvrijeme_a
+    z.poluvrijeme_b = poluvrijeme_b
+    z.to_a_1 = to_a_1 or None
+    z.to_a_2 = to_a_2 or None
+    z.to_a_3 = to_a_3 or None
+    z.to_b_1 = to_b_1 or None
+    z.to_b_2 = to_b_2 or None
+    z.to_b_3 = to_b_3 or None
+    z.sedam_m_a_dato = sedam_m_a_dato
+    z.sedam_m_a_promj = sedam_m_a_promj
+    z.sedam_m_b_dato = sedam_m_b_dato
+    z.sedam_m_b_promj = sedam_m_b_promj
     z.status_utakmice = status_utakmice or "Zakazana"
     z.zadnje_spasio = user["ime"]
     z.zadnje_izmijenjeno = _now()
@@ -230,9 +360,9 @@ async def admin_igrac_dodaj(
     br_registracije: str = Form(None),
     golovi: int = Form(0),
     opomene: int = Form(0),
-    iskljucenje: int = Form(0),
-    iskljucenje_1: int = Form(0),
-    iskljucenje_2: int = Form(0),
+    iskljucenje: str = Form(None),
+    iskljucenje_1: str = Form(None),
+    iskljucenje_2: str = Form(None),
     crveni_karton: str = Form("ne"),
     plavi_karton: str = Form("ne"),
     time_out_1: int = Form(0),
@@ -254,9 +384,9 @@ async def admin_igrac_dodaj(
         br_registracije=br_registracije or None,
         golovi=golovi or 0,
         opomene=opomene or 0,
-        iskljucenje=iskljucenje or 0,
-        iskljucenje_1=iskljucenje_1 or 0,
-        iskljucenje_2=iskljucenje_2 or 0,
+        iskljucenje=iskljucenje or None,
+        iskljucenje_1=iskljucenje_1 or None,
+        iskljucenje_2=iskljucenje_2 or None,
         crveni_karton=(crveni_karton == "da"),
         plavi_karton=(plavi_karton == "da"),
         time_out_1=time_out_1 or 0,
@@ -284,9 +414,9 @@ async def admin_igrac_uredi(
     br_registracije: str = Form(None),
     golovi: int = Form(0),
     opomene: int = Form(0),
-    iskljucenje: int = Form(0),
-    iskljucenje_1: int = Form(0),
-    iskljucenje_2: int = Form(0),
+    iskljucenje: str = Form(None),
+    iskljucenje_1: str = Form(None),
+    iskljucenje_2: str = Form(None),
     crveni_karton: str = Form("ne"),
     plavi_karton: str = Form("ne"),
     time_out_1: int = Form(0),
@@ -305,9 +435,9 @@ async def admin_igrac_uredi(
     ig.br_registracije = br_registracije or None
     ig.golovi = golovi or 0
     ig.opomene = opomene or 0
-    ig.iskljucenje = iskljucenje or 0
-    ig.iskljucenje_1 = iskljucenje_1 or 0
-    ig.iskljucenje_2 = iskljucenje_2 or 0
+    ig.iskljucenje = iskljucenje or None
+    ig.iskljucenje_1 = iskljucenje_1 or None
+    ig.iskljucenje_2 = iskljucenje_2 or None
     ig.crveni_karton = (crveni_karton == "da")
     ig.plavi_karton = (plavi_karton == "da")
     ig.time_out_1 = time_out_1 or 0
@@ -413,9 +543,9 @@ class _IgracInput(BaseModel):
     tip: str = "igrac"
     golovi: int = 0
     opomene: int = 0
-    iskljucenje: int = 0
-    iskljucenje_1: int = 0
-    iskljucenje_2: int = 0
+    iskljucenje: Optional[str] = None    # MM:SS of 3rd 2-min exclusion
+    iskljucenje_1: Optional[str] = None  # MM:SS of 1st 2-min exclusion
+    iskljucenje_2: Optional[str] = None  # MM:SS of 2nd 2-min exclusion
     crveni_karton: bool = False
     plavi_karton: bool = False
     time_out_1: int = 0
@@ -470,9 +600,9 @@ async def klub_zapisnik_spasi(
             br_registracije=ig_data.br_registracije or None,
             golovi=ig_data.golovi,
             opomene=ig_data.opomene,
-            iskljucenje=ig_data.iskljucenje,
-            iskljucenje_1=ig_data.iskljucenje_1,
-            iskljucenje_2=ig_data.iskljucenje_2,
+            iskljucenje=ig_data.iskljucenje or None,
+            iskljucenje_1=ig_data.iskljucenje_1 or None,
+            iskljucenje_2=ig_data.iskljucenje_2 or None,
             crveni_karton=ig_data.crveni_karton,
             plavi_karton=ig_data.plavi_karton,
             time_out_1=ig_data.time_out_1,
@@ -488,4 +618,64 @@ async def klub_zapisnik_spasi(
         "ok": True,
         "poruka": "Podaci su uspješno sačuvani.",
         "vrijeme": now.strftime("%d.%m.%Y %H:%M"),
+    })
+
+
+# ─── PRINT VIEW ────────────────────────────────────────────────────────────
+
+async def _get_zapisnik_print(zid: int, db: AsyncSession, user: dict, club_access: bool):
+    """Shared logic for print view (admin + club)."""
+    z = await db.get(ZapisnikUtakmica, zid)
+    if not z:
+        raise HTTPException(404)
+
+    if club_access:
+        klub_id = int(user["sub"])
+        if z.ekipa_a_id != klub_id and z.ekipa_b_id != klub_id:
+            raise HTTPException(403)
+
+    igraci_a = (await db.execute(
+        select(ZapisnikIgrac)
+        .where(ZapisnikIgrac.zapisnik_id == zid, ZapisnikIgrac.tim == "A")
+        .order_by(ZapisnikIgrac.tip.desc(), ZapisnikIgrac.br_dresa.nullslast(), ZapisnikIgrac.id)
+    )).scalars().all()
+    igraci_b = (await db.execute(
+        select(ZapisnikIgrac)
+        .where(ZapisnikIgrac.zapisnik_id == zid, ZapisnikIgrac.tim == "B")
+        .order_by(ZapisnikIgrac.tip.desc(), ZapisnikIgrac.br_dresa.nullslast(), ZapisnikIgrac.id)
+    )).scalars().all()
+    return z, igraci_a, igraci_b
+
+
+@router.get("/admin/zapisnik/{zid}/print", response_class=HTMLResponse)
+async def admin_zapisnik_print(
+    zid: int,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    user=Depends(get_current_user),
+):
+    if not user or user["tip"] not in ("admin", "moderator"):
+        raise HTTPException(403)
+    z, igraci_a, igraci_b = await _get_zapisnik_print(zid, db, user, False)
+    return templates.TemplateResponse("zapisnik_print.html", {
+        "request": request, "user": user,
+        "z": z, "igraci_a": igraci_a, "igraci_b": igraci_b,
+        "back_url": f"/admin/zapisnik/{zid}",
+    })
+
+
+@router.get("/klub/zapisnik/{zid}/print", response_class=HTMLResponse)
+async def klub_zapisnik_print(
+    zid: int,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    user=Depends(get_current_user),
+):
+    if not user or user["tip"] != "klub":
+        raise HTTPException(403)
+    z, igraci_a, igraci_b = await _get_zapisnik_print(zid, db, user, True)
+    return templates.TemplateResponse("zapisnik_print.html", {
+        "request": request, "user": user,
+        "z": z, "igraci_a": igraci_a, "igraci_b": igraci_b,
+        "back_url": f"/klub/zapisnik/{zid}",
     })

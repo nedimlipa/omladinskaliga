@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Zapisnik {{ z.br_utakmice or z.id }}</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:Arial,Helvetica,sans-serif;font-size:9pt;color:#000;background:#fff;}
+    .page{width:210mm;min-height:297mm;margin:0 auto;padding:8mm 10mm;}
+
+    table{border-collapse:collapse;width:100%;}
+    td,th{border:1px solid #000;padding:2px 4px;vertical-align:middle;}
+    .nb{border:none!important;}
+
+    .title{text-align:center;font-size:15pt;font-weight:bold;letter-spacing:1px;margin-bottom:6px;}
+    .section-hdr{background:#000;color:#fff;text-align:center;font-weight:bold;padding:3px;}
+    .team-a{background:#1565C0;color:#fff;text-align:center;font-weight:bold;font-size:11pt;padding:6px;}
+    .team-b{background:#C62828;color:#fff;text-align:center;font-weight:bold;font-size:11pt;padding:6px;}
+    .score-cell{text-align:center;font-size:20pt;font-weight:bold;padding:6px;}
+    .half{text-align:center;font-size:9pt;color:#555;}
+    .verified{background:#2E7D32;color:#fff;text-align:center;font-weight:bold;font-size:12pt;padding:4px;margin:5px 0;letter-spacing:2px;}
+    .not-verified{background:#B71C1C;color:#fff;text-align:center;font-weight:bold;font-size:10pt;padding:3px;margin:5px 0;}
+
+    .tbl-hdr-a{background:#1565C0;color:#fff;text-align:center;font-weight:bold;font-size:8pt;padding:2px;}
+    .tbl-hdr-b{background:#C62828;color:#fff;text-align:center;font-weight:bold;font-size:8pt;padding:2px;}
+    .col-hdr{background:#d0d0d0;font-weight:bold;text-align:center;font-size:7.5pt;}
+    .sl-hdr{background:#333;color:#fff;text-align:center;font-weight:bold;font-size:8pt;padding:2px;}
+    .sl-hdr-a{background:#1565C0;color:#fff;font-weight:bold;font-size:8pt;padding:2px;}
+    .sl-hdr-b{background:#C62828;color:#fff;font-weight:bold;font-size:8pt;padding:2px;}
+
+    .no-print{background:#f0f0f0;padding:6px 10px;margin-bottom:8px;display:flex;gap:10px;align-items:center;border-bottom:1px solid #ccc;}
+    .no-print a,.no-print button{font-size:10pt;padding:4px 12px;border:1px solid #666;border-radius:3px;cursor:pointer;background:#fff;text-decoration:none;color:#000;}
+    .no-print button:hover{background:#e0e0e0;}
+
+    .mt{margin-top:5px;}
+    .empty-row td{height:14px;}
+    td.center{text-align:center;}
+    td.bold{font-weight:bold;}
+    .label{font-weight:bold;}
+    .sign{margin-top:20px;}
+    .sign table td{border:none;padding:4px 2px;}
+
+    @media print{
+      .no-print{display:none!important;}
+      body{margin:0;}
+      .page{padding:5mm 8mm;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- Toolbar (hidden when printing) -->
+<div class="no-print">
+  <button onclick="window.print()">🖨️ Štampaj / Sačuvaj PDF</button>
+  <a href="{{ back_url }}">← Nazad</a>
+  {% if z.br_utakmice %}<span style="font-weight:bold;">Zapisnik {{ z.br_utakmice }}</span>{% endif %}
+</div>
+
+<div class="page">
+
+  <!-- NASLOV -->
+  <div class="title">ZAPISNIK UTAKMICE</div>
+
+  <!-- ZAGLAVLJE -->
+  <table>
+    <tr>
+      <td colspan="6"><span class="label">Takmičenje:</span> {{ z.liga or '' }}</td>
+    </tr>
+    <tr>
+      <td style="width:20%"><span class="label">Kolo:</span> {{ z.kolo or '' }}</td>
+      <td style="width:30%"><span class="label">Br. utakmice:</span> {{ z.br_utakmice or '' }}</td>
+      <td style="width:25%"><span class="label">Sezona:</span> {{ z.sezona or '' }}</td>
+      <td style="width:25%"><span class="label">Status:</span> {{ z.status_utakmice or '' }}</td>
+    </tr>
+    <tr>
+      <td colspan="2"><span class="label">Uzrast:</span> {{ z.uzrast or '' }}</td>
+      <td colspan="2"><span class="label">Dvorana:</span> {{ z.dvorana or '' }}</td>
+    </tr>
+    <tr>
+      <td colspan="2"><span class="label">Mjesto:</span> {{ z.mjesto or '' }}</td>
+      <td><span class="label">Datum:</span> {{ z.datum.strftime('%d.%m.%Y') if z.datum else '' }}</td>
+      <td><span class="label">Vrijeme:</span> {{ z.vrijeme or '' }}</td>
+    </tr>
+    <tr>
+      <td colspan="2"><span class="label">Zapisničar:</span> {{ z.zapisnicar or '' }}</td>
+      <td colspan="2"><span class="label">Mj. vremena:</span> {{ z.mjerilac_vremena or '' }}</td>
+    </tr>
+    <tr>
+      <td colspan="2"><span class="label">Ljekar:</span> {{ z.ljekar or '' }}</td>
+      <td colspan="2"><span class="label">JMBG Ljekar:</span> {{ z.jmbg_ljekar or '' }}</td>
+    </tr>
+    <tr>
+      <td colspan="2"><span class="label">Glavni dežurni:</span> {{ z.glavni_sluzbeni or '' }}</td>
+      <td colspan="2"><span class="label">Gla. dež. JMBG:</span> {{ z.jmbg_glavni_dezurni or '' }}</td>
+    </tr>
+  </table>
+
+  <!-- SLUŽBENA LICA -->
+  <table class="mt">
+    <tr><td colspan="4" class="section-hdr">SLUŽBENA LICA</td></tr>
+    <tr>
+      <td style="width:50%"><span class="label">Sudija A:</span> {{ z.sudija_a or '' }}</td>
+      <td style="width:50%"><span class="label">Sudija B:</span> {{ z.sudija_b or '' }}</td>
+    </tr>
+    <tr>
+      <td colspan="2"><span class="label">Delegat:</span> {{ z.delegat or '' }}</td>
+    </tr>
+  </table>
+
+  <!-- VERIFIKACIJA BANNER -->
+  {% if z.verifikacija_sudija_a and z.verifikacija_sudija_b and z.verifikacija_delegat %}
+  <div class="verified">✔ VERIFIKOVANA</div>
+  {% else %}
+  <div class="not-verified">NIJE VERIFIKOVANA</div>
+  {% endif %}
+
+  <!-- REZULTAT -->
+  <table>
+    <tr>
+      <td class="team-a" style="width:35%">{{ z.ekipa_a or 'EKIPA A' }}</td>
+      <td class="score-cell" style="width:30%">
+        {% if z.rezultat_a is not none and z.rezultat_b is not none %}
+          {{ z.rezultat_a }} : {{ z.rezultat_b }}
+        {% else %}
+          {% set ga = igraci_a | sum(attribute='golovi') %}
+          {% set gb = igraci_b | sum(attribute='golovi') %}
+          {% if ga or gb %}{{ ga }} : {{ gb }}{% else %}&nbsp;&nbsp;:&nbsp;&nbsp;{% endif %}
+        {% endif %}
+        {% if z.poluvrijeme_a is not none and z.poluvrijeme_b is not none %}
+        <div class="half">({{ z.poluvrijeme_a }} : {{ z.poluvrijeme_b }})</div>
+        {% endif %}
+      </td>
+      <td class="team-b" style="width:35%">{{ z.ekipa_b or 'EKIPA B' }}</td>
+    </tr>
+  </table>
+
+  <!-- TAJM-AUTI & 7m -->
+  <table class="mt" style="font-size:8pt;">
+    <tr>
+      <td class="tbl-hdr-a" colspan="5">{{ z.ekipa_a or 'Ekipa A' }}</td>
+      <td class="tbl-hdr-b" colspan="5">{{ z.ekipa_b or 'Ekipa B' }}</td>
+    </tr>
+    <tr>
+      <td class="col-hdr" style="width:9%">TO-1</td>
+      <td class="col-hdr" style="width:9%">TO-2</td>
+      <td class="col-hdr" style="width:9%">TO-3</td>
+      <td class="col-hdr" style="width:7%">7m Dato</td>
+      <td class="col-hdr" style="width:7%">7m Prom.</td>
+      <td class="col-hdr" style="width:9%">TO-1</td>
+      <td class="col-hdr" style="width:9%">TO-2</td>
+      <td class="col-hdr" style="width:9%">TO-3</td>
+      <td class="col-hdr" style="width:7%">7m Dato</td>
+      <td class="col-hdr" style="width:7%">7m Prom.</td>
+    </tr>
+    <tr>
+      <td class="center">{{ z.to_a_1 or '' }}</td>
+      <td class="center">{{ z.to_a_2 or '' }}</td>
+      <td class="center">{{ z.to_a_3 or '' }}</td>
+      <td class="center">{{ z.sedam_m_a_dato if z.sedam_m_a_dato is not none else '' }}</td>
+      <td class="center">{{ z.sedam_m_a_promj if z.sedam_m_a_promj is not none else '' }}</td>
+      <td class="center">{{ z.to_b_1 or '' }}</td>
+      <td class="center">{{ z.to_b_2 or '' }}</td>
+      <td class="center">{{ z.to_b_3 or '' }}</td>
+      <td class="center">{{ z.sedam_m_b_dato if z.sedam_m_b_dato is not none else '' }}</td>
+      <td class="center">{{ z.sedam_m_b_promj if z.sedam_m_b_promj is not none else '' }}</td>
+    </tr>
+  </table>
+
+  <!-- IGRAČI TABELA -->
+  {% macro players_table(igraci, side) %}
+  {% set players = igraci | selectattr('tip', 'equalto', 'igrac') | list %}
+  <table style="font-size:7.5pt;">
+    <tr><td colspan="10" class="tbl-hdr-{{ side }}">{{ z.ekipa_a if side == 'a' else z.ekipa_b }}</td></tr>
+    <tr>
+      <th class="col-hdr" style="width:5%">Br</th>
+      <th class="col-hdr" style="width:10%">Reg</th>
+      <th class="col-hdr" style="width:33%">Ime i prezime</th>
+      <th class="col-hdr" style="width:5%">G</th>
+      <th class="col-hdr" style="width:5%">O</th>
+      <th class="col-hdr" style="width:9%">2+1</th>
+      <th class="col-hdr" style="width:9%">2+2</th>
+      <th class="col-hdr" style="width:9%">2+3</th>
+      <th class="col-hdr" style="width:5%">C</th>
+      <th class="col-hdr" style="width:5%">P</th>
+    </tr>
+    {% for ig in players %}
+    <tr>
+      <td class="center">{{ ig.br_dresa or '' }}</td>
+      <td class="center">{{ ig.br_registracije or '' }}</td>
+      <td>{{ ig.ime_prezime }}</td>
+      <td class="center">{{ ig.golovi if ig.golovi else '' }}</td>
+      <td class="center">{{ ig.opomene if ig.opomene else '' }}</td>
+      <td class="center">{{ ig.iskljucenje_1 or '' }}</td>
+      <td class="center">{{ ig.iskljucenje_2 or '' }}</td>
+      <td class="center">{{ ig.iskljucenje or '' }}</td>
+      <td class="center">{% if ig.crveni_karton %}✗{% endif %}</td>
+      <td class="center">{% if ig.plavi_karton %}✗{% endif %}</td>
+    </tr>
+    {% endfor %}
+    {% for i in range([16 - players|length, 0]|max) %}
+    <tr class="empty-row"><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    {% endfor %}
+  </table>
+  {% endmacro %}
+
+  <div class="mt" style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+    <div>{{ players_table(igraci_a, 'a') }}</div>
+    <div>{{ players_table(igraci_b, 'b') }}</div>
+  </div>
+
+  <!-- SLUŽBENA LICA TABELA -->
+  {% macro officials_table(igraci, side) %}
+  {% set officials = igraci | selectattr('tip', 'equalto', 'sluzbeno_lice') | list %}
+  {% set letters = ['A','B','C','D','E'] %}
+  <table style="font-size:7.5pt;">
+    <tr>
+      <th class="col-hdr" style="width:6%">Reg</th>
+      <th class="col-hdr" style="width:40%">Ime i prezime</th>
+      <th class="col-hdr" style="width:6%">O</th>
+      <th class="col-hdr" style="width:9%">2'</th>
+      <th class="col-hdr" style="width:6%">C</th>
+      <th class="col-hdr" style="width:6%">P</th>
+    </tr>
+    {% for ig in officials %}
+    <tr>
+      <td class="center">{{ ig.br_registracije or '' }}</td>
+      <td>({{ letters[loop.index0] if loop.index0 < 5 else '?' }}) {{ ig.ime_prezime }}</td>
+      <td class="center">{{ ig.opomene if ig.opomene else '' }}</td>
+      <td class="center">{{ ig.iskljucenje_1 or '' }}</td>
+      <td class="center">{% if ig.crveni_karton %}✗{% endif %}</td>
+      <td class="center">{% if ig.plavi_karton %}✗{% endif %}</td>
+    </tr>
+    {% endfor %}
+    {% for i in range([3 - officials|length, 0]|max) %}
+    <tr class="empty-row"><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>
+    {% endfor %}
+  </table>
+  {% endmacro %}
+
+  <table class="mt">
+    <tr><td colspan="2" class="sl-hdr">Službena lica</td></tr>
+    <tr>
+      <td class="sl-hdr-a" style="width:50%">Ekipa A – {{ z.ekipa_a or '' }}</td>
+      <td class="sl-hdr-b" style="width:50%">Ekipa B – {{ z.ekipa_b or '' }}</td>
+    </tr>
+  </table>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+    <div>{{ officials_table(igraci_a, 'a') }}</div>
+    <div>{{ officials_table(igraci_b, 'b') }}</div>
+  </div>
+
+  <!-- POTPISI -->
+  <div class="sign mt">
+    <table>
+      <tr>
+        <td class="nb" style="width:50%;text-align:center;padding-top:30px;border-top:1px solid #000;">
+          (Potpis službenog predstavnika<br>{{ z.ekipa_a or 'Ekipa A' }})
+        </td>
+        <td class="nb" style="width:50%;text-align:center;padding-top:30px;border-top:1px solid #000;">
+          (Potpis službenog predstavnika<br>{{ z.ekipa_b or 'Ekipa B' }})
+        </td>
+      </tr>
+    </table>
+  </div>
+
+</div><!-- /page -->
+</body>
+</html>

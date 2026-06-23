@@ -185,6 +185,15 @@
             {% else %}
               <span class="text-xs font-bold text-gray-400 dark:text-gray-600">vs</span>
             {% endif %}
+            {% if not item.u.je_bye %}
+              {% if zapisnici_map.get(item.u.id) %}
+              <a href="/admin/zapisnik/{{ zapisnici_map[item.u.id] }}" class="mt-0.5 text-[10px] font-bold text-violet-600 dark:text-violet-400 hover:underline whitespace-nowrap">📋 Zapisnik</a>
+              {% else %}
+              <form method="POST" action="/admin/zapisnici/iz-utakmice/{{ item.u.id }}" class="mt-0.5">
+                <button type="submit" class="text-[10px] font-semibold text-gray-400 dark:text-gray-600 hover:text-violet-600 dark:hover:text-violet-400 transition whitespace-nowrap">+ Zapisnik</button>
+              </form>
+              {% endif %}
+            {% endif %}
           </div>
           <!-- Gost -->
           <div class="flex items-center gap-2 min-w-0">
