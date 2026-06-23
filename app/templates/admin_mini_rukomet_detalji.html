@@ -277,7 +277,7 @@
       <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-6 max-w-lg space-y-5">
         <div>
           <h3 class="font-extrabold text-base text-gray-900 dark:text-white">Uvoz iz Excel fajla</h3>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Fajl treba da ima header red sa kolonama: <strong>Datum, Vrijeme, Ekipa A, Ekipa B, Rezultat</strong></p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Fajl treba da ima header red sa kolonama: <strong>Datum, Vrijeme, Ekipa A, Ekipa B, Rezultat</strong> (opcionalno: <strong>Kolo</strong>)</p>
         </div>
         <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 text-xs text-blue-800 dark:text-blue-300 space-y-1">
           <p class="font-bold">Format tabele u Excelu:</p>
@@ -446,7 +446,7 @@
           class="w-full px-3 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-red-500"/>
       </div>
       <datalist id="ekipeList">{% for e in ekipe %}<option value="{{ e }}">{% endfor %}</datalist>
-      <div class="grid grid-cols-2 gap-3">
+      <div class="grid grid-cols-3 gap-3">
         <div>
           <label class="block text-xs font-bold text-gray-600 dark:text-gray-400 mb-1">Golovi A</label>
           <input type="number" name="gol_a" id="fGolA" min="0" max="99" placeholder="—"
@@ -455,6 +455,11 @@
         <div>
           <label class="block text-xs font-bold text-gray-600 dark:text-gray-400 mb-1">Golovi B</label>
           <input type="number" name="gol_b" id="fGolB" min="0" max="99" placeholder="—"
+            class="w-full px-3 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-red-500"/>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-600 dark:text-gray-400 mb-1">Kolo</label>
+          <input type="number" name="kolo" id="fKolo" min="1" max="99" placeholder="—"
             class="w-full px-3 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-red-500"/>
         </div>
       </div>
@@ -507,6 +512,7 @@ function openEditModal(id,ea,eb,ga,gb,kolo,datum,_){
   document.getElementById('fEkipaB').value=eb;
   document.getElementById('fGolA').value=ga!==null?ga:'';
   document.getElementById('fGolB').value=gb!==null?gb:'';
+  document.getElementById('fKolo').value=kolo!==null?kolo:'';
   document.getElementById('fDatum').value=datum||'';
   document.getElementById('modalNovaUtakmica').classList.remove('hidden');
 }
