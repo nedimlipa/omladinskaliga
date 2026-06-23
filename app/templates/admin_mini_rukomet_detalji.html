@@ -163,7 +163,7 @@
               <td class="px-4 py-3 text-center font-semibold text-gray-900 dark:text-white">{{ u.ekipa_b }}</td>
               <td class="px-4 py-3 text-right">
                 <div class="flex items-center justify-end gap-2">
-                  <button onclick="openEditModal({{ u.id }},'{{ u.ekipa_a }}','{{ u.ekipa_b }}',{{ u.gol_a if u.gol_a is not none else 'null' }},{{ u.gol_b if u.gol_b is not none else 'null' }},{{ u.kolo if u.kolo else 'null' }},'{{ u.datum_utakmice.strftime(\"%Y-%m-%d\") if u.datum_utakmice else \"\" }}','{{ u.datum_utakmice | local_dt if u.datum_utakmice else \"\" }}')"
+                  <button onclick="openEditModal({{ u.id }},'{{ u.ekipa_a }}','{{ u.ekipa_b }}',{{ u.gol_a if u.gol_a is not none else 'null' }},{{ u.gol_b if u.gol_b is not none else 'null' }},{{ u.kolo if u.kolo else 'null' }},'{{ u.datum_utakmice.strftime('%Y-%m-%d') if u.datum_utakmice else '' }}','{{ u.datum_utakmice | local_dt if u.datum_utakmice else '' }}')"
                     class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400 hover:bg-violet-200 transition">
                     Uredi
                   </button>
@@ -191,7 +191,7 @@
             <span class="font-bold text-sm text-gray-900 dark:text-white flex-1 text-right">{{ u.ekipa_b }}</span>
           </div>
           <div class="flex gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
-            <button onclick="openEditModal({{ u.id }},'{{ u.ekipa_a }}','{{ u.ekipa_b }}',{{ u.gol_a if u.gol_a is not none else 'null' }},{{ u.gol_b if u.gol_b is not none else 'null' }},{{ u.kolo if u.kolo else 'null' }},'{{ u.datum_utakmice.strftime(\"%Y-%m-%d\") if u.datum_utakmice else \"\" }}','')"
+            <button onclick="openEditModal({{ u.id }},'{{ u.ekipa_a }}','{{ u.ekipa_b }}',{{ u.gol_a if u.gol_a is not none else 'null' }},{{ u.gol_b if u.gol_b is not none else 'null' }},{{ u.kolo if u.kolo else 'null' }},'{{ u.datum_utakmice.strftime('%Y-%m-%d') if u.datum_utakmice else '' }}','')"
               class="flex-1 py-1.5 rounded-lg text-xs font-bold text-center bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400">Uredi</button>
             <form method="POST" action="/admin/mini-rukomet/{{ turnir.id }}/utakmica/{{ u.id }}/delete" class="flex-1" onsubmit="return confirm('Obrisati?')">
               <button type="submit" class="w-full py-1.5 rounded-lg text-xs font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400">Obriši</button>
