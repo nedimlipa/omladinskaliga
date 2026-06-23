@@ -389,6 +389,7 @@ async def admin_mr_upload_excel(
         ci_a       = header_map.get("ekipa a", header_map.get("ekipa_a", header_map.get("home", None)))
         ci_b       = header_map.get("ekipa b", header_map.get("ekipa_b", header_map.get("away", None)))
         ci_rez     = header_map.get("rezultat", header_map.get("result", header_map.get("score", None)))
+        ci_kolo    = header_map.get("kolo",    header_map.get("round",  header_map.get("runda", None)))
 
         if ci_a is None or ci_b is None:
             return RedirectResponse(f"/admin/mini-rukomet/{tid}?error=cols", status_code=302)
@@ -440,6 +441,12 @@ async def admin_mr_upload_excel(
                     except ValueError:
                         continue
 
+            # Parsiraj kolo
+            kolo_val = None
+            kolo_str = cell(ci_kolo)
+            if kolo_str and kolo_str.isdigit():
+                kolo_val = int(kolo_str)
+
             db.add(MiniRukometUtakmica(
                 turnir_id=tid,
                 datum_utakmice=dt,
@@ -447,6 +454,7 @@ async def admin_mr_upload_excel(
                 ekipa_b=eb,
                 gol_a=gol_a,
                 gol_b=gol_b,
+                kolo=kolo_val,
             ))
             inserted += 1
 
