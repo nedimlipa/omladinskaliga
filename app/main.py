@@ -3,7 +3,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 from contextlib import asynccontextmanager
 from .database import engine, Base
-from .routers import auth, dashboard, takmicenja, igraci, sluzbena_lica, tabele, public
+from .routers import auth, dashboard, takmicenja, igraci, sluzbena_lica, tabele, public, mini_rukomet
 
 
 @asynccontextmanager
@@ -25,3 +25,4 @@ app.include_router(igraci.router)
 app.include_router(sluzbena_lica.router)
 app.include_router(tabele.router)
 app.include_router(public.router)
+app.include_router(mini_rukomet.router)

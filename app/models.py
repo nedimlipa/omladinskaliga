@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, func, DateTime, ForeignKey, Date, UniqueConstraint
+from sqlalchemy import Column, Integer, SmallInteger, String, Boolean, func, DateTime, ForeignKey, Date, UniqueConstraint, Text
 from sqlalchemy.orm import DeclarativeBase
 from .database import Base
 
@@ -211,3 +211,39 @@ class TabelaSortPravilo(Base):
     prioritet   = Column(Integer, nullable=False)      # 1 = najvažniji
     smjer       = Column(String(4), nullable=False, default="DESC")  # DESC | ASC
     aktivan     = Column(Boolean, nullable=False, default=True)
+
+
+# ─────────────────────────────────────────────────────────────
+#  MINI RUKOMET
+# ─────────────────────────────────────────────────────────────
+
+class MiniRukometTurnir(Base):
+    """Turnir / grupa za Mini rukomet."""
+    __tablename__ = "mini_rukomet_turnir"
+
+    id            = Column(Integer, primary_key=True)
+    naziv         = Column(String(200), nullable=False)
+    opis          = Column(Text, nullable=True)
+    aktivan       = Column(Boolean, nullable=False, default=True)
+    # Kriteriji rangiranja (sort1 = primarni, sort2 = sekundarni, sort3 = tercijarni)
+    # Mogućnosti: bodovi | gol_razlika | gol_postignuti | gol_primljeni | pobjede | porazi | utakmice
+    sort1         = Column(String(50), nullable=False, default="bodovi")
+    sort2         = Column(String(50), nullable=False, default="gol_razlika")
+    sort3         = Column(String(50), nullable=False, default="gol_postignuti")
+    kreiran_datum = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+
+class MiniRukometUtakmica(Base):
+    """Utakmica Mini rukometa."""
+    __tablename__ = "mini_rukomet_utakmica"
+
+    id             = Column(Integer, primary_key=True)
+    turnir_id      = Column(Integer, ForeignKey("mini_rukomet_turnir.id"), nullable=False)
+    datum_utakmice = Column(DateTime(timezone=True), nullable=True)
+    ekipa_a        = Column(String(200), nullable=False)
+    ekipa_b        = Column(String(200), nullable=False)
+    gol_a          = Column(SmallInteger, nullable=True)
+    gol_b          = Column(SmallInteger, nullable=True)
+    kolo           = Column(SmallInteger, nullable=True)
+    kreiran_datum  = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
