@@ -442,7 +442,7 @@ function syncPickerState() {
     const actionCell = tr.querySelector('td:last-child');
     if (!actionCell) return;
     if (igNames.has(name)) {
-      actionCell.innerHTML = '<span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">✓ Dodano</span>';
+      actionCell.innerHTML = '<span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold whitespace-nowrap">✓ Dodano</span>';
     } else {
       // restore button only if it was previously a "✓ Dodano" text
       if (actionCell.innerHTML.includes('✓')) {
@@ -472,7 +472,7 @@ function syncPickerState() {
     const actionCell = tr.querySelector('td:last-child');
     if (!actionCell) return;
     if (slNames.has(name)) {
-      actionCell.innerHTML = '<span class="text-[10px] text-blue-600 dark:text-blue-400 font-bold">✓ Dodano</span>';
+      actionCell.innerHTML = '<span class="text-[10px] text-blue-600 dark:text-blue-400 font-bold whitespace-nowrap">✓ Dodano</span>';
     }
   });
 }
