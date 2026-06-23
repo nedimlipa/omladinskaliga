@@ -199,7 +199,7 @@
       <td class="center">{% if ig.plavi_karton %}✗{% endif %}</td>
     </tr>
     {% endfor %}
-    {% for i in range([14 - players|length, 0]|max) %}
+    {% for i in range([16 - players|length, 0]|max) %}
     <tr class="empty-row"><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
     {% endfor %}
   </table>
@@ -233,7 +233,7 @@
       <td class="center">{% if ig.plavi_karton %}✗{% endif %}</td>
     </tr>
     {% endfor %}
-    {% for i in range([3 - officials|length, 0]|max) %}
+    {% for i in range([5 - officials|length, 0]|max) %}
     <tr class="empty-row"><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>
     {% endfor %}
   </table>

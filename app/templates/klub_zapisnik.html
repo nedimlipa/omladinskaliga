@@ -407,6 +407,7 @@ function slLettersUpdate() {
 
 function addIgracRow() {
   const tbody = document.getElementById('igracTbody');
+  if (tbody.querySelectorAll('tr').length >= 16) { alert('Maksimalan broj igrača za jednu utakmicu je 16.'); return; }
   const tmp = document.createElement('tbody');
   tmp.innerHTML = igracRowHtml();
   tbody.appendChild(tmp.firstElementChild);
@@ -415,6 +416,7 @@ function addIgracRow() {
 
 function addIgracFromReg(ime, brReg) {
   const tbody = document.getElementById('igracTbody');
+  if (tbody.querySelectorAll('tr').length >= 16) { alert('Maksimalan broj igrača za jednu utakmicu je 16.'); return; }
   const tmp = document.createElement('tbody');
   tmp.innerHTML = igracRowHtml();
   const tr = tmp.firstElementChild;
